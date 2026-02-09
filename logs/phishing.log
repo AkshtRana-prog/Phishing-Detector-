@@ -1,0 +1,4 @@
+2026-02-09 09:46:04,306 - Status=SUSPICIOUS, Severity=MEDIUM, Reasons=['Unusually long input', 'Suspicious characters detected']
+2026-02-09 09:46:42,395 - Status=LEGITIMATE, Severity=LOW, Reasons=['Suspicious characters detected']
+2026-02-09 09:47:19,056 - Status=LEGITIMATE, Severity=LOW, Reasons=['Suspicious characters detected']
+2026-02-10 09:14:13,257 - Status=LEGITIMATE, Severity=LOW, Reasons=['No HTTPS detected']
