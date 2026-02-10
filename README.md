@@ -14,5 +14,4 @@ A Python-based rule-driven phishing detection system that simulates SOC workflow
 
 ## How to Run
 ```bash
-python main.py
-dff635b (First Commite)
+python3 main.py
