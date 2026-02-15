@@ -4,3 +4,8 @@
 2026-02-10 09:14:13,257 - Status=LEGITIMATE, Severity=LOW, Reasons=['No HTTPS detected']
 2026-02-12 21:36:50,754 - Status=LEGITIMATE, Severity=LOW, Reasons=['Hyphen in domain']
 2026-02-12 21:40:54,194 - Status=PHISHING, Severity=HIGH, Reasons=['Hyphen in domain', 'Cloudflare tunnel domain detected', 'Unusually long subdomain']
+2026-02-15 19:51:20,702 - WARNING - Input='chatqpt.com' | Status=PHISHING | Severity=HIGH | Reasons=Brand impersonation detected (typosquatting attack)
+2026-02-15 19:55:20,057 - WARNING - Input='chatqpt.com' | Status=PHISHING | Severity=HIGH | Reasons=Brand impersonation detected (typosquatting attack)
+2026-02-15 19:56:05,843 - INFO - Input='goojal.com' | Status=LEGITIMATE | Severity=LOW | Reasons=None
+2026-02-15 19:56:25,924 - WARNING - Input='goojle.com' | Status=PHISHING | Severity=HIGH | Reasons=Brand impersonation detected (typosquatting attack)
+2026-02-15 19:56:37,284 - INFO - Input='chatgpt.com' | Status=LEGITIMATE | Severity=LOW | Reasons=None
