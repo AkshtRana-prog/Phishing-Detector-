@@ -42,14 +42,16 @@ def check_phishing(features):
     if features.get("has_numbers_in_domain", False):
         score += 1
         reasons.append("Numbers in domain")
+
+    # ✅ Cloudflare tunnel check
     if features.get("cloudflare_tunnel", False):
-     score += 3
-    reasons.append("Cloudflare tunnel domain detected")
+        score += 3
+        reasons.append("Cloudflare tunnel domain detected")
 
+    # ✅ Long subdomain check
     if features.get("long_subdomain", False):
-     score += 2
-    reasons.append("Unusually long subdomain")
-
+        score += 2
+        reasons.append("Unusually long subdomain")
 
     # Final Severity
     if score >= 6:

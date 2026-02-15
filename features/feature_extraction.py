@@ -7,7 +7,14 @@ PUBLIC_DOMAINS = ["gmail.com", "yahoo.com", "outlook.com"]
 def extract_features(url):
     features = {}
     url = url.strip()
+
+    # ✅ NEW: Proper domain parsing (fixes plain text input issue)
     parsed = urlparse(url)
+
+    # ✅ NEW: If no scheme (http/https), add https automatically
+    if not parsed.netloc:
+        parsed = urlparse("https://" + url)
+
     domain = parsed.netloc.lower()
 
     features["length"] = len(url)
@@ -19,9 +26,16 @@ def extract_features(url):
     features["has_hyphen"] = "-" in domain
     features["has_punycode"] = domain.startswith("xn--")
     features["has_numbers_in_domain"] = bool(re.search(r"[0-9]", domain))
-    features["cloudflare_tunnel"] = "trycloudflare.com" in domain
-    features["long_subdomain"] = len(domain.split(".")[0]) > 20
 
+    # ✅ FIXED: Exact Cloudflare tunnel detection (prevents false positives)
+    features["cloudflare_tunnel"] = domain.endswith("trycloudflare.com")
+
+    # ✅ FIXED: Safer long subdomain detection
+    if domain:
+        first_label = domain.split(".")[0]
+        features["long_subdomain"] = len(first_label) > 25
+    else:
+        features["long_subdomain"] = False
 
 
     # --- IP Address Detection ---
@@ -33,14 +47,16 @@ def extract_features(url):
     features["subdomain_count"] = domain.count(".")
     features["suspicious_subdomain"] = features["subdomain_count"] > 3
 
-    # --- Public Domain Misuse ---
+    # ✅ FIXED: Exact public domain misuse check
     features["public_domain_abuse"] = any(
-        pub in domain for pub in PUBLIC_DOMAINS
+        domain == pub or domain.endswith("." + pub)
+        for pub in PUBLIC_DOMAINS
     )
 
-    # --- URL Shortener Detection ---
+    # ✅ FIXED: Exact shortener detection (no substring matching)
     features["shortened_url"] = any(
-        short in domain for short in SHORTENERS
+        domain == short or domain.endswith("." + short)
+        for short in SHORTENERS
     )
 
     # --- Redirect Patterns ---
