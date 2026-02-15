@@ -269,5 +269,4 @@ Cybersecurity • Phishing Detection • SOC Tool • Python Security • Blue T
 ## 👨‍💻 Author
 
 **Aksht Rana**  
-VP – Innovation Club  
 Cybersecurity Enthusiast
