@@ -1,8 +1,7 @@
-2026-02-09 09:46:04,306 - Status=SUSPICIOUS, Severity=MEDIUM, Reasons=['Unusually long input', 'Suspicious characters detected']
-2026-02-09 09:46:42,395 - Status=LEGITIMATE, Severity=LOW, Reasons=['Suspicious characters detected']
-2026-02-09 09:47:19,056 - Status=LEGITIMATE, Severity=LOW, Reasons=['Suspicious characters detected']
-2026-02-10 09:14:13,257 - Status=LEGITIMATE, Severity=LOW, Reasons=['No HTTPS detected']
-2026-02-12 21:36:50,754 - Status=LEGITIMATE, Severity=LOW, Reasons=['Hyphen in domain']
-2026-02-12 21:40:54,194 - Status=PHISHING, Severity=HIGH, Reasons=['Hyphen in domain', 'Cloudflare tunnel domain detected', 'Unusually long subdomain']
-2026-02-18 09:54:12,357 - INFO - Input='chatgpt.com' | Status=LEGITIMATE | Severity=LOW | Reasons=None
-2026-02-18 09:54:21,974 - INFO - Input='chatgqt.com' | Status=LEGITIMATE | Severity=LOW | Reasons=None
+2026-02-18 10:10:04,692 - INFO - Input='amazon-update-account.xyz' | Status=LOW RISK | Severity=LOW | Reasons=Hyphen used in domain
+2026-02-18 10:12:50,307 - INFO - Input='paypal-login-security.com' | Status=LOW RISK | Severity=LOW | Reasons=Hyphen used in domain
+2026-02-18 10:21:10,101 - WARNING - Input='paypal-login-security.com' | Status=PHISHING | Severity=HIGH | Reasons=Brand impersonation detected: paypal
+2026-02-18 10:21:22,353 - INFO - Input='chatgpt.com' | Status=LEGITIMATE | Severity=LOW | Reasons=None
+2026-02-18 10:21:28,272 - INFO - Input='chatqpt.com' | Status=LEGITIMATE | Severity=LOW | Reasons=None
+2026-02-18 10:21:40,448 - INFO - Input='ggoL.COM' | Status=LEGITIMATE | Severity=LOW | Reasons=None
+2026-02-18 10:21:48,223 - WARNING - Input='google1.com' | Status=PHISHING | Severity=HIGH | Reasons=Brand impersonation detected: google

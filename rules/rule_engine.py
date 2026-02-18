@@ -1,62 +1,88 @@
+BRANDS = ["paypal", "facebook", "instagram", "amazon", "microsoft", "google"]
+
+
 def check_phishing(features):
     score = 0
     reasons = []
 
+    domain = features.get("domain", "").lower()
+
+    # -------------------------
     # High Risk Indicators
-    if features.get("has_at_symbol", False):
+    # -------------------------
+
+    if features.get("has_at_symbol"):
         score += 3
         reasons.append("@ symbol misuse")
 
-    if features.get("has_punycode", False):
+    if features.get("has_punycode"):
         score += 3
         reasons.append("Punycode domain detected")
 
-    if features.get("has_ip", False):
+    if features.get("has_ip"):
         score += 3
         reasons.append("Numeric IP address used")
 
-    if features.get("shortened_url", False):
+    if features.get("shortened_url"):
         score += 2
         reasons.append("URL shortener detected")
 
-    if features.get("redirect_pattern", False):
+    if features.get("redirect_pattern"):
         score += 2
         reasons.append("Redirect pattern detected")
 
-    if features.get("possible_typosquat", False):
+    if features.get("possible_typosquat"):
         score += 3
         reasons.append("Possible typosquatting")
 
-    if features.get("public_domain_abuse", False):
+    if features.get("public_domain_abuse"):
         score += 2
         reasons.append("Public domain misuse")
 
-    if features.get("suspicious_subdomain", False):
+    if features.get("suspicious_subdomain"):
         score += 2
         reasons.append("Suspicious deep subdomain")
 
-    if features.get("has_hyphen", False):
+    if features.get("has_hyphen"):
         score += 1
-        reasons.append("Hyphen in domain")
+        reasons.append("Hyphen used in domain")
 
-    if features.get("has_numbers_in_domain", False):
+    if features.get("has_numbers_in_domain"):
         score += 1
         reasons.append("Numbers in domain")
 
-    # ✅ Cloudflare tunnel check
-    if features.get("cloudflare_tunnel", False):
+    if features.get("cloudflare_tunnel"):
         score += 3
         reasons.append("Cloudflare tunnel domain detected")
 
-    # ✅ Long subdomain check
-    if features.get("long_subdomain", False):
+    if features.get("long_subdomain"):
         score += 2
         reasons.append("Unusually long subdomain")
 
-    # Final Severity
+    # -------------------------
+    # Brand Impersonation Detection (FIXED)
+    # -------------------------
+
+    for brand in BRANDS:
+        if brand in domain:
+            # Only flag if NOT official domain
+            if not (domain == f"{brand}.com" or domain.endswith(f".{brand}.com")):
+                score += 3
+                reasons.append(f"Possible brand impersonation: {brand}")
+                break
+
+    # -------------------------
+    # Final Classification
+    # -------------------------
+
     if score >= 6:
-        return "PHISHING", reasons, "HIGH"
+        status = "PHISHING"
+        severity = "HIGH"
     elif score >= 3:
-        return "SUSPICIOUS", reasons, "MEDIUM"
+        status = "SUSPICIOUS"
+        severity = "MEDIUM"
     else:
-        return "LEGITIMATE", reasons, "LOW"
+        status = "LEGITIMATE"
+        severity = "LOW"
+
+    return status, reasons, severity

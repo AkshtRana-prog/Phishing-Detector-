@@ -2,16 +2,35 @@ from features.feature_extraction import extract_features
 from alerts.alert_manager import generate_alert, Colors
 
 
+BRANDS = ["paypal", "facebook", "instagram", "amazon", "microsoft", "google"]
+
+
 def check_phishing(features):
     score = 0
     reasons = []
 
-    # 🔥 CRITICAL: Brand Impersonation
+    domain = features.get("domain", "").lower()
+
+    # -------------------------------------------------
+    # 🔥 CRITICAL: Brand Impersonation (Direct Match)
+    # -------------------------------------------------
+    for brand in BRANDS:
+        if brand in domain:
+            # Allow official domains like paypal.com or mail.paypal.com
+            if not (domain == f"{brand}.com" or domain.endswith(f".{brand}.com")):
+                reasons.append(f"Brand impersonation detected: {brand}")
+                return "PHISHING", reasons, "HIGH"
+
+    # -------------------------------------------------
+    # 🔥 CRITICAL: Typosquatting
+    # -------------------------------------------------
     if features.get("possible_typosquat"):
         reasons.append("Brand impersonation detected (typosquatting attack)")
         return "PHISHING", reasons, "HIGH"
 
+    # -------------------------------------------------
     # HIGH RISK
+    # -------------------------------------------------
     if features.get("has_ip"):
         score += 5
         reasons.append("IP address used instead of domain")
@@ -20,7 +39,9 @@ def check_phishing(features):
         score += 5
         reasons.append("Punycode detected")
 
+    # -------------------------------------------------
     # MEDIUM RISK
+    # -------------------------------------------------
     if features.get("has_at_symbol"):
         score += 3
         reasons.append("Contains '@' symbol")
@@ -37,7 +58,9 @@ def check_phishing(features):
         score += 3
         reasons.append("Multiple redirect patterns detected")
 
+    # -------------------------------------------------
     # LOW RISK
+    # -------------------------------------------------
     if features.get("has_hyphen"):
         score += 1
         reasons.append("Hyphen used in domain")
@@ -50,7 +73,9 @@ def check_phishing(features):
         score += 1
         reasons.append("Long subdomain detected")
 
-    # Severity logic
+    # -------------------------------------------------
+    # Severity Logic
+    # -------------------------------------------------
     if score >= 6:
         return "PHISHING", reasons, "HIGH"
     elif score >= 3:
@@ -88,6 +113,5 @@ def main():
         print(f"\n\n{Colors.CYAN}Exiting Phishing Detection System...{Colors.RESET}")
 
 
-# 🔥 DO NOT REMOVE
 if __name__ == "__main__":
     main()
