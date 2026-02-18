@@ -4,3 +4,5 @@
 2026-02-10 09:14:13,257 - Status=LEGITIMATE, Severity=LOW, Reasons=['No HTTPS detected']
 2026-02-12 21:36:50,754 - Status=LEGITIMATE, Severity=LOW, Reasons=['Hyphen in domain']
 2026-02-12 21:40:54,194 - Status=PHISHING, Severity=HIGH, Reasons=['Hyphen in domain', 'Cloudflare tunnel domain detected', 'Unusually long subdomain']
+2026-02-18 09:54:12,357 - INFO - Input='chatgpt.com' | Status=LEGITIMATE | Severity=LOW | Reasons=None
+2026-02-18 09:54:21,974 - INFO - Input='chatgqt.com' | Status=LEGITIMATE | Severity=LOW | Reasons=None

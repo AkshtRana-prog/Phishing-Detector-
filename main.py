@@ -1,64 +1,93 @@
 from features.feature_extraction import extract_features
-from rules.rule_engine import check_phishing
+from alerts.alert_manager import generate_alert, Colors
 
 
-# 🎨 Terminal Colors
-class Colors:
-    RED = "\033[91m"
-    GREEN = "\033[92m"
-    YELLOW = "\033[93m"
-    BLUE = "\033[94m"
-    CYAN = "\033[96m"
-    RESET = "\033[0m"
+def check_phishing(features):
+    score = 0
+    reasons = []
+
+    # 🔥 CRITICAL: Brand Impersonation
+    if features.get("possible_typosquat"):
+        reasons.append("Brand impersonation detected (typosquatting attack)")
+        return "PHISHING", reasons, "HIGH"
+
+    # HIGH RISK
+    if features.get("has_ip"):
+        score += 5
+        reasons.append("IP address used instead of domain")
+
+    if features.get("has_punycode"):
+        score += 5
+        reasons.append("Punycode detected")
+
+    # MEDIUM RISK
+    if features.get("has_at_symbol"):
+        score += 3
+        reasons.append("Contains '@' symbol")
+
+    if features.get("shortened_url"):
+        score += 3
+        reasons.append("Shortened URL detected")
+
+    if features.get("suspicious_subdomain"):
+        score += 3
+        reasons.append("Suspicious subdomain detected")
+
+    if features.get("redirect_pattern"):
+        score += 3
+        reasons.append("Multiple redirect patterns detected")
+
+    # LOW RISK
+    if features.get("has_hyphen"):
+        score += 1
+        reasons.append("Hyphen used in domain")
+
+    if features.get("has_numbers_in_domain"):
+        score += 1
+        reasons.append("Numbers used in domain")
+
+    if features.get("long_subdomain"):
+        score += 1
+        reasons.append("Long subdomain detected")
+
+    # Severity logic
+    if score >= 6:
+        return "PHISHING", reasons, "HIGH"
+    elif score >= 3:
+        return "SUSPICIOUS", reasons, "MEDIUM"
+    elif score >= 1:
+        return "LOW RISK", reasons, "LOW"
+    else:
+        return "LEGITIMATE", reasons, "LOW"
 
 
 def main():
     print(f"{Colors.CYAN}=== Phishing Detection System ==={Colors.RESET}")
-    print("Type 'exit' or 'quit' to stop.\n")
+    print(f"{Colors.BLUE}Type 'exit' or 'quit' to stop.{Colors.RESET}\n")
 
-    while True:
-        user_input = input(f"{Colors.BLUE}Enter URL or Email text: {Colors.RESET}").strip()
+    try:
+        while True:
+            user_input = input(
+                f"{Colors.BLUE}Enter URL or Email text:{Colors.RESET} "
+            ).strip()
 
-        # Exit condition
-        if user_input.lower() in ["exit", "quit"]:
-            print(f"\n{Colors.CYAN}Exiting Phishing Detection System...{Colors.RESET}")
-            break
+            if user_input.lower() in ["exit", "quit"]:
+                print(f"\n{Colors.CYAN}Exiting Phishing Detection System...{Colors.RESET}")
+                break
 
-        if not user_input:
-            print(f"{Colors.YELLOW}Input cannot be empty.{Colors.RESET}\n")
-            continue
+            if not user_input:
+                print(f"{Colors.YELLOW}Input cannot be empty.{Colors.RESET}\n")
+                continue
 
-        features = extract_features(user_input)
-        result, reasons, severity = check_phishing(features)
+            features = extract_features(user_input)
+            result, reasons, severity = check_phishing(features)
 
-        print(f"\n{Colors.CYAN}=== Detection Result ==={Colors.RESET}")
+            generate_alert(user_input, result, reasons, severity)
 
-        # 🎯 Status Color
-        if result.upper() == "PHISHING":
-            status_color = Colors.RED
-        else:
-            status_color = Colors.GREEN
-
-        # 🎯 Severity Color
-        if severity.upper() == "HIGH":
-            severity_color = Colors.RED
-        elif severity.upper() == "MEDIUM":
-            severity_color = Colors.YELLOW
-        else:
-            severity_color = Colors.GREEN
-
-        print(f"Status   : {status_color}{result}{Colors.RESET}")
-        print(f"Severity : {severity_color}{severity}{Colors.RESET}")
-
-        if reasons:
-            print(f"\n{Colors.BLUE}Reasons:{Colors.RESET}")
-            for reason in reasons:
-                print(f"{Colors.YELLOW}- {reason}{Colors.RESET}")
-        else:
-            print(f"{Colors.GREEN}No suspicious indicators found.{Colors.RESET}")
-
-        print(f"\n{Colors.CYAN}{'-' * 40}{Colors.RESET}\n")
+    except KeyboardInterrupt:
+        print(f"\n\n{Colors.CYAN}Exiting Phishing Detection System...{Colors.RESET}")
 
 
+# 🔥 DO NOT REMOVE
 if __name__ == "__main__":
     main()
