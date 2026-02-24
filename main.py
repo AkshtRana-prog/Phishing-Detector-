@@ -1,3 +1,6 @@
+import time
+from datetime import datetime
+
 from features.feature_extraction import extract_features
 from alerts.alert_manager import generate_alert, Colors
 
@@ -5,46 +8,92 @@ from alerts.alert_manager import generate_alert, Colors
 BRANDS = ["paypal", "facebook", "instagram", "amazon", "microsoft", "google"]
 
 
+# ======================================================
+# 🔥 COOL BOOT SEQUENCE
+# ======================================================
+
+def boot_sequence():
+    print(f"{Colors.GREEN}")
+    steps = [
+        "[+] Initializing Phishing Detector...",
+        "[+] Loading threat intelligence rules...",
+        "[+] Verifying brand protection module...",
+        "[+] Starting analysis engine...",
+        "[✓] System Ready."
+    ]
+
+    for step in steps:
+        print(step)
+        time.sleep(0.5)
+
+    print(f"{Colors.RESET}")
+    time.sleep(0.5)
+
+
+# ======================================================
+# 🔥 PROFESSIONAL BANNER
+# ======================================================
+
+def show_banner():
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    print(f"{Colors.CYAN}")
+    print("██████╗ ██╗  ██╗██╗███████╗██╗  ██╗")
+    print("██╔══██╗██║  ██║██║██╔════╝██║  ██║")
+    print("██████╔╝███████║██║███████╗███████║")
+    print("██╔═══╝ ██╔══██║██║╚════██║██╔══██║")
+    print("██║     ██║  ██║██║███████║██║  ██║")
+    print("╚═╝     ╚═╝  ╚═╝╚═╝╚══════╝╚═╝  ╚═╝")
+    print("")
+    print("           REAL-TIME PHISHING DETECTOR")
+    print("                 Version 2.0")
+    print("")
+    print("           Developed by Aksht Rana")
+    print(f"{Colors.RESET}")
+
+    print(f"{Colors.BLUE}{'='*65}{Colors.RESET}")
+    print(f"{Colors.YELLOW}System Time : {now}{Colors.RESET}")
+    print(f"{Colors.BLUE}{'='*65}{Colors.RESET}\n")
+
+
+# ======================================================
+# 🔥 RULE-BASED PHISHING ENGINE
+# ======================================================
+
 def check_phishing(features):
     score = 0
     reasons = []
-
     domain = features.get("domain", "").lower()
 
-    # -------------------------------------------------
-    # 🔥 CRITICAL: Brand Impersonation (Direct Match)
-    # -------------------------------------------------
+    # 🚨 CRITICAL: Brand Impersonation
     for brand in BRANDS:
         if brand in domain:
-            # Allow official domains like paypal.com or mail.paypal.com
             if not (domain == f"{brand}.com" or domain.endswith(f".{brand}.com")):
                 reasons.append(f"Brand impersonation detected: {brand}")
                 return "PHISHING", reasons, "HIGH"
 
-    # -------------------------------------------------
-    # 🔥 CRITICAL: Typosquatting
-    # -------------------------------------------------
+    # 🚨 Typosquatting
     if features.get("possible_typosquat"):
-        reasons.append("Brand impersonation detected (typosquatting attack)")
+        reasons.append("Brand impersonation (typosquatting attack)")
         return "PHISHING", reasons, "HIGH"
 
-    # -------------------------------------------------
-    # HIGH RISK
-    # -------------------------------------------------
+    # 🔥 High Risk
+    if features.get("structural_anomaly"):
+        score += 5
+        reasons.append("Malformed domain structure")
+
     if features.get("has_ip"):
         score += 5
         reasons.append("IP address used instead of domain")
 
     if features.get("has_punycode"):
         score += 5
-        reasons.append("Punycode detected")
+        reasons.append("Punycode domain detected")
 
-    # -------------------------------------------------
-    # MEDIUM RISK
-    # -------------------------------------------------
+    # ⚠ Medium Risk
     if features.get("has_at_symbol"):
         score += 3
-        reasons.append("Contains '@' symbol")
+        reasons.append("@ symbol misuse")
 
     if features.get("shortened_url"):
         score += 3
@@ -56,11 +105,9 @@ def check_phishing(features):
 
     if features.get("redirect_pattern"):
         score += 3
-        reasons.append("Multiple redirect patterns detected")
+        reasons.append("Redirect pattern detected")
 
-    # -------------------------------------------------
-    # LOW RISK
-    # -------------------------------------------------
+    # 🟡 Low Risk
     if features.get("has_hyphen"):
         score += 1
         reasons.append("Hyphen used in domain")
@@ -71,11 +118,9 @@ def check_phishing(features):
 
     if features.get("long_subdomain"):
         score += 1
-        reasons.append("Long subdomain detected")
+        reasons.append("Unusually long subdomain")
 
-    # -------------------------------------------------
-    # Severity Logic
-    # -------------------------------------------------
+    # 🎯 Final Classification
     if score >= 6:
         return "PHISHING", reasons, "HIGH"
     elif score >= 3:
@@ -83,34 +128,46 @@ def check_phishing(features):
     elif score >= 1:
         return "LOW RISK", reasons, "LOW"
     else:
-        return "LEGITIMATE", reasons, "LOW"
+        return "LEGITIMATE", ["No suspicious indicators found."], "LOW"
 
+
+# ======================================================
+# 🔥 MAIN LOOP
+# ======================================================
 
 def main():
-    print(f"{Colors.CYAN}=== Phishing Detection System ==={Colors.RESET}")
-    print(f"{Colors.BLUE}Type 'exit' or 'quit' to stop.{Colors.RESET}\n")
+    boot_sequence()
+    show_banner()
+
+    print(f"{Colors.BLUE}Type 'exit' or 'quit' to stop.\n{Colors.RESET}")
 
     try:
         while True:
             user_input = input(
-                f"{Colors.BLUE}Enter URL or Email text:{Colors.RESET} "
+                f"{Colors.BLUE}➤ Enter URL or Email to scan:{Colors.RESET} "
             ).strip()
 
             if user_input.lower() in ["exit", "quit"]:
-                print(f"\n{Colors.CYAN}Exiting Phishing Detection System...{Colors.RESET}")
+                print(f"\n{Colors.CYAN}Shutting down Phishing Detector...{Colors.RESET}")
+                time.sleep(0.5)
                 break
 
             if not user_input:
-                print(f"{Colors.YELLOW}Input cannot be empty.{Colors.RESET}\n")
+                print(f"{Colors.YELLOW}Input cannot be empty.\n{Colors.RESET}")
                 continue
+
+            print(f"{Colors.YELLOW}Scanning...{Colors.RESET}")
+            time.sleep(0.7)
 
             features = extract_features(user_input)
             result, reasons, severity = check_phishing(features)
 
             generate_alert(user_input, result, reasons, severity)
 
+            print("\n" + "="*65 + "\n")
+
     except KeyboardInterrupt:
-        print(f"\n\n{Colors.CYAN}Exiting Phishing Detection System...{Colors.RESET}")
+        print(f"\n\n{Colors.CYAN}Detector terminated by user.{Colors.RESET}")
 
 
 if __name__ == "__main__":

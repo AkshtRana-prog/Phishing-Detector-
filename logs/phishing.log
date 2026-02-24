@@ -5,3 +5,8 @@
 2026-02-18 10:21:28,272 - INFO - Input='chatqpt.com' | Status=LEGITIMATE | Severity=LOW | Reasons=None
 2026-02-18 10:21:40,448 - INFO - Input='ggoL.COM' | Status=LEGITIMATE | Severity=LOW | Reasons=None
 2026-02-18 10:21:48,223 - WARNING - Input='google1.com' | Status=PHISHING | Severity=HIGH | Reasons=Brand impersonation detected: google
+2026-02-24 10:00:28,663 - INFO - Input='pgoojal,com' | Status=LEGITIMATE | Severity=LOW | Reasons=None
+2026-02-24 10:00:46,576 - INFO - Input='vvd@sfv.co' | Status=SUSPICIOUS | Severity=MEDIUM | Reasons=Contains '@' symbol
+2026-02-24 10:13:08,244 - INFO - Input='goojal.com' | Status=LEGITIMATE | Severity=LOW | Reasons=No suspicious indicators found.
+2026-02-24 10:13:23,325 - INFO - Input='go0gal.in' | Status=LOW RISK | Severity=LOW | Reasons=Numbers used in domain
+2026-02-24 10:13:55,237 - WARNING - Input='go0gle.com' | Status=PHISHING | Severity=HIGH | Reasons=Brand impersonation (typosquatting attack)

@@ -1,4 +1,6 @@
 __pycache__/
 *.pyc
-*.log
-.venv/
+venv/
+.env
+logs/
+reports/*.csv

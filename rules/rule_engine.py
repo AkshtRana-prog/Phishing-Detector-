@@ -7,9 +7,25 @@ def check_phishing(features):
 
     domain = features.get("domain", "").lower()
 
-    # -------------------------
-    # High Risk Indicators
-    # -------------------------
+    # --------------------------------------------------
+    # 🚨 CRITICAL STRUCTURAL ISSUES
+    # --------------------------------------------------
+
+    if features.get("structural_anomaly"):
+        score += 4
+        reasons.append("Malformed or invalid domain structure")
+
+    if features.get("has_comma"):
+        score += 3
+        reasons.append("Invalid separator used (comma)")
+
+    if not features.get("valid_domain_format"):
+        score += 3
+        reasons.append("Domain format validation failed")
+
+    # --------------------------------------------------
+    # 🔥 HIGH RISK INDICATORS
+    # --------------------------------------------------
 
     if features.get("has_at_symbol"):
         score += 3
@@ -23,6 +39,18 @@ def check_phishing(features):
         score += 3
         reasons.append("Numeric IP address used")
 
+    if features.get("cloudflare_tunnel"):
+        score += 3
+        reasons.append("Cloudflare tunnel domain detected")
+
+    if features.get("possible_typosquat"):
+        score += 3
+        reasons.append("Possible typosquatting")
+
+    # --------------------------------------------------
+    # ⚠ MEDIUM RISK INDICATORS
+    # --------------------------------------------------
+
     if features.get("shortened_url"):
         score += 2
         reasons.append("URL shortener detected")
@@ -30,10 +58,6 @@ def check_phishing(features):
     if features.get("redirect_pattern"):
         score += 2
         reasons.append("Redirect pattern detected")
-
-    if features.get("possible_typosquat"):
-        score += 3
-        reasons.append("Possible typosquatting")
 
     if features.get("public_domain_abuse"):
         score += 2
@@ -43,6 +67,14 @@ def check_phishing(features):
         score += 2
         reasons.append("Suspicious deep subdomain")
 
+    if features.get("long_subdomain"):
+        score += 2
+        reasons.append("Unusually long subdomain")
+
+    # --------------------------------------------------
+    # 🟡 LOW RISK INDICATORS
+    # --------------------------------------------------
+
     if features.get("has_hyphen"):
         score += 1
         reasons.append("Hyphen used in domain")
@@ -51,38 +83,33 @@ def check_phishing(features):
         score += 1
         reasons.append("Numbers in domain")
 
-    if features.get("cloudflare_tunnel"):
-        score += 3
-        reasons.append("Cloudflare tunnel domain detected")
-
-    if features.get("long_subdomain"):
-        score += 2
-        reasons.append("Unusually long subdomain")
-
-    # -------------------------
-    # Brand Impersonation Detection (FIXED)
-    # -------------------------
+    # --------------------------------------------------
+    # 🏷 BRAND IMPERSONATION DETECTION
+    # --------------------------------------------------
 
     for brand in BRANDS:
         if brand in domain:
-            # Only flag if NOT official domain
-            if not (domain == f"{brand}.com" or domain.endswith(f".{brand}.com")):
-                score += 3
-                reasons.append(f"Possible brand impersonation: {brand}")
+            # Allow official domains
+            if not (
+                domain == f"{brand}.com"
+                or domain.endswith(f".{brand}.com")
+            ):
+                score += 4
+                reasons.append(f"Brand impersonation attempt: {brand}")
                 break
 
-    # -------------------------
-    # Final Classification
-    # -------------------------
+    # --------------------------------------------------
+    # 🎯 FINAL CLASSIFICATION
+    # --------------------------------------------------
 
-    if score >= 6:
+    if score >= 8:
         status = "PHISHING"
         severity = "HIGH"
-    elif score >= 3:
+    elif score >= 4:
         status = "SUSPICIOUS"
         severity = "MEDIUM"
     else:
         status = "LEGITIMATE"
         severity = "LOW"
 
-    return status, reasons, severity
+    return status, reasons if reasons else ["No suspicious indicators found."], severity
