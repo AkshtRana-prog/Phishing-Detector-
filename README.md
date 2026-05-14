@@ -1,272 +1,532 @@
-# 🛡️ Phishing Detection System
+# 🔥 PHISHING DETECTOR 
 
-A modular, rule-based phishing detection engine built in Python that simulates how a SOC (Security Operations Center) detects phishing URLs using weighted scoring and alert generation.
+PHISHING DETECTOR is an advanced cybersecurity project designed to identify phishing and suspicious URLs using intelligent rule-based analysis, feature extraction, and cybersecurity heuristics.
 
----
+The project helps users detect:
 
-## 📌 Overview
+- Fake login pages
+- Suspicious domains
+- Dangerous redirects
+- Credential harvesting attempts
+- Social engineering attacks
+- Unsafe phishing websites
 
-Phishing attacks are one of the most common cybersecurity threats.  
-This project demonstrates how detection systems:
-
-- Extract URL-based features
-- Detect brand impersonation (typosquatting)
-- Apply weighted rule-based scoring
-- Classify severity levels
-- Generate alerts
-- Log detection activity
-
-This project is designed for cybersecurity learners, SOC aspirants, and Blue Team enthusiasts.
+before sensitive information gets compromised.
 
 ---
 
-## 🎯 Key Features
+# 🚀 FEATURES
 
-- 🔍 Suspicious keyword detection (login, verify, update, secure, etc.)
-- 🏷️ Brand impersonation detection
-- ⚖️ Weighted rule-based scoring system
-- 🚨 Severity classification (LOW / MEDIUM / HIGH)
-- 🎨 Colored terminal alerts
-- 📝 Structured logging system
-- 📂 Modular and scalable architecture
+## 🌐 Futuristic Cybersecurity Web Interface
 
----
-
-## ⚙️ How It Works
-
-1. A URL is provided inside `main.py`.
-2. Features are extracted from the URL.
-3. Detection rules are applied.
-4. A weighted score is calculated.
-5. Severity level is determined.
-6. An alert is generated.
-7. The result is logged inside `/logs`.
+- Cyberpunk themed UI
+- Animated scanner interface
+- Glitch effects & visual animations
+- Interactive threat analysis
+- Structured warning system
+- Dynamic result dashboard
+- Downloadable PDF reports
 
 ---
 
-## 📂 Project Structure
+## 🎯 Intelligent Phishing Detection
 
-```
-phishing-detector/
+The detector analyzes:
+
+- Suspicious domain names
+- Fake authentication URLs
+- URL length abnormalities
+- Dangerous redirects
+- HTTPS security issues
+- Suspicious keywords
+- Social engineering patterns
+- Credential phishing indicators
+
+---
+
+## 📄 Advanced Multi-Page PDF Reports
+
+Generated reports include:
+
+### ✅ Executive Threat Summary
+- Threat score
+- Detection status
+- Risk severity
+- URL intelligence analysis
+
+### ✅ Threat Indicators
+- Suspicious activity explanation
+- Risk reasoning
+- Security analysis
+
+### ✅ Cybersecurity Awareness
+- Understanding phishing attacks
+- Social engineering techniques
+- Credential theft awareness
+- Fake website identification
+
+### ✅ Prevention Guidelines
+- Safe browsing habits
+- Password protection
+- MFA awareness
+- Browser safety practices
+
+### ✅ Professional Styling
+- Multi-page structure
+- Detailed educational content
+- Red & dark themed cybersecurity design
+- Structured threat sections
+
+---
+
+# 🧠 TECHNOLOGIES USED
+
+## Backend
+- Python
+- Flask
+
+## Frontend
+- HTML5
+- CSS3
+- JavaScript
+
+## PDF Engine
+- ReportLab
+
+## Security Modules
+- Rule-based phishing detection
+- URL feature extraction
+- Threat intelligence logic
+
+---
+
+# 📂 PROJECT STRUCTURE
+
+```bash
+PHISHING-DETECTOR/
 │
-├── alerts/                # Alert generation system
-│   ├── __init__.py
-│   └── alert_manager.py
-│
-├── features/              # Feature extraction logic
-│   ├── __init__.py
-│   └── feature_extraction.py
-│
-├── rules/                 # Rule engine & scoring logic
-│   ├── __init__.py
-│   └── rule_engine.py
-│
-├── data/                  # Known brand lists
-│   └── known_brands.txt
-│
-├── logs/                  # Detection logs
-│   └── phishing.log
-│
-├── models/                # Future ML integration
-│   └── ml_model.py
-│
-├── main.py                # Entry point
+├── app.py
 ├── requirements.txt
 ├── README.md
-└── .gitignore
+│
+├── features/
+│   └── feature_extraction.py
+│
+├── rules/
+│   └── rule_engine.py
+│
+├── alerts/
+│   └── alert_manager.py
+│
+├── templates/
+│   └── index.html
+│
+├── static/
+│   ├── css/
+│   │   └── style.css
+│   │
+│   ├── js/
+│   │   └── script.js
+│   │
+│   └── images/
+│       └── cyber2.jpg
+│
+├── logs/
+│   └── phishing.log
+│
+└── reports/
 ```
 
 ---
 
-# 🚀 Installation
+# ⚙️ INSTALLATION
 
-## 1️⃣ Clone the Repository
+## 1️⃣ Clone Repository
 
 ```bash
-git clone https://github.com/yourusername/phishing-detector.git
-cd phishing-detector
+git clone https://github.com/YOUR_USERNAME/PHISHING-DETECTOR.git
 ```
 
 ---
 
-## 2️⃣ Create Virtual Environment (Recommended)
+## 2️⃣ Open Project Folder
 
 ```bash
-python3 -m venv .venv
-```
-
-Activate it:
-
-### Linux / Mac:
-```bash
-source .venv/bin/activate
-```
-
-### Windows:
-```bash
-.venv\Scripts\activate
+cd PHISHING-DETECTOR
 ```
 
 ---
 
-## 3️⃣ Install Dependencies
+# 🐍 PYTHON REQUIREMENTS
+
+Check Python version:
+
+```bash
+python --version
+```
+
+OR
+
+```bash
+python3 --version
+```
+
+Recommended:
+- Python 3.10+
+- pip installed
+
+---
+
+# 🖥️ RUNNING BACKEND IN TERMINAL
+
+The phishing detector backend runs using Flask.
+
+The terminal displays:
+
+- URL scan activity
+- Threat detection logs
+- Security alerts
+- Errors & warnings
+- Detection output
+
+---
+
+# 🪟 WINDOWS
+
+## Step 1 — Open CMD / PowerShell
+
+Press:
+
+```bash
+WIN + R
+```
+
+Type:
+
+```bash
+cmd
+```
+
+---
+
+## Step 2 — Navigate To Project Folder
+
+```bash
+cd path\to\PHISHING-DETECTOR
+```
+
+Example:
+
+```bash
+cd Desktop\PHISHING-DETECTOR
+```
+
+---
+
+## Step 3 — Create Virtual Environment
+
+```bash
+python -m venv venv
+```
+
+---
+
+## Step 4 — Activate Virtual Environment
+
+```bash
+venv\Scripts\activate
+```
+
+---
+
+## Step 5 — Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-If using colored output:
-```bash
-pip install colorama
-```
-
 ---
 
-# ▶️ How To Run
-
-From the project root (where `main.py` exists):
+## Step 6 — Run Backend Server
 
 ```bash
-python3 main.py
+python app.py
 ```
 
 ---
 
-# 🧑‍💻 How To Use
-
-## Step 1: Open `main.py`
-
-Find the URL variable:
-
-```python
-url = "http://example.com"
-```
-
-Replace it with the URL you want to scan.
-
-### Example – Suspicious URL:
-
-```python
-url = "http://paypa1-login-secure.com"
-```
-
-### Example – Legitimate URL:
-
-```python
-url = "https://google.com"
-```
-
----
-
-## Step 2: Run the Program
+## Step 7 — Open In Browser
 
 ```bash
-python3 main.py
+http://127.0.0.1:5050
 ```
 
 ---
 
-# 📊 Output Explanation
+# 🐧 LINUX / KALI LINUX / UBUNTU
 
-The system calculates a score based on detected phishing indicators.
+## Step 1 — Open Terminal
 
-| Score | Severity |
-|-------|----------|
-| 0 – 2 | LOW      |
-| 3 – 5 | MEDIUM   |
-| 6+    | HIGH     |
+Shortcut:
 
----
-
-## 🟢 LOW
-Minimal suspicious activity detected.
-
-Example:
-```
-[✓] LOW RISK
-No major phishing indicators found.
+```bash
+CTRL + ALT + T
 ```
 
 ---
 
-## 🟡 MEDIUM
-Some suspicious patterns detected.
+## Step 2 — Navigate To Project Folder
 
-Example:
-```
-[!] MEDIUM RISK DETECTED
-Suspicious keyword: login
-Unusual domain structure
+```bash
+cd ~/PHISHING-DETECTOR
 ```
 
 ---
 
-## 🔴 HIGH
-Strong phishing indicators detected.
+## Step 3 — Create Virtual Environment
 
-Example:
-```
-[!] HIGH SEVERITY PHISHING DETECTED
-Brand impersonation detected
-Typosquatting identified
-Multiple suspicious keywords
+```bash
+python3 -m venv venv
 ```
 
 ---
 
-# 📝 Logs
+## Step 4 — Activate Virtual Environment
 
-All scan results are stored in:
-
+```bash
+source venv/bin/activate
 ```
+
+---
+
+## Step 5 — Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+If pip is missing:
+
+```bash
+sudo apt install python3-pip
+```
+
+---
+
+## Step 6 — Run Backend Server
+
+```bash
+python3 app.py
+```
+
+---
+
+## Step 7 — Open In Browser
+
+```bash
+http://127.0.0.1:5050
+```
+
+---
+
+# 🍎 macOS
+
+## Step 1 — Open Terminal
+
+Press:
+
+```bash
+CMD + SPACE
+```
+
+Search:
+
+```bash
+Terminal
+```
+
+---
+
+## Step 2 — Navigate To Project Folder
+
+```bash
+cd ~/PHISHING-DETECTOR
+```
+
+---
+
+## Step 3 — Create Virtual Environment
+
+```bash
+python3 -m venv venv
+```
+
+---
+
+## Step 4 — Activate Environment
+
+```bash
+source venv/bin/activate
+```
+
+---
+
+## Step 5 — Install Dependencies
+
+```bash
+pip3 install -r requirements.txt
+```
+
+---
+
+## Step 6 — Run Backend Server
+
+```bash
+python3 app.py
+```
+
+---
+
+## Step 7 — Open In Browser
+
+```bash
+http://127.0.0.1:5050
+```
+
+---
+
+# 📜 TERMINAL OUTPUT
+
+When the backend starts successfully:
+
+```bash
+===================================
+PHISHING DETECTOR SERVER STARTED
+OPEN IN BROWSER:
+http://127.0.0.1:5050
+===================================
+```
+
+---
+
+# 📂 LOG FILES
+
+All phishing detection logs are stored inside:
+
+```bash
 logs/phishing.log
 ```
 
-This simulates SOC-style logging for monitoring suspicious events.
+---
+
+# 📄 REPORT GENERATION
+
+After scanning a URL:
+
+1. Click:
+
+```bash
+DOWNLOAD REPORT
+```
+
+2. The detector generates:
+- Multi-page PDF report
+- Threat intelligence summary
+- Cybersecurity awareness content
+- Prevention guidelines
+- Threat indicators
+- Educational phishing analysis
 
 ---
 
-# 🛠️ Customization
+# ⚠️ WARNING SYSTEM
 
-You can improve or modify detection logic:
+The system generates structured warnings for:
 
-- Edit `rules/rule_engine.py` → Change scoring weights
-- Edit `features/feature_extraction.py` → Add new detection features
-- Update `data/known_brands.txt` → Add more brands
+- High-risk phishing URLs
+- Dangerous fake websites
+- Suspicious login pages
+- Unsafe redirects
+- Credential harvesting attempts
 
----
-
-# 🧠 Skills Demonstrated
-
-- Cybersecurity fundamentals
-- Phishing detection techniques
-- Rule-based detection systems
-- Feature engineering
-- Modular Python architecture
-- Logging systems
-- CLI tool development
+Warnings appear in:
+- Website interface
+- Terminal logs
+- PDF reports
 
 ---
 
-# 🔮 Future Improvements
+# 🔒 CYBERSECURITY EDUCATION
 
-- Levenshtein distance similarity scoring
-- Machine Learning classifier
-- Real-time URL scanning
-- REST API integration
-- Web dashboard (Flask)
-- CSV/JSON export
-- Email phishing detection module
+The project is also designed for cybersecurity awareness and educational purposes.
 
----
+It helps users understand:
 
-# 🏷️ Tags
-
-Cybersecurity • Phishing Detection • SOC Tool • Python Security • Blue Team • Threat Detection • Rule Engine • CLI Tool
+- Phishing attacks
+- Social engineering
+- Fake login pages
+- Credential theft
+- Secure browsing habits
+- Digital safety practices
 
 ---
 
-## 👨‍💻 Author
+# 📊 THREAT LEVELS
 
-**Aksht Rana**  
-Cybersecurity Enthusiast
+| Threat Score | Severity |
+|--------------|----------|
+| 0 - 30 | LOW |
+| 31 - 70 | MEDIUM |
+| 71 - 100 | HIGH |
+
+---
+
+# 🛡️ FUTURE IMPROVEMENTS
+
+Planned upgrades:
+
+- Machine Learning phishing detection
+- VirusTotal API integration
+- Real-time blacklist scanning
+- AI behavior analysis
+- Email phishing detection
+- Browser extension
+- Threat analytics dashboard
+- Advanced URL intelligence
+
+---
+
+# 👨‍💻 AUTHOR
+
+## Aksht Rana
+
+Cybersecurity Project Developer
+
+---
+
+# 📜 LICENSE
+
+This project is intended for:
+
+- Educational purposes
+- Cybersecurity awareness
+- Ethical research
+
+Use responsibly.
+
+---
+
+# ⭐ SUPPORT
+
+If you like this project:
+
+⭐ Star the repository  
+🍴 Fork the project  
+🛡️ Spread cybersecurity awareness
+
+---
+
+# 🔥 PHISHING DETECTOR
+
+> Stay Alert. Stay Secure.  
+> Detect Phishing Before It Detects You.
