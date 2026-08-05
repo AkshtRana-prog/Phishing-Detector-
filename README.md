@@ -75,35 +75,111 @@ Phishing-Detector-
 
 ---
 
-## ⚙️ Installation & Setup
+## ⚙️ Installation & Setup (Step-by-Step Guide)
 
-### 1️⃣ Configure Environment
+Follow this step-by-step setup to install the platform on any fresh laptop.
+
+### 1️⃣ Install Prerequisites
+
+#### For Linux (Ubuntu/Debian/Kali)
+```bash
+sudo apt update
+sudo apt install -y python3-pip python3-venv python3-dev nodejs npm docker.io docker-compose redis-server
+```
+
+#### For macOS (via Homebrew)
+```bash
+brew install node python redis docker docker-compose
+```
+
+#### For Windows
+1. Download and install [Python 3.10+](https://www.python.org/downloads/).
+2. Download and install [Node.js 18+](https://nodejs.org/).
+3. Download and install [Docker Desktop](https://www.docker.com/products/docker-desktop/).
+
+---
+
+### 2️⃣ Initialize Database & Cache Infrastructure
+Start the PostgreSQL and Redis containers using Docker Compose.
+
+```bash
+cd backend
+docker-compose down # Stop any conflict containers
+docker-compose up -d
+cd ..
+```
+*Verify containers are running:*
+```bash
+docker ps
+```
+*(You should see containers running on PostgreSQL port `5433` and Redis port `6380`)*
+
+---
+
+### 3️⃣ Configure the Environment Variables
 Create a `.env` file in the project root:
-```ini
+```bash
+cat <<EOT > .env
 SMTP_USER=example@gmail.com
-SMTP_PASS=email 16 digit app password 
+SMTP_PASS=your_16_character_app_password
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 PUBLIC_URL=http://localhost:8000
+EOT
+```
+*(Replace `example@gmail.com` and `your_16_character_app_password` with your real Gmail details if you want active verification emails dispatched. Otherwise, verification links are printed to the logs).*
+
+---
+
+### 4️⃣ Set Up Backend Environment & Dependencies
+Initialize your Python virtual environment and install all package requirements.
+
+```bash
+# Create virtual environment
+python3 -m venv venv
+
+# Activate virtual environment
+# On Linux/macOS:
+source venv/bin/activate
+# On Windows Powershell:
+# .\venv\Scripts\Activate.ps1
+
+# Install requirements
+pip install --upgrade pip
+pip install -r backend/requirements.txt
 ```
 
-### 2️⃣ Start with Unified VS Code Task (Recommended)
-1. Open the project root in VS Code.
-2. Open the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`).
-3. Select **`Tasks: Run Task`** $\rightarrow$ **`Start Threat Platform`**.
-4. It will free up host database ports, start Docker databases, and run the backend, worker, and frontend dev servers.
+---
 
-### 3️⃣ Start Manually via Shell
-Ensure PostgreSQL is running on port `5433` and Redis on port `6380`.
-Then start the processes:
+### 5️⃣ Set Up Frontend Dependencies
+Install NPM packages for the Next.js React user interface.
+
 ```bash
-# Terminal 1: FastAPI Gateway
-DATABASE_URL=postgresql://postgres:postgrespassword@localhost:5433/threat_detector REDIS_URL=redis://localhost:6380/0 ./venv/bin/uvicorn backend.app.main:app --host 0.0.0.0 --port 8000
+cd frontend
+npm install
+cd ..
+```
 
-# Terminal 2: Celery Worker
-DATABASE_URL=postgresql://postgres:postgrespassword@localhost:5433/threat_detector REDIS_URL=redis://localhost:6380/0 ./venv/bin/celery -A backend.app.worker.celery_app worker --loglevel=info
+---
 
-# Terminal 3: Next.js Frontend
+### 6️⃣ Start the Platform Services
+
+You need **three terminal windows** open with your virtual environment activated:
+
+#### 💻 Terminal 1: FastAPI Gateway Server
+```bash
+source venv/bin/activate
+DATABASE_URL=postgresql://postgres:postgrespassword@localhost:5433/threat_detector REDIS_URL=redis://localhost:6380/0 uvicorn backend.app.main:app --host 0.0.0.0 --port 8000
+```
+
+#### 💻 Terminal 2: Celery Worker Queue
+```bash
+source venv/bin/activate
+DATABASE_URL=postgresql://postgres:postgrespassword@localhost:5433/threat_detector REDIS_URL=redis://localhost:6380/0 celery -A backend.app.worker.celery_app worker --loglevel=info
+```
+
+#### 💻 Terminal 3: Next.js UI Frontend Dev Server
+```bash
 cd frontend
 npm run dev
 ```
