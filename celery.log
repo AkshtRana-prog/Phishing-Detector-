@@ -1,0 +1,50 @@
+[!] NLP Model loading skipped (Using Heuristic Fallback). Reason: No module named 'transformers'
+[!] Audio Deepfake Model skipped (Using Heuristic Fallback). Reason: No module named 'transformers'
+ 
+ -------------- celery@kali v5.6.3 (recovery)
+--- ***** ----- 
+-- ******* ---- Linux-6.18.12+kali-amd64-x86_64-with-glibc2.42 2026-08-05 18:21:10
+- *** --- * --- 
+- ** ---------- [config]
+- ** ---------- .> app:         tasks:0x7f6e1dea9e80
+- ** ---------- .> transport:   redis://localhost:6379/0
+- ** ---------- .> results:     redis://localhost:6379/0
+- *** --- * --- .> concurrency: 12 (prefork)
+-- ******* ---- .> task events: OFF (enable -E to monitor tasks in this worker)
+--- ***** ----- 
+ -------------- [queues]
+                .> celery           exchange=celery(direct) key=celery
+                
+
+[tasks]
+  . backend.app.tasks.analyze_deepfake_task
+  . backend.app.tasks.analyze_eml_task
+  . backend.app.tasks.analyze_log_task
+  . backend.app.tasks.analyze_url_task
+
+[2026-08-05 18:21:11,091: INFO/MainProcess] Connected to redis://localhost:6379/0
+[2026-08-05 18:21:11,096: INFO/MainProcess] mingle: searching for neighbors
+[2026-08-05 18:21:12,105: INFO/MainProcess] mingle: all alone
+[2026-08-05 18:21:12,138: INFO/MainProcess] celery@kali ready.
+[2026-08-05 18:37:54,558: INFO/MainProcess] Task backend.app.tasks.analyze_deepfake_task[409ef4a2-136d-4608-bfc0-c90f554f843b] received
+[2026-08-05 18:37:55,575: INFO/ForkPoolWorker-7] Task backend.app.tasks.analyze_deepfake_task[409ef4a2-136d-4608-bfc0-c90f554f843b] succeeded in 0.9720174620001671s: None
+[2026-08-05 18:38:22,137: INFO/MainProcess] Task backend.app.tasks.analyze_eml_task[588bd27c-fb8e-4aef-b430-32d4c9843d10] received
+[2026-08-05 18:38:22,151: INFO/ForkPoolWorker-7] Task backend.app.tasks.analyze_eml_task[588bd27c-fb8e-4aef-b430-32d4c9843d10] succeeded in 0.013024650000261317s: None
+[2026-08-05 18:39:14,806: INFO/MainProcess] Task backend.app.tasks.analyze_url_task[606e11bc-565c-42ab-ad58-c6aa0d366c06] received
+[2026-08-05 18:39:14,817: INFO/ForkPoolWorker-7] Task backend.app.tasks.analyze_url_task[606e11bc-565c-42ab-ad58-c6aa0d366c06] succeeded in 0.008122258000184956s: None
+[2026-08-05 18:39:32,440: INFO/MainProcess] Task backend.app.tasks.analyze_url_task[6b4db838-8570-453e-9753-28220708b16d] received
+[2026-08-05 18:39:32,448: INFO/ForkPoolWorker-7] Task backend.app.tasks.analyze_url_task[6b4db838-8570-453e-9753-28220708b16d] succeeded in 0.007633381999767153s: None
+[2026-08-05 18:40:37,111: INFO/MainProcess] Task backend.app.tasks.analyze_log_task[5e03240b-521f-48b4-8d6c-9f6e8de6cf40] received
+[2026-08-05 18:40:37,160: INFO/ForkPoolWorker-7] Task backend.app.tasks.analyze_log_task[5e03240b-521f-48b4-8d6c-9f6e8de6cf40] succeeded in 0.04779387999997198s: None
+[2026-08-05 18:40:52,330: INFO/MainProcess] Task backend.app.tasks.analyze_log_task[8ee2557e-497f-47c2-b0d8-e29de4e9941c] received
+[2026-08-05 18:40:52,352: INFO/ForkPoolWorker-7] Task backend.app.tasks.analyze_log_task[8ee2557e-497f-47c2-b0d8-e29de4e9941c] succeeded in 0.021593388999917806s: None
+[2026-08-05 18:44:34,663: INFO/MainProcess] Task backend.app.tasks.analyze_log_task[c5893e15-a73e-4f0f-a744-aee232d816f8] received
+[2026-08-05 18:44:34,673: INFO/ForkPoolWorker-7] Task backend.app.tasks.analyze_log_task[c5893e15-a73e-4f0f-a744-aee232d816f8] succeeded in 0.009388690999912797s: None
+[2026-08-05 18:44:40,082: INFO/MainProcess] Task backend.app.tasks.analyze_log_task[513577b6-d3cf-45d9-894d-8e7fc48cab79] received
+[2026-08-05 18:44:40,090: INFO/ForkPoolWorker-7] Task backend.app.tasks.analyze_log_task[513577b6-d3cf-45d9-894d-8e7fc48cab79] succeeded in 0.007066487999964011s: None
+
+worker: Hitting Ctrl+C again will initiate cold shutdown, terminating all running tasks!
+
+worker: Warm shutdown (MainProcess)
+
+worker: Warm shutdown (MainProcess)
