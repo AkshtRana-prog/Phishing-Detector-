@@ -48,6 +48,51 @@ def load_env():
 def on_startup():
     load_env()
     init_db()
+    
+    # Seed default admin accounts
+    from backend.app.database import SessionLocal, User
+    import hashlib
+    db = SessionLocal()
+    try:
+        admin_pass_hash = hashlib.sha256("admin".encode()).hexdigest()
+        
+        # 1. admin@orion.com
+        admin1 = db.query(User).filter(User.email == "admin@orion.com").first()
+        if not admin1:
+            admin1 = User(
+                email="admin@orion.com",
+                password_hash=admin_pass_hash,
+                status="APPROVED"
+            )
+            db.add(admin1)
+            
+        # 2. admin@admin.com
+        admin2 = db.query(User).filter(User.email == "admin@admin.com").first()
+        if not admin2:
+            admin2 = User(
+                email="admin@admin.com",
+                password_hash=admin_pass_hash,
+                status="APPROVED"
+            )
+            db.add(admin2)
+            
+        # 3. admin
+        admin3 = db.query(User).filter(User.email == "admin").first()
+        if not admin3:
+            admin3 = User(
+                email="admin",
+                password_hash=admin_pass_hash,
+                status="APPROVED"
+            )
+            db.add(admin3)
+            
+        db.commit()
+        print("[+] Default admin test accounts seeded successfully.")
+    except Exception as e:
+        print(f"[!] Seeding admin accounts failed: {e}")
+        db.rollback()
+    finally:
+        db.close()
 
 @app.get("/")
 def read_root():
@@ -214,6 +259,77 @@ def get_incident(incident_id: str, db: Session = Depends(get_db)):
         "remediations": [rem.description for rem in remediations]
     }
 
+@app.delete("/incidents/{incident_id}")
+def delete_incident(incident_id: str, db: Session = Depends(get_db)):
+    incident = db.query(Incident).filter(Incident.id == incident_id).first()
+    if not incident:
+        raise HTTPException(status_code=404, detail="Incident not found")
+    
+    # Delete associated evidences & remediations first
+    db.query(Evidence).filter(Evidence.incident_id == incident_id).delete()
+    db.query(Remediation).filter(Remediation.incident_id == incident_id).delete()
+    
+    db.delete(incident)
+    db.commit()
+    return {"status": "success", "message": f"Incident {incident_id} deleted successfully"}
+
+class TrainModelRequest(BaseModel):
+    label: str
+
+@app.post("/incidents/{incident_id}/train")
+def train_model_from_scan(incident_id: str, req: TrainModelRequest, db: Session = Depends(get_db)):
+    incident = db.query(Incident).filter(Incident.id == incident_id).first()
+    if not incident:
+        raise HTTPException(status_code=404, detail="Incident not found")
+    
+    if incident.status == "PENDING":
+        raise HTTPException(status_code=400, detail="Incident scan is still in progress")
+        
+    label = req.label.upper()
+    if label not in ("PHISHING", "SAFE", "SUSPICIOUS"):
+        raise HTTPException(status_code=400, detail="Invalid label. Must be PHISHING, SAFE, or SUSPICIOUS")
+        
+    from backend.app.ml.self_learning import self_learning_classifier
+    
+    # Extract content text based on vector type
+    content_text = ""
+    if incident.vector_type == "URL":
+        content_text = incident.target_input
+    elif incident.vector_type == "Email":
+        evidences = db.query(Evidence).filter(Evidence.incident_id == incident_id).all()
+        ev_text = " ".join([ev.value for ev in evidences])
+        content_text = f"{incident.target_input} {ev_text}"
+    elif incident.vector_type == "Log":
+        content_text = incident.target_input
+    elif incident.vector_type == "Deepfake":
+        content_text = f"media deepfake analysis file: {incident.target_input}"
+        
+    if not content_text:
+        content_text = incident.target_input
+        
+    # Teach the self-learning model
+    self_learning_classifier.learn(content_text, label)
+    
+    # Update incident record classification
+    incident.status = label
+    if label == "PHISHING":
+        incident.severity = "HIGH"
+        incident.threat_score = max(incident.threat_score, 85)
+    elif label == "SUSPICIOUS":
+        incident.severity = "MEDIUM"
+        incident.threat_score = max(incident.threat_score, 50)
+    else:
+        incident.severity = "LOW"
+        incident.threat_score = min(incident.threat_score, 15)
+        
+    db.commit()
+    
+    return {
+        "status": "success", 
+        "message": f"Successfully trained model with sample from incident {incident_id} as {label}",
+        "new_status": label
+    }
+
 @app.get("/incidents/{incident_id}/report")
 def get_incident_report(incident_id: str, db: Session = Depends(get_db)):
     incident = db.query(Incident).filter(Incident.id == incident_id).first()
@@ -330,31 +446,162 @@ def send_verification_email(user_email: str):
     sender_email = "align.akshtrana@gmail.com"
     receiver_email = user_email
     
+    local_ip = get_local_ip()
+    local_link = f"http://{local_ip}:8000/auth/approve?email={user_email}"
+    
     public_url = os.getenv("PUBLIC_URL")
     if public_url:
-        verification_link = f"{public_url.rstrip('/')}/auth/approve?email={user_email}"
+        public_link = f"{public_url.rstrip('/')}/auth/approve?email={user_email}"
     else:
-        local_ip = get_local_ip()
-        verification_link = f"http://{local_ip}:8000/auth/approve?email={user_email}"
+        public_link = None
     
     subject = "[Threat Detector] Action Required: Verify your security account"
-    body = f"""
-Dear Security Analyst,
+    
+    # 1. Plain Text Body Fallback
+    if public_link:
+        body_text = f"""Dear Security Analyst,
 
 A new user account request has been initiated on the Phishing & Deepfake Threat Detection Platform.
 
-To verify your email address and activate your account, please click the secure link below:
-{verification_link}
+To verify your email address and activate your account, please click one of the secure links below:
+
+Option 1: Verify via local network / Wi-Fi (Use if your device is on the same local Wi-Fi):
+{local_link}
+
+Option 2: Verify via internet tunnel:
+{public_link}
 
 Best regards,
 Threat Detection System Gatekeeper
 """
+    else:
+        body_text = f"""Dear Security Analyst,
+
+A new user account request has been initiated on the Phishing & Deepfake Threat Detection Platform.
+
+To verify your email address and activate your account, please click the secure link below:
+{local_link}
+
+Best regards,
+Threat Detection System Gatekeeper
+"""
+
+    # Generate Buttons HTML based on whether public link exists
+    buttons_html = f"""
+            <div class="button-wrapper">
+                <a href="{local_link}" class="btn" style="color: #ffffff; background: linear-gradient(135deg, #1f6feb 0%, #10a37f 100%);">VERIFY VIA LOCAL WI-FI (IP)</a>
+            </div>
+            <p style="font-size: 13px; color: #8b949e; text-align: center; margin-bottom: 5px;">Local link: <a href="{local_link}" style="color: #58a6ff;">{local_link}</a></p>
+    """
     
-    msg = MIMEMultipart()
+    if public_link:
+        buttons_html += f"""
+            <div style="text-align: center; margin: 15px 0; color: #8b949e; font-size: 13px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">- OR -</div>
+            <div class="button-wrapper" style="margin-top: 10px;">
+                <a href="{public_link}" class="btn" style="color: #ffffff; background: linear-gradient(135deg, #8b5cf6 0%, #d946ef 100%);">VERIFY VIA PUBLIC TUNNEL</a>
+            </div>
+            <p style="font-size: 13px; color: #8b949e; text-align: center;">Tunnel link: <a href="{public_link}" style="color: #58a6ff;">{public_link}</a></p>
+        """
+
+    # 2. Eye-catching HTML Body
+    body_html = f"""<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {{
+            background-color: #0b0f19;
+            color: #c9d1d9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }}
+        .container {{
+            max-width: 600px;
+            margin: 40px auto;
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        }}
+        .header {{
+            background: linear-gradient(135deg, #1f6feb 0%, #00f0ff 100%);
+            padding: 30px;
+            text-align: center;
+        }}
+        .header h1 {{
+            color: #ffffff;
+            font-size: 24px;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }}
+        .content {{
+            padding: 40px 30px;
+            line-height: 1.6;
+        }}
+        .content p {{
+            margin-bottom: 20px;
+            font-size: 16px;
+            color: #c9d1d9;
+        }}
+        .button-wrapper {{
+            text-align: center;
+            margin: 25px 0;
+        }}
+        .btn {{
+            display: inline-block;
+            color: #ffffff !important;
+            text-decoration: none;
+            padding: 14px 28px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 16px;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }}
+        .footer {{
+            background-color: #0d1117;
+            padding: 20px 30px;
+            text-align: center;
+            border-top: 1px solid #21262d;
+            font-size: 12px;
+            color: #8b949e;
+        }}
+        .footer a {{
+            color: #58a6ff;
+            text-decoration: none;
+        }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛡️ Threat Detector</h1>
+        </div>
+        <div class="content">
+            <p>Dear Security Analyst,</p>
+            <p>A new analyst account request has been initiated on the <strong>Phishing & Deepfake Threat Detection SOC Platform</strong>.</p>
+            <p>Please click one of the options below to verify your email address and activate your account:</p>
+            {buttons_html}
+        </div>
+        <div class="footer">
+            <p>This is an automated security transmission. Please do not reply directly to this email.</p>
+            <p>&copy; 2026 Threat Detection SOC. System Admin: Aksht Rana.</p>
+        </div>
+    </div>
+</body>
+</html>
+"""
+    
+    msg = MIMEMultipart('alternative')
     msg['From'] = f"Threat Detector Gatekeeper <{sender_email}>"
     msg['To'] = receiver_email
     msg['Subject'] = subject
-    msg.attach(MIMEText(body, 'plain'))
+    
+    msg.attach(MIMEText(body_text, 'plain'))
+    msg.attach(MIMEText(body_html, 'html'))
     
     try:
         smtp_host = os.getenv("SMTP_HOST", "smtp.gmail.com")

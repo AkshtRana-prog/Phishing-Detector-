@@ -14,7 +14,10 @@ def parse_eml(file_path):
     subject = msg.get("Subject", "No Subject")
     from_header = msg.get("From", "")
     to_header = msg.get("To", "")
+    cc_header = msg.get("Cc", "")
     date_header = msg.get("Date", "")
+    reply_to_header = msg.get("Reply-To", "")
+    message_id_header = msg.get("Message-ID", "")
 
     display_name, sender_email = parseaddr(from_header)
     sender_domain = sender_email.split("@")[-1].lower() if "@" in sender_email else ""
@@ -109,7 +112,10 @@ def parse_eml(file_path):
         "subject": subject,
         "from": from_header,
         "to": to_header,
+        "cc": cc_header,
         "date": date_header,
+        "reply_to": reply_to_header,
+        "message_id": message_id_header,
         "display_name": display_name,
         "sender_email": sender_email,
         "sender_domain": sender_domain,

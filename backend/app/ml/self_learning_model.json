@@ -1,0 +1,424 @@
+{
+  "class_counts": {
+    "PHISHING": 16,
+    "SAFE": 9
+  },
+  "token_counts": {
+    "paypal-security-update": {
+      "PHISHING": 1,
+      "SAFE": 0
+    },
+    "com": {
+      "PHISHING": 10,
+      "SAFE": 5
+    },
+    "login-microsoft-auth": {
+      "PHISHING": 1,
+      "SAFE": 0
+    },
+    "net": {
+      "PHISHING": 1,
+      "SAFE": 0
+    },
+    "amazox": {
+      "PHISHING": 1,
+      "SAFE": 0
+    },
+    "verify-google-identity": {
+      "PHISHING": 1,
+      "SAFE": 0
+    },
+    "org": {
+      "PHISHING": 1,
+      "SAFE": 0
+    },
+    "goog1e": {
+      "PHISHING": 1,
+      "SAFE": 0
+    },
+    "faceb00k-login": {
+      "PHISHING": 1,
+      "SAFE": 0
+    },
+    "urgent": {
+      "PHISHING": 6,
+      "SAFE": 0
+    },
+    "account": {
+      "PHISHING": 1,
+      "SAFE": 0
+    },
+    "suspended": {
+      "PHISHING": 1,
+      "SAFE": 0
+    },
+    "verification": {
+      "PHISHING": 1,
+      "SAFE": 0
+    },
+    "required": {
+      "PHISHING": 2,
+      "SAFE": 0
+    },
+    "immediate": {
+      "PHISHING": 1,
+      "SAFE": 0
+    },
+    "action": {
+      "PHISHING": 1,
+      "SAFE": 0
+    },
+    "you": {
+      "PHISHING": 1,
+      "SAFE": 0
+    },
+    "won": {
+      "PHISHING": 1,
+      "SAFE": 0
+    },
+    "gift": {
+      "PHISHING": 1,
+      "SAFE": 0
+    },
+    "card": {
+      "PHISHING": 1,
+      "SAFE": 0
+    },
+    "login": {
+      "PHISHING": 6,
+      "SAFE": 0
+    },
+    "to": {
+      "PHISHING": 11,
+      "SAFE": 2
+    },
+    "claim": {
+      "PHISHING": 6,
+      "SAFE": 0
+    },
+    "billing": {
+      "PHISHING": 1,
+      "SAFE": 0
+    },
+    "info": {
+      "PHISHING": 1,
+      "SAFE": 0
+    },
+    "link": {
+      "PHISHING": 6,
+      "SAFE": 0
+    },
+    "brute": {
+      "PHISHING": 1,
+      "SAFE": 0
+    },
+    "force": {
+      "PHISHING": 1,
+      "SAFE": 0
+    },
+    "sql": {
+      "PHISHING": 1,
+      "SAFE": 0
+    },
+    "injection": {
+      "PHISHING": 1,
+      "SAFE": 0
+    },
+    "privilege": {
+      "PHISHING": 1,
+      "SAFE": 0
+    },
+    "escalation": {
+      "PHISHING": 1,
+      "SAFE": 0
+    },
+    "root": {
+      "PHISHING": 1,
+      "SAFE": 0
+    },
+    "exploit": {
+      "PHISHING": 1,
+      "SAFE": 0
+    },
+    "malware": {
+      "PHISHING": 1,
+      "SAFE": 0
+    },
+    "run": {
+      "PHISHING": 1,
+      "SAFE": 0
+    },
+    "paypal": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "microsoft": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "amazon": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "google": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "facebook": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "weekly": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "project": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "status": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "report": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "update": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "from": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "manager": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "meeting": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "tomorrow": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "invoice": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "for": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "recent": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "purchase": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "confirmed": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "delivery": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "updates": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "normal": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "system": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "startup": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "logging": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "nominal": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "database": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "connections": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "active": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "amazox-update-billing": {
+      "PHISHING": 5,
+      "SAFE": 0
+    },
+    "your": {
+      "PHISHING": 5,
+      "SAFE": 2
+    },
+    "refund": {
+      "PHISHING": 5,
+      "SAFE": 0
+    },
+    "phlebolog": {
+      "PHISHING": 1,
+      "SAFE": 0
+    },
+    "ua": {
+      "PHISHING": 1,
+      "SAFE": 0
+    },
+    "libraries": {
+      "PHISHING": 1,
+      "SAFE": 0
+    },
+    "joomla": {
+      "PHISHING": 1,
+      "SAFE": 0
+    },
+    "results": {
+      "PHISHING": 1,
+      "SAFE": 0
+    },
+    "php": {
+      "PHISHING": 1,
+      "SAFE": 0
+    },
+    "media": {
+      "PHISHING": 1,
+      "SAFE": 0
+    },
+    "deepfake": {
+      "PHISHING": 1,
+      "SAFE": 0
+    },
+    "analysis": {
+      "PHISHING": 1,
+      "SAFE": 0
+    },
+    "file": {
+      "PHISHING": 1,
+      "SAFE": 0
+    },
+    "8090193-": {
+      "PHISHING": 1,
+      "SAFE": 0
+    },
+    "mp4": {
+      "PHISHING": 1,
+      "SAFE": 0
+    },
+    "video": {
+      "PHISHING": 1,
+      "SAFE": 0
+    },
+    "utf-8": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "book": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "return": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "trip": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "delhi": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "with": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "new": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "walia": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "travels": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "and": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "save": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "minimum": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "10": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "complete": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "booking": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "by": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "18": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "jul": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "2026": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "avail": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "the": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "offer": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "now": {
+      "PHISHING": 0,
+      "SAFE": 1
+    }
+  }
+}

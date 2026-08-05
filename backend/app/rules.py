@@ -23,6 +23,20 @@ def is_valid_ipv4(ip):
             return False
     return True
 
+def edit_distance(s1, s2):
+    if len(s1) > len(s2):
+        s1, s2 = s2, s1
+    distances = range(len(s1) + 1)
+    for i2, c2 in enumerate(s2):
+        distances_ = [i2+1]
+        for i1, c1 in enumerate(s1):
+            if c1 == c2:
+                distances_.append(distances[i1])
+            else:
+                distances_.append(1 + min((distances[i1], distances[i1 + 1], distances_[-1])))
+        distances = distances_
+    return distances[-1]
+
 def extract_features(url):
     features = {}
     url = url.strip()
@@ -72,11 +86,25 @@ def extract_features(url):
         "redirect" in url.lower() or "?url=" in url.lower()
     )
 
-    common_brands = ["paypal", "facebook", "microsoft", "amazon", "google", "apple"]
-    features["possible_typosquat"] = any(
-        re.search(brand.replace("o", "[o0]").replace("l", "[l1]"), domain)
-        for brand in common_brands
-    )
+    common_brands = ["paypal", "facebook", "microsoft", "amazon", "google", "apple", "instagram"]
+    features["possible_typosquat"] = False
+    features["typosquat_target"] = None
+    
+    if domain:
+        labels = domain.split(".")
+        if len(labels) > 1:
+            labels = labels[:-1]
+        for label in labels:
+            for brand in common_brands:
+                if label == brand:
+                    continue
+                dist = edit_distance(label, brand)
+                if dist <= 2 and abs(len(label) - len(brand)) <= 1:
+                    features["possible_typosquat"] = True
+                    features["typosquat_target"] = brand
+                    break
+            if features["possible_typosquat"]:
+                break
 
     features["structural_anomaly"] = (
         features["has_comma"]
@@ -128,8 +156,12 @@ def check_phishing(features):
         reasons.append("Cloudflare tunnel domain detected")
 
     if features.get("possible_typosquat"):
-        score += 3
-        reasons.append("Possible typosquatting")
+        score += 8
+        target = features.get("typosquat_target")
+        if target:
+            reasons.append(f"Possible typosquatting targeting brand: {target}")
+        else:
+            reasons.append("Possible typosquatting detected")
 
     # ⚠ MEDIUM RISK INDICATORS
     if features.get("shortened_url"):

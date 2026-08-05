@@ -134,7 +134,50 @@ def generate_pdf_report(incident, evidences, remediations, buffer):
 
     # Target Input Section
     elements.append(Paragraph(f"<b>Target Analyzed:</b> {incident['target_input']}", body_style))
-    elements.append(Spacer(1, 20))
+    elements.append(Spacer(1, 15))
+
+    # EML Envelope Analysis Table
+    is_email = (incident["vector_type"].upper() == "EMAIL")
+    if is_email:
+        sender = next((ev["value"] for ev in evidences if ev["key"] == "Email Sender"), None)
+        recipient = next((ev["value"] for ev in evidences if ev["key"] == "Email Recipient"), None)
+        cc = next((ev["value"] for ev in evidences if ev["key"] == "Email CC"), None)
+        date_header = next((ev["value"] for ev in evidences if ev["key"] == "Email Date"), None)
+        reply_to = next((ev["value"] for ev in evidences if ev["key"] == "Email Reply-To"), None)
+        msg_id = next((ev["value"] for ev in evidences if ev["key"] == "Email Message-ID"), None)
+        subject = next((ev["value"] for ev in evidences if ev["key"] == "Email Subject"), None)
+
+        elements.append(Paragraph("Email Envelope & Header Analysis", h1_style))
+        elements.append(Paragraph("The parsed email file contained the following envelope headers and metadata:", body_style))
+        elements.append(Spacer(1, 10))
+        
+        header_table_data = [
+            [Paragraph("<b>From:</b>", body_style), Paragraph(sender or "N/A", body_style)],
+            [Paragraph("<b>To:</b>", body_style), Paragraph(recipient or "N/A", body_style)],
+        ]
+        if cc:
+            header_table_data.append([Paragraph("<b>Cc:</b>", body_style), Paragraph(cc, body_style)])
+        header_table_data.append([Paragraph("<b>Subject:</b>", body_style), Paragraph(subject or "No Subject", body_style)])
+        header_table_data.append([Paragraph("<b>Date:</b>", body_style), Paragraph(date_header or "N/A", body_style)])
+        if reply_to:
+            header_table_data.append([Paragraph("<b>Reply-To:</b>", body_style), Paragraph(reply_to, body_style)])
+        if msg_id:
+            header_table_data.append([Paragraph("<b>Message-ID:</b>", body_style), Paragraph(msg_id, body_style)])
+
+        header_table = Table(header_table_data, colWidths=[100, 404])
+        header_table.setStyle(TableStyle([
+            ("BACKGROUND", (0, 0), (-1, -1), colors.HexColor("#F8FAFC")),
+            ("BOX", (0, 0), (-1, -1), 1, colors.HexColor("#E2E8F0")),
+            ("INNERGRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#EDF2F7")),
+            ("PADDING", (0, 0), (-1, -1), 6),
+            ("VALIGN", (0, 0), (-1, -1), "TOP"),
+        ]))
+        elements.append(header_table)
+        elements.append(Spacer(1, 15))
+
+    # Filter out raw email metadata from general evidences list
+    email_keys = ["Email Sender", "Email Recipient", "Email CC", "Email Date", "Email Reply-To", "Email Message-ID", "Email Subject"]
+    general_evidences = [ev for ev in evidences if ev["key"] not in email_keys]
 
     # 3. Evidence Breakdown Section
     elements.append(Paragraph("Evidence Breakdown (IoCs & Indicators)", h1_style))
@@ -143,6 +186,8 @@ def generate_pdf_report(incident, evidences, remediations, buffer):
 
     def get_detailed_description(key, value):
         val_lower = value.lower()
+        key_lower = key.lower()
+        
         if "https" in val_lower or "insecure http" in val_lower:
             return ("Website is not using secure HTTPS encryption. Attackers commonly use such techniques "
                     "to manipulate users, steal credentials, distribute malware, or impersonate trusted services. "
@@ -195,10 +240,28 @@ def generate_pdf_report(incident, evidences, remediations, buffer):
             return f"Deep NLP context evaluation: {value}. High semantic score suggests malicious social engineering intent."
         elif "deepfake" in val_lower:
             return f"Deep learning media classification results: {value}. Analyzed media characteristics show synthetic anomalies."
+        elif "brute-force" in val_lower or "login activities" in val_lower:
+            return f"Authentication Abuse Detected: {value}. Multiple invalid login queries suggest an active brute-forcing campaign."
+        elif "sqli" in val_lower or "sql injection" in val_lower:
+            return f"Database Exploit signature: {value}. Exploit patterns targeting backend database tables detected."
+        elif "privilege escalation" in val_lower:
+            return f"Privilege Escalation Trace: {value}. Administrative execute/su attempts detected in log logs."
+        elif "malware execution" in val_lower:
+            return f"Host Intrusion Alert: {value}. Remote payload download or direct script execution indicators detected."
+        elif "unauthorized access" in val_lower or "unauthorized probes" in val_lower:
+            return f"Access Control Threat: {value}. Requests hitting forbidden resource folders."
+        elif "wireshark" in val_lower or "packet" in val_lower or "active protocols" in val_lower:
+            return f"Network Packet telemetry: {value}"
+        elif "flood" in val_lower:
+            return f"Volumetric Flood Attack: {value}. Large influx of raw traffic indicating a potential denial of service attempt."
+        elif "port scanning" in val_lower:
+            return f"Network Reconnaissance: {value}. Attacker IP mapping ports to locate active network services."
+        elif "probe" in val_lower or "sensitive" in val_lower:
+            return f"Sensitive Service Target: {value}. Target port scan probes identified on critical system ports."
         return f"{key}: {value}"
 
-    if evidences:
-        for ev in evidences:
+    if general_evidences:
+        for ev in general_evidences:
             desc = get_detailed_description(ev["key"], ev["value"])
             elements.append(Paragraph(f"• {desc}", bullet_style))
     else:
@@ -217,8 +280,8 @@ def generate_pdf_report(incident, evidences, remediations, buffer):
     else:
         elements.append(Paragraph("• No remediation actions required. The target is classified as safe.", bullet_style))
 
-    # Page Break for multi-page structure or footer spacer
-    elements.append(Spacer(1, 40))
+    # Page Break for footer spacing
+    elements.append(Spacer(1, 30))
 
     # 5. Footer Signature
     elements.append(Paragraph("This report was generated automatically by the PHISHING & DEEPFAKE THREAT DETECTION platform.<br/>Developed by Aksht Rana", footer_style))
