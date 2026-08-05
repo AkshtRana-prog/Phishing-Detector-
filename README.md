@@ -80,8 +80,8 @@ Phishing-Detector-
 ### 1️⃣ Configure Environment
 Create a `.env` file in the project root:
 ```ini
-SMTP_USER=align.akshtrana@gmail.com
-SMTP_PASS=elpk zczf odld yvmo
+SMTP_USER=example@gmail.com
+SMTP_PASS=email 16 digit app password 
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 PUBLIC_URL=http://localhost:8000
