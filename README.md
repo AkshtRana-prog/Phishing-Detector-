@@ -71,7 +71,7 @@ Phishing-Detector-
 ### 1️⃣ Configure Environment
 Create a `.env` file in the project root:
 ```ini
-SMTP_USER=align.akshtrana@gmail.com
+SMTP_USER=example@gmail.com
 SMTP_PASS=your_16_character_app_password
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
