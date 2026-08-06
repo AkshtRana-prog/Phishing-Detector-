@@ -224,7 +224,7 @@ def analyze_deepfake_task(incident_id, file_path, media_type):
         label = res["label"]
 
         if label == "DEEPFAKE":
-            status = "PHISHING"
+            status = "DEEPFAKE"
             severity = "CRITICAL" if score >= 90 else "HIGH"
             threat_score = score
         elif label == "SUSPICIOUS":
@@ -256,6 +256,14 @@ def analyze_deepfake_task(incident_id, file_path, media_type):
             key="File Integrity",
             value=f"File Name: {os.path.basename(file_path)}, Size: {os.path.getsize(file_path)} bytes"
         ))
+        
+        # Log specific forensic signatures/reasons
+        for reason in res.get("reasons", []):
+            db.add(Evidence(
+                incident_id=incident_id,
+                key="Deepfake Forensic Artifact",
+                value=reason
+            ))
 
         # Remediation
         if label == "DEEPFAKE":
@@ -552,6 +560,80 @@ def analyze_log_task(incident_id, file_path):
 
             # Compute overall metrics
             scaled_score = min(int((score / 18) * 100), 100)
+
+        # Determine dominant attack type
+        attack_type = "None (Authentic Logs)"
+        abused_port = "N/A"
+        protocol = "N/A"
+        payload = "None"
+        attacker_ip = "N/A"
+        victim_ip = "172.25.113.214"  # Default local SOC node
+        
+        # Extract IPs
+        if 'suspicious_ips' in locals() and suspicious_ips:
+            attacker_ip = suspicious_ips[0]
+        elif is_pcap and 'unique_srcs' in locals() and unique_srcs:
+            attacker_ip = unique_srcs[0]
+            if len(unique_srcs) > 1:
+                victim_ip = unique_srcs[1]
+        
+        # Map PCAP anomalies
+        if is_pcap:
+            if 'flooding_ips' in locals() and flooding_ips:
+                attack_type = "DDoS Volumetric Flood"
+                abused_port = str(dest_ports[0]) if 'dest_ports' in locals() and dest_ports else "Generic"
+                protocol = protocols[0] if 'protocols' in locals() and protocols else "UDP"
+                payload = "High volume payload packet flooding"
+            elif 'scan_trends' in locals() and scan_trends:
+                attack_type = "Reconnaissance Port Scan"
+                abused_port = "Multiple (Range)"
+                protocol = "TCP"
+                payload = "Service mapping ports lookup"
+            elif 'accessed_sensitive' in locals() and accessed_sensitive:
+                attack_type = "Restricted Service Probe"
+                abused_port = str(accessed_sensitive[0])
+                protocol = "TCP"
+                payload = f"Connection probe targeting critical service"
+        else:
+            # Map text log anomalies
+            if 'failed_logins' in locals() and failed_logins >= 5:
+                attack_type = "Brute Force Credentials Attack"
+                abused_port = "22"
+                protocol = "SSH"
+                payload = "Multiple password mismatch queries"
+            elif 'sqli_matches' in locals() and sqli_matches >= 3:
+                attack_type = "SQL Injection (SQLi) Web Exploit"
+                abused_port = "80 / 443"
+                protocol = "HTTP"
+                payload = "Database bypass payload injection"
+            elif 'cmd_matches' in locals() and cmd_matches > 0:
+                attack_type = "Remote Command Execution (RCE)"
+                abused_port = "80 / 443"
+                protocol = "HTTP"
+                payload = "Malicious shell download attempt"
+            elif 'traversal_matches' in locals() and traversal_matches > 0:
+                attack_type = "Directory Traversal Attack"
+                abused_port = "80 / 443"
+                protocol = "HTTP"
+                payload = "System file path retrieval probe"
+            elif 'malware_matches' in locals() and malware_matches > 0:
+                attack_type = "Malware Shellcode Execution"
+                abused_port = "Generic TCP"
+                protocol = "TCP"
+                payload = "Executable shell script drop"
+            elif 'priv_esc_matches' in locals() and priv_esc_matches > 0:
+                attack_type = "Local Privilege Escalation"
+                abused_port = "Console"
+                protocol = "Local TTY"
+                payload = "Sudo access escalation probe"
+
+        # Save specific network attack evidence keys
+        evidences.append(("Attack Type", attack_type))
+        evidences.append(("Attacker IP", attacker_ip))
+        evidences.append(("Attacked Machine IP", victim_ip))
+        evidences.append(("Abused Port", abused_port))
+        evidences.append(("Abused Protocol", protocol))
+        evidences.append(("Suspicious Payload", payload))
 
         # Run self-learning model prediction on log content sample or packet metadata
         log_sample = content[:4000] if not is_pcap else f"pcap packet count: {total_pkts} active hosts: {len(unique_srcs)}"

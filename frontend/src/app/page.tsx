@@ -408,6 +408,45 @@ export default function SOCDashboard() {
     "[SCANNER] Idle. Waiting for ingestion telemetry inputs..."
   ]);
 
+  // Modern Date & Time clock state
+  const [currentTime, setCurrentTime] = useState<Date | null>(null);
+
+  // Incident list local filters
+  const [filterVector, setFilterVector] = useState("ALL");
+  const [filterStatus, setFilterStatus] = useState("ALL");
+  const [filterSeverity, setFilterSeverity] = useState("ALL");
+  const [filterSearch, setFilterSearch] = useState("");
+
+  // Clock tick interval
+  useEffect(() => {
+    setCurrentTime(new Date());
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const downloadSummaryReport = async () => {
+    try {
+      const email = localStorage.getItem("soc_user_email") || "";
+      const res = await fetch(`${API_BASE}/analytics/summary/report`, {
+        headers: { "X-User-Email": email }
+      });
+      if (res.ok) {
+        const blob = await res.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "SOC_SCANS_SUMMARY_REPORT.pdf";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      }
+    } catch (e) {
+      console.error("Failed to download summary report", e);
+    }
+  };
+
   // Check login on load
   useEffect(() => {
     const saved = localStorage.getItem("soc_user_email");
@@ -436,7 +475,11 @@ export default function SOCDashboard() {
         const nextLogs = [...prev];
         if (nextLogs.length > 5) nextLogs.shift();
         const randomLog = sysLogs[Math.floor(Math.random() * sysLogs.length)];
-        const timestamp = new Date().toISOString().slice(11, 19);
+        const now = new Date();
+        const hrs = String(now.getHours()).padStart(2, '0');
+        const mins = String(now.getMinutes()).padStart(2, '0');
+        const secs = String(now.getSeconds()).padStart(2, '0');
+        const timestamp = `${hrs}:${mins}:${secs}`;
         nextLogs.push(`[${timestamp}] [SYSTEM] ${randomLog}`);
         return nextLogs;
       });
@@ -754,6 +797,8 @@ export default function SOCDashboard() {
     switch (status.toUpperCase()) {
       case "PHISHING": 
         return "bg-rose-500/10 text-rose-400 border border-rose-500/20 shadow-[0_0_10px_rgba(244,63,94,0.1)]";
+      case "DEEPFAKE": 
+        return "bg-pink-500/10 text-pink-400 border border-pink-500/20 shadow-[0_0_10px_rgba(236,72,153,0.1)]";
       case "SUSPICIOUS": 
         return "bg-amber-500/10 text-amber-400 border border-amber-500/20 shadow-[0_0_10px_rgba(245,158,11,0.1)]";
       case "SAFE": 
@@ -766,6 +811,7 @@ export default function SOCDashboard() {
 
   const statusChartData = [
     { name: "Phishing", value: analytics.status_distribution.PHISHING, color: "#f43f5e" },
+    { name: "Deepfake", value: (analytics.status_distribution as any).DEEPFAKE || 0, color: "#ec4899" },
     { name: "Suspicious", value: analytics.status_distribution.SUSPICIOUS, color: "#f59e0b" },
     { name: "Safe/Legit", value: analytics.status_distribution.SAFE, color: "#10b981" }
   ].filter(d => d.value > 0);
@@ -890,9 +936,21 @@ export default function SOCDashboard() {
     );
   }
 
+  // Compute filtered incidents list
+  const filteredIncidents = incidents.filter((inc) => {
+    const matchVector = filterVector === "ALL" || inc.vector_type === filterVector;
+    const matchStatus = filterStatus === "ALL" || inc.status.toUpperCase() === filterStatus.toUpperCase();
+    const matchSeverity = filterSeverity === "ALL" || inc.severity.toUpperCase() === filterSeverity.toUpperCase();
+    const matchSearch =
+      !filterSearch ||
+      inc.id.toLowerCase().includes(filterSearch.toLowerCase()) ||
+      inc.target_input.toLowerCase().includes(filterSearch.toLowerCase());
+    return matchVector && matchStatus && matchSeverity && matchSearch;
+  });
+
   // Dashboard content if authenticated
   return (
-    <div className="flex flex-col min-h-screen bg-slate-950 text-slate-100 font-mono selection:bg-cyan-500/20 relative overflow-x-hidden pb-16">
+    <div className="flex flex-col min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-cyan-500/20 relative overflow-x-hidden pb-16">
       
       {/* Background Cyber Glow Grid Effect with deep shadows */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#090d16_1px,transparent_1px),linear-gradient(to_bottom,#090d16_1px,transparent_1px)] bg-[size:3rem_3rem] opacity-40 pointer-events-none"></div>
@@ -950,7 +1008,7 @@ export default function SOCDashboard() {
       <div className="max-w-7xl mx-auto w-full px-8 mt-8 flex flex-col gap-8 relative z-10">
         
         {/* 1. Tactical SOC Hero Terminal & Logs Console */}
-        <section className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+        <section className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-stretch">
           
           {/* Diagnostic HUD */}
           <div className="lg:col-span-1 rounded-2xl border border-slate-900 bg-slate-950/70 p-6 flex flex-col justify-between min-h-[260px] shadow-[0_4px_30px_rgba(0,0,0,0.8)] relative overflow-hidden">
@@ -989,6 +1047,37 @@ export default function SOCDashboard() {
             
             <div className="border-t border-slate-900 pt-3 text-[9px] text-slate-500 leading-relaxed uppercase">
               GRID LOCATION: <span className="text-slate-300 font-bold">172.25.113.214</span> // PORT: <span className="text-slate-300 font-bold">8000</span>
+            </div>
+          </div>
+
+          {/* Modern Date & Time Card */}
+          <div className="lg:col-span-1 rounded-2xl border border-slate-900 bg-slate-950/70 p-6 flex flex-col justify-between min-h-[260px] shadow-[0_4px_30px_rgba(0,0,0,0.8)] relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-2 text-[8px] text-slate-700 font-mono">SYS_CLOCK_GMT</div>
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <Clock className="h-4 w-4 text-purple-400 animate-pulse" />
+                <span className="text-xs font-black tracking-wider text-slate-350 uppercase">Chronometer Node</span>
+              </div>
+              
+              <div className="flex flex-col items-center justify-center py-4 bg-slate-900/10 border border-slate-900/60 rounded-xl p-4 shadow-inner">
+                <div className="text-2xl font-black font-mono tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-indigo-400 to-cyan-400">
+                  {currentTime ? currentTime.toLocaleTimeString() : "--:--:--"}
+                </div>
+                <div className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mt-2 font-mono text-center">
+                  {currentTime ? currentTime.toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' }) : "INITIALIZING CHRONOMETER..."}
+                </div>
+              </div>
+            </div>
+            
+            <div className="border-t border-slate-900 pt-3 flex items-center justify-between text-[9px] text-slate-500 uppercase font-mono">
+              <span>Timezone: {currentTime ? Intl.DateTimeFormat().resolvedOptions().timeZone : "GMT"}</span>
+              <span className="text-purple-450 font-bold">
+                {currentTime ? (
+                  `UTC ${currentTime.getTimezoneOffset() > 0 ? "-" : "+"}${Math.abs(Math.floor(currentTime.getTimezoneOffset() / 60))}:${Math.abs(currentTime.getTimezoneOffset() % 60).toString().padStart(2, '0')}`
+                ) : (
+                  "UTC +00:00"
+                )}
+              </span>
             </div>
           </div>
           
@@ -1241,55 +1330,122 @@ export default function SOCDashboard() {
                   <h2 className="text-xs md:text-sm font-extrabold tracking-wider text-slate-400 uppercase flex items-center gap-2">
                     <History className="h-4 w-4 text-cyan-400 animate-pulse" /> Operational Threat Queue
                   </h2>
-                  <span className="text-[10px] font-bold text-slate-500 font-mono">Telemetry: {incidents.length} logs active</span>
+                  <div className="flex items-center gap-3">
+                    <span className="hidden sm:inline-block text-[10px] font-bold text-slate-500 font-mono">Telemetry: {incidents.length} logs active</span>
+                    <button 
+                      onClick={downloadSummaryReport}
+                      className="px-2.5 py-1.5 bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white font-extrabold text-[8px] tracking-widest rounded flex items-center gap-1 transition active:scale-95 shadow-lg shadow-indigo-950/20 font-mono"
+                      title="Download Scans Summary"
+                    >
+                      <Download className="h-3 w-3" /> SUMMARY REPORT
+                    </button>
+                  </div>
+                </div>
+
+                {/* Filter Control Center */}
+                <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 bg-slate-900/10 border border-slate-900 rounded-xl p-3.5 mb-5 shadow-inner">
+                  {/* Search Input */}
+                  <div className="relative col-span-1 sm:col-span-1">
+                    <input 
+                      type="text" 
+                      placeholder="SEARCH INCIDENTS..." 
+                      value={filterSearch}
+                      onChange={(e) => setFilterSearch(e.target.value)}
+                      className="w-full bg-slate-950/80 border border-slate-800 rounded px-2.5 py-1.5 pl-7 text-[9px] font-bold text-slate-100 placeholder-slate-700 focus:outline-none focus:border-cyan-500 transition-all font-mono"
+                    />
+                    <Search className="absolute left-2.5 top-2 h-3.5 w-3.5 text-slate-650" />
+                  </div>
+                  {/* Vector dropdown */}
+                  <div>
+                    <select 
+                      value={filterVector}
+                      onChange={(e) => setFilterVector(e.target.value)}
+                      className="w-full bg-slate-950/80 border border-slate-800 rounded px-2 py-1.5 text-[9px] font-bold text-slate-350 focus:outline-none focus:border-cyan-500 transition-all cursor-pointer font-mono uppercase"
+                    >
+                      <option value="ALL">Vector: ALL</option>
+                      <option value="URL">URL</option>
+                      <option value="Email">Email</option>
+                      <option value="Log">Logs</option>
+                      <option value="Deepfake">Deepfakes</option>
+                    </select>
+                  </div>
+                  {/* Status dropdown */}
+                  <div>
+                    <select 
+                      value={filterStatus}
+                      onChange={(e) => setFilterStatus(e.target.value)}
+                      className="w-full bg-slate-950/80 border border-slate-800 rounded px-2 py-1.5 text-[9px] font-bold text-slate-350 focus:outline-none focus:border-cyan-500 transition-all cursor-pointer font-mono uppercase"
+                    >
+                      <option value="ALL">Status: ALL</option>
+                      <option value="SAFE">SAFE</option>
+                      <option value="SUSPICIOUS">SUSPICIOUS</option>
+                      <option value="DEEPFAKE">DEEPFAKE</option>
+                      <option value="PHISHING">PHISHING</option>
+                      <option value="PENDING">PENDING</option>
+                    </select>
+                  </div>
+                  {/* Severity dropdown */}
+                  <div>
+                    <select 
+                      value={filterSeverity}
+                      onChange={(e) => setFilterSeverity(e.target.value)}
+                      className="w-full bg-slate-950/80 border border-slate-800 rounded px-2 py-1.5 text-[9px] font-bold text-slate-350 focus:outline-none focus:border-cyan-500 transition-all cursor-pointer font-mono uppercase"
+                    >
+                      <option value="ALL">Severity: ALL</option>
+                      <option value="LOW">LOW</option>
+                      <option value="MEDIUM">MEDIUM</option>
+                      <option value="HIGH">HIGH</option>
+                      <option value="CRITICAL">CRITICAL</option>
+                    </select>
+                  </div>
                 </div>
                 
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs border-collapse">
                     <thead>
                       <tr className="border-b border-slate-900 text-slate-500 tracking-wider font-extrabold text-[9px] uppercase">
-                        <th className="py-3">Incident ID</th>
-                        <th className="py-3">Timestamp</th>
-                        <th className="py-3">Vector</th>
-                        <th className="py-3">Ingest Source Target</th>
-                        <th className="py-3">Severity</th>
-                        <th className="py-3">Status</th>
-                        <th className="py-3 text-right">Actions</th>
+                        <th className="py-3 px-4">Incident ID</th>
+                        <th className="py-3 px-4">Timestamp</th>
+                        <th className="py-3 px-4">Vector</th>
+                        <th className="py-3 px-4">Ingest Source Target</th>
+                        <th className="py-3 px-4">Severity</th>
+                        <th className="py-3 px-4">Status</th>
+                        <th className="py-3 px-4 text-right">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {incidents.length === 0 ? (
+                      {filteredIncidents.length === 0 ? (
                         <tr>
                           <td colSpan={7} className="py-16 text-center text-slate-700 font-semibold tracking-widest uppercase text-[10px]">
-                            No active threat incidents reported in operational history.
+                            No active threat incidents matching selected filter attributes.
                           </td>
                         </tr>
                       ) : (
-                        incidents.map((inc) => (
+                        filteredIncidents.map((inc) => (
                           <tr 
                             key={inc.id} 
                             onClick={() => setSelectedId(inc.id)}
                             className={`border-b border-slate-900/40 hover:bg-slate-900/20 cursor-pointer transition-all duration-200 ${selectedId === inc.id ? "bg-slate-900/40 border-l-2 border-l-cyan-500 shadow-inner" : ""}`}
                           >
-                            <td className="py-4 font-mono text-slate-350 font-bold">{inc.id.slice(0, 8)}...</td>
-                            <td className="py-4 text-slate-400 font-mono">{inc.timestamp.replace("T", " ").slice(0, 16)}</td>
-                            <td className="py-4">
+                            <td className="py-4 px-4 font-mono text-slate-350 font-bold">{inc.id.slice(0, 8)}...</td>
+                            <td className="py-4 px-4 text-slate-400 font-mono">{inc.timestamp.replace("T", " ").slice(0, 16)}</td>
+                            <td className="py-4 px-4">
                               <span className="font-extrabold text-slate-200">{inc.vector_type}</span>
                             </td>
-                            <td className="py-4 text-slate-400 font-mono truncate max-w-[150px]" title={inc.target_input}>
+                            <td className="py-4 px-4 text-slate-400 font-mono truncate max-w-[150px]" title={inc.target_input}>
                               {inc.target_input}
                             </td>
-                            <td className="py-4">
+                            <td className="py-4 px-4">
                               <span className={`px-2 py-0.5 rounded border text-[9px] font-black uppercase ${getSeverityStyle(inc.severity)}`}>
                                 {inc.severity.toUpperCase()}
                               </span>
                             </td>
-                            <td className="py-4">
+                            <td className="py-4 px-4">
                               <span className={`px-2 py-0.5 rounded text-[9px] font-black uppercase ${getStatusBadge(inc.status)}`}>
                                 {inc.status}
                               </span>
                             </td>
-                            <td className="py-4 text-right">
+                            <td className="py-4 px-4 text-right">
                               <div className="flex items-center justify-end gap-1.5">
                                 {inc.status !== "PENDING" && (
                                   <select 
@@ -1308,6 +1464,7 @@ export default function SOCDashboard() {
                                     <option value="PHISHING" className="text-rose-500 font-extrabold bg-slate-950">PHISHING</option>
                                     <option value="SAFE" className="text-emerald-500 font-extrabold bg-slate-950">SAFE</option>
                                     <option value="SUSPICIOUS" className="text-purple-500 font-extrabold bg-slate-950">SUSPICIOUS</option>
+                                    <option value="DEEPFAKE" className="text-pink-500 font-extrabold bg-slate-950">DEEPFAKE</option>
                                   </select>
                                 )}
                                 
@@ -1371,18 +1528,17 @@ export default function SOCDashboard() {
                       </div>
                       {selectedIncident.status === "PHISHING" && <Skull className="h-5 w-5 text-rose-500 animate-pulse" />}
                     </div>
-
                     {/* Threat Score Progress bar */}
                     <div className="mb-5 bg-slate-900/20 border border-slate-900 rounded-xl p-3.5 shadow-inner">
                       <div className="flex justify-between text-[10px] font-extrabold tracking-wider uppercase mb-1.5 font-mono">
-                        <span className="text-slate-500">Threat Rating</span>
-                        <span className={selectedIncident.status === "PHISHING" ? "text-rose-450" : selectedIncident.status === "SUSPICIOUS" ? "text-amber-450" : "text-emerald-450"}>
+                        <span className="text-slate-550">Threat Rating</span>
+                        <span className={(selectedIncident.status === "PHISHING" || selectedIncident.status === "DEEPFAKE") ? "text-rose-450" : selectedIncident.status === "SUSPICIOUS" ? "text-amber-450" : "text-emerald-450"}>
                           {selectedIncident.threat_score}%
                         </span>
                       </div>
                       <div className="w-full bg-slate-950 h-2 rounded-full overflow-hidden">
                         <div 
-                          className={`h-full transition-all duration-1000 ${selectedIncident.status === "PHISHING" ? "bg-gradient-to-r from-rose-600 to-rose-400" : selectedIncident.status === "SUSPICIOUS" ? "bg-gradient-to-r from-amber-600 to-amber-400" : "bg-gradient-to-r from-emerald-600 to-emerald-400"}`} 
+                          className={`h-full transition-all duration-1000 ${(selectedIncident.status === "PHISHING" || selectedIncident.status === "DEEPFAKE") ? "bg-gradient-to-r from-rose-600 to-rose-400" : selectedIncident.status === "SUSPICIOUS" ? "bg-gradient-to-r from-amber-600 to-amber-400" : "bg-gradient-to-r from-emerald-600 to-emerald-400"}`} 
                           style={{ width: `${selectedIncident.threat_score}%` }}
                         ></div>
                       </div>
@@ -1406,6 +1562,14 @@ export default function SOCDashboard() {
                         <span className="text-slate-550 block uppercase font-bold text-[9px] tracking-wider mb-0.5">Time Logged</span>
                         <span className="font-semibold text-slate-350">{selectedIncident.timestamp}</span>
                       </div>
+                      {selectedIncident.vector_type === "Log" && (
+                        <div className="col-span-2 border-t border-slate-900 pt-2.5 mt-1">
+                          <span className="text-slate-550 block uppercase font-bold text-[9px] tracking-wider mb-0.5">Attack Monitored</span>
+                          <span className="font-extrabold text-rose-400 uppercase animate-pulse">
+                            {selectedIncident.evidences.find(e => e.key === "Attack Type")?.value || "ANOMALOUS PROBING"}
+                          </span>
+                        </div>
+                      )}
                     </div>
 
                     {/* Evidence List */}

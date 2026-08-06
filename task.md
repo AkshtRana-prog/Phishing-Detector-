@@ -19,4 +19,6 @@
 - [x] Verify typosquatting and self-learning loops using python validation script
 - [x] Add DELETE endpoint and UI button to delete scan incidents
 - [x] Add manual POST training endpoint and Train ML selection dropdown to train model from scan
+- [x] Overhaul deepfake media classifier with binary payload forensics (Runway/Sora/Pika/ElevenLabs/RVC signatures, FFmpeg merger, silent video tracks)
+- [x] Verify deepfake forensics using python validation script
 - [x] Verify layout build and code integrity

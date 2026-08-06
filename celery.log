@@ -3,10 +3,10 @@
  
  -------------- celery@kali v5.6.3 (recovery)
 --- ***** ----- 
--- ******* ---- Linux-6.18.12+kali-amd64-x86_64-with-glibc2.42 2026-08-05 22:30:50
+-- ******* ---- Linux-6.18.12+kali-amd64-x86_64-with-glibc2.42 2026-08-06 15:06:04
 - *** --- * --- 
 - ** ---------- [config]
-- ** ---------- .> app:         tasks:0x7f70f40cde80
+- ** ---------- .> app:         tasks:0x7f8c49fe5e80
 - ** ---------- .> transport:   redis://localhost:6379/0
 - ** ---------- .> results:     redis://localhost:6379/0
 - *** --- * --- .> concurrency: 12 (prefork)
@@ -22,13 +22,9 @@
   . backend.app.tasks.analyze_log_task
   . backend.app.tasks.analyze_url_task
 
-[2026-08-05 22:30:51,430: INFO/MainProcess] Connected to redis://localhost:6379/0
-[2026-08-05 22:30:51,433: INFO/MainProcess] mingle: searching for neighbors
-[2026-08-05 22:30:52,441: INFO/MainProcess] mingle: all alone
-[2026-08-05 22:30:52,458: INFO/MainProcess] celery@kali ready.
-
-worker: Warm shutdown (MainProcess)
-
-worker: Hitting Ctrl+C again will initiate cold shutdown, terminating all running tasks!
-
-worker: Warm shutdown (MainProcess)
+[2026-08-06 15:06:04,728: INFO/MainProcess] Connected to redis://localhost:6379/0
+[2026-08-06 15:06:04,732: INFO/MainProcess] mingle: searching for neighbors
+[2026-08-06 15:06:05,739: INFO/MainProcess] mingle: all alone
+[2026-08-06 15:06:05,749: INFO/MainProcess] celery@kali ready.
+[2026-08-06 15:06:41,671: INFO/MainProcess] Task backend.app.tasks.analyze_deepfake_task[59a749a9-e5ff-44b7-809a-a8feb2ee215c] received
+[2026-08-06 15:06:42,226: INFO/ForkPoolWorker-7] Task backend.app.tasks.analyze_deepfake_task[59a749a9-e5ff-44b7-809a-a8feb2ee215c] succeeded in 0.5536558240000033s: None

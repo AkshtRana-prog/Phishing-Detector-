@@ -366,6 +366,36 @@ def get_incident_report(incident_id: str, db: Session = Depends(get_db)):
         headers={"Content-Disposition": f"attachment; filename={filename}"}
     )
 
+@app.get("/analytics/summary/report")
+def get_global_summary_report(x_user_email: Optional[str] = Header(None), db: Session = Depends(get_db)):
+    if x_user_email:
+        incidents = db.query(Incident).filter(Incident.owner_email == x_user_email).order_by(Incident.timestamp.desc()).all()
+    else:
+        incidents = db.query(Incident).filter(Incident.owner_email == "anonymous").order_by(Incident.timestamp.desc()).all()
+
+    inc_list = []
+    for inc in incidents:
+        inc_list.append({
+            "id": inc.id,
+            "timestamp": inc.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
+            "vector_type": inc.vector_type,
+            "status": inc.status,
+            "severity": inc.severity,
+            "threat_score": inc.threat_score
+        })
+
+    buffer = BytesIO()
+    from backend.app.utils.pdf_generator import generate_summary_report
+    generate_summary_report(inc_list, buffer)
+    buffer.seek(0)
+
+    filename = "SOC_SCANS_SUMMARY_REPORT.pdf"
+    return StreamingResponse(
+        buffer,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
+    )
+
 @app.get("/analytics")
 def get_analytics(x_user_email: Optional[str] = Header(None), db: Session = Depends(get_db)):
     if x_user_email:
@@ -381,6 +411,7 @@ def get_analytics(x_user_email: Optional[str] = Header(None), db: Session = Depe
     vec_counts = {"URL": 0, "Email": 0, "Deepfake": 0, "Log": 0}
     
     phishing_count = 0
+    deepfake_count = 0
     suspicious_count = 0
     safe_count = 0
 
@@ -388,6 +419,8 @@ def get_analytics(x_user_email: Optional[str] = Header(None), db: Session = Depe
         # Status counts
         if inc.status == "PHISHING":
             phishing_count += 1
+        elif inc.status == "DEEPFAKE":
+            deepfake_count += 1
         elif inc.status == "SUSPICIOUS":
             suspicious_count += 1
         else:
@@ -407,6 +440,7 @@ def get_analytics(x_user_email: Optional[str] = Header(None), db: Session = Depe
         "total_scans": total,
         "status_distribution": {
             "PHISHING": phishing_count,
+            "DEEPFAKE": deepfake_count,
             "SUSPICIOUS": suspicious_count,
             "SAFE": safe_count
         },

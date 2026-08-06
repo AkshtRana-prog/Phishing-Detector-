@@ -1,7 +1,7 @@
 {
   "class_counts": {
-    "PHISHING": 16,
-    "SAFE": 9
+    "PHISHING": 25,
+    "SAFE": 10
   },
   "token_counts": {
     "paypal-security-update": {
@@ -101,7 +101,7 @@
       "SAFE": 0
     },
     "info": {
-      "PHISHING": 1,
+      "PHISHING": 7,
       "SAFE": 0
     },
     "link": {
@@ -117,7 +117,7 @@
       "SAFE": 0
     },
     "sql": {
-      "PHISHING": 1,
+      "PHISHING": 13,
       "SAFE": 0
     },
     "injection": {
@@ -189,7 +189,7 @@
       "SAFE": 1
     },
     "from": {
-      "PHISHING": 0,
+      "PHISHING": 12,
       "SAFE": 2
     },
     "manager": {
@@ -301,31 +301,31 @@
       "SAFE": 0
     },
     "media": {
-      "PHISHING": 1,
-      "SAFE": 0
+      "PHISHING": 4,
+      "SAFE": 1
     },
     "deepfake": {
-      "PHISHING": 1,
-      "SAFE": 0
+      "PHISHING": 4,
+      "SAFE": 1
     },
     "analysis": {
-      "PHISHING": 1,
-      "SAFE": 0
+      "PHISHING": 4,
+      "SAFE": 1
     },
     "file": {
-      "PHISHING": 1,
-      "SAFE": 0
+      "PHISHING": 4,
+      "SAFE": 1
     },
     "8090193-": {
       "PHISHING": 1,
       "SAFE": 0
     },
     "mp4": {
-      "PHISHING": 1,
-      "SAFE": 0
+      "PHISHING": 4,
+      "SAFE": 1
     },
     "video": {
-      "PHISHING": 1,
+      "PHISHING": 5,
       "SAFE": 0
     },
     "utf-8": {
@@ -419,6 +419,158 @@
     "now": {
       "PHISHING": 0,
       "SAFE": 1
+    },
+    "whatsapp": {
+      "PHISHING": 2,
+      "SAFE": 0
+    },
+    "2026-08-06": {
+      "PHISHING": 26,
+      "SAFE": 0
+    },
+    "at": {
+      "PHISHING": 2,
+      "SAFE": 0
+    },
+    "01": {
+      "PHISHING": 8,
+      "SAFE": 0
+    },
+    "17": {
+      "PHISHING": 2,
+      "SAFE": 0
+    },
+    "21": {
+      "PHISHING": 2,
+      "SAFE": 0
+    },
+    "7daa3be9-4da2-4a01-84cc-": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "8c1a057542c0": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "classification": {
+      "PHISHING": 1,
+      "SAFE": 1
+    },
+    "safe": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "a43884c4-bb3b-4370-b67c-": {
+      "PHISHING": 1,
+      "SAFE": 0
+    },
+    "ee0292d3aaed": {
+      "PHISHING": 1,
+      "SAFE": 0
+    },
+    "phishing": {
+      "PHISHING": 1,
+      "SAFE": 0
+    },
+    "15": {
+      "PHISHING": 24,
+      "SAFE": 0
+    },
+    "00": {
+      "PHISHING": 30,
+      "SAFE": 0
+    },
+    "starting": {
+      "PHISHING": 6,
+      "SAFE": 0
+    },
+    "web": {
+      "PHISHING": 6,
+      "SAFE": 0
+    },
+    "application": {
+      "PHISHING": 6,
+      "SAFE": 0
+    },
+    "warn": {
+      "PHISHING": 12,
+      "SAFE": 0
+    },
+    "query": {
+      "PHISHING": 12,
+      "SAFE": 0
+    },
+    "error": {
+      "PHISHING": 12,
+      "SAFE": 0
+    },
+    "select": {
+      "PHISHING": 24,
+      "SAFE": 0
+    },
+    "users": {
+      "PHISHING": 6,
+      "SAFE": 0
+    },
+    "where": {
+      "PHISHING": 6,
+      "SAFE": 0
+    },
+    "username": {
+      "PHISHING": 6,
+      "SAFE": 0
+    },
+    "admin": {
+      "PHISHING": 6,
+      "SAFE": 0
+    },
+    "union": {
+      "PHISHING": 12,
+      "SAFE": 0
+    },
+    "all": {
+      "PHISHING": 6,
+      "SAFE": 0
+    },
+    "null": {
+      "PHISHING": 18,
+      "SAFE": 0
+    },
+    "02": {
+      "PHISHING": 6,
+      "SAFE": 0
+    },
+    "malicious": {
+      "PHISHING": 6,
+      "SAFE": 0
+    },
+    "bypass": {
+      "PHISHING": 6,
+      "SAFE": 0
+    },
+    "or": {
+      "PHISHING": 6,
+      "SAFE": 0
+    },
+    "03": {
+      "PHISHING": 6,
+      "SAFE": 0
+    },
+    "syntax": {
+      "PHISHING": 6,
+      "SAFE": 0
+    },
+    "exception": {
+      "PHISHING": 6,
+      "SAFE": 0
+    },
+    "password": {
+      "PHISHING": 6,
+      "SAFE": 0
+    },
+    "accounts": {
+      "PHISHING": 6,
+      "SAFE": 0
     }
   }
 }
