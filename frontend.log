@@ -4,9 +4,54 @@
 
 ▲ Next.js 16.3.0 (Turbopack)
 - Local:         http://localhost:3000
-- Network:       http://192.168.1.9:3000
-✓ Ready in 330ms
-✓ Running next.config.ts took 30ms
+- Network:       http://192.168.1.3:3000
+✓ Ready in 664ms
+✓ Running next.config.ts took 62ms
 
- GET / 200 in 370ms (next.js: 160ms, application-code: 209ms)
-[browser] Failed to fetch detail TypeError: NetworkError when attempting to fetch resource.
+ GET / 200 in 995ms (next.js: 413ms, application-code: 582ms)
+[browser] Failed to fetch incidents TypeError: NetworkError when attempting to fetch resource.
+[browser] Failed to fetch analytics TypeError: NetworkError when attempting to fetch resource.
+[browser] Failed to fetch incidents TypeError: NetworkError when attempting to fetch resource.
+[browser] Failed to fetch analytics TypeError: NetworkError when attempting to fetch resource.
+[browser] Failed to fetch incidents TypeError: NetworkError when attempting to fetch resource.
+[browser] Failed to fetch analytics TypeError: NetworkError when attempting to fetch resource.
+[browser] Failed to fetch incidents TypeError: NetworkError when attempting to fetch resource.
+[browser] Failed to fetch analytics TypeError: NetworkError when attempting to fetch resource.
+[browser] Failed to fetch incidents TypeError: NetworkError when attempting to fetch resource.
+[browser] Failed to fetch analytics TypeError: NetworkError when attempting to fetch resource.
+[browser] Failed to fetch incidents TypeError: NetworkError when attempting to fetch resource.
+[browser] Failed to fetch analytics TypeError: NetworkError when attempting to fetch resource.
+[browser] Failed to fetch incidents TypeError: NetworkError when attempting to fetch resource.
+[browser] Failed to fetch analytics TypeError: NetworkError when attempting to fetch resource.
+[browser] TypeError: NetworkError when attempting to fetch resource.
+[browser] Failed to fetch incidents TypeError: NetworkError when attempting to fetch resource.
+[browser] Failed to fetch analytics TypeError: NetworkError when attempting to fetch resource.
+[browser] TypeError: NetworkError when attempting to fetch resource.
+[browser] TypeError: NetworkError when attempting to fetch resource.
+[browser] Failed to fetch incidents TypeError: NetworkError when attempting to fetch resource.
+[browser] Failed to fetch analytics TypeError: NetworkError when attempting to fetch resource.
+ GET / 200 in 239ms (next.js: 52ms, application-code: 188ms)
+ GET / 200 in 285ms (next.js: 55ms, application-code: 230ms)
+ GET / 200 in 103ms (next.js: 8ms, application-code: 95ms)
+✓ Compiled in 635ms
+ GET / 200 in 90ms (next.js: 28ms, application-code: 62ms)
+✓ Compiled in 130ms
+ GET / 200 in 118ms (next.js: 17ms, application-code: 101ms)
+[browser] The final argument passed to useEffect changed size between renders. The order and size of this array must remain constant.
+
+Previous: [()=>{
+                        setRunTransition(false);
+                        localStorage.setItem("soc_user_email", authEmail.trim().toLowerCase());
+                        setUserEmail(authEmail.trim().toLowerCase());
+                        setIsLoggedIn(true);
+                    }]
+Incoming: [] 
+    at TransitionAnimation (src/app/page.tsx:80:12)
+  78 |   }, [onComplete]);
+  79 |
+> 80 |   useEffect(() => {
+     |            ^
+  81 |     const canvas = canvasRef.current;
+  82 |     if (!canvas) return;
+  83 | (src/app/page.tsx:80:12)
+ GET / 200 in 303ms (next.js: 47ms, application-code: 256ms)

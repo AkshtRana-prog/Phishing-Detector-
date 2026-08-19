@@ -1,7 +1,7 @@
 {
   "class_counts": {
-    "PHISHING": 25,
-    "SAFE": 10
+    "PHISHING": 28,
+    "SAFE": 13
   },
   "token_counts": {
     "paypal-security-update": {
@@ -9,7 +9,7 @@
       "SAFE": 0
     },
     "com": {
-      "PHISHING": 10,
+      "PHISHING": 12,
       "SAFE": 5
     },
     "login-microsoft-auth": {
@@ -21,7 +21,7 @@
       "SAFE": 0
     },
     "amazox": {
-      "PHISHING": 1,
+      "PHISHING": 2,
       "SAFE": 0
     },
     "verify-google-identity": {
@@ -66,7 +66,7 @@
     },
     "action": {
       "PHISHING": 1,
-      "SAFE": 0
+      "SAFE": 16
     },
     "you": {
       "PHISHING": 1,
@@ -86,11 +86,11 @@
     },
     "login": {
       "PHISHING": 6,
-      "SAFE": 0
+      "SAFE": 8
     },
     "to": {
       "PHISHING": 11,
-      "SAFE": 2
+      "SAFE": 4
     },
     "claim": {
       "PHISHING": 6,
@@ -101,7 +101,7 @@
       "SAFE": 0
     },
     "info": {
-      "PHISHING": 7,
+      "PHISHING": 8,
       "SAFE": 0
     },
     "link": {
@@ -117,7 +117,7 @@
       "SAFE": 0
     },
     "sql": {
-      "PHISHING": 13,
+      "PHISHING": 15,
       "SAFE": 0
     },
     "injection": {
@@ -178,7 +178,7 @@
     },
     "status": {
       "PHISHING": 0,
-      "SAFE": 1
+      "SAFE": 10
     },
     "report": {
       "PHISHING": 0,
@@ -189,8 +189,8 @@
       "SAFE": 1
     },
     "from": {
-      "PHISHING": 12,
-      "SAFE": 2
+      "PHISHING": 14,
+      "SAFE": 3
     },
     "manager": {
       "PHISHING": 0,
@@ -270,7 +270,7 @@
     },
     "your": {
       "PHISHING": 5,
-      "SAFE": 2
+      "SAFE": 4
     },
     "refund": {
       "PHISHING": 5,
@@ -330,102 +330,102 @@
     },
     "utf-8": {
       "PHISHING": 0,
-      "SAFE": 1
+      "SAFE": 2
     },
     "book": {
       "PHISHING": 0,
-      "SAFE": 2
+      "SAFE": 4
     },
     "return": {
       "PHISHING": 0,
-      "SAFE": 1
+      "SAFE": 2
     },
     "trip": {
       "PHISHING": 0,
-      "SAFE": 1
+      "SAFE": 2
     },
     "delhi": {
       "PHISHING": 0,
-      "SAFE": 1
+      "SAFE": 2
     },
     "with": {
       "PHISHING": 0,
-      "SAFE": 1
+      "SAFE": 2
     },
     "new": {
       "PHISHING": 0,
-      "SAFE": 1
+      "SAFE": 2
     },
     "walia": {
       "PHISHING": 0,
-      "SAFE": 1
+      "SAFE": 2
     },
     "travels": {
       "PHISHING": 0,
-      "SAFE": 1
+      "SAFE": 2
     },
     "and": {
       "PHISHING": 0,
-      "SAFE": 1
+      "SAFE": 2
     },
     "save": {
       "PHISHING": 0,
-      "SAFE": 1
+      "SAFE": 2
     },
     "minimum": {
       "PHISHING": 0,
-      "SAFE": 1
+      "SAFE": 2
     },
     "10": {
       "PHISHING": 0,
-      "SAFE": 1
+      "SAFE": 5
     },
     "complete": {
       "PHISHING": 0,
-      "SAFE": 1
+      "SAFE": 2
     },
     "booking": {
       "PHISHING": 0,
-      "SAFE": 1
+      "SAFE": 2
     },
     "by": {
       "PHISHING": 0,
-      "SAFE": 1
+      "SAFE": 2
     },
     "18": {
       "PHISHING": 0,
-      "SAFE": 1
+      "SAFE": 2
     },
     "jul": {
       "PHISHING": 0,
-      "SAFE": 1
+      "SAFE": 2
     },
     "2026": {
       "PHISHING": 0,
-      "SAFE": 1
+      "SAFE": 2
     },
     "avail": {
       "PHISHING": 0,
-      "SAFE": 1
+      "SAFE": 2
     },
     "the": {
       "PHISHING": 0,
-      "SAFE": 1
+      "SAFE": 2
     },
     "offer": {
       "PHISHING": 0,
-      "SAFE": 1
+      "SAFE": 2
     },
     "now": {
       "PHISHING": 0,
-      "SAFE": 1
+      "SAFE": 2
     },
     "whatsapp": {
       "PHISHING": 2,
       "SAFE": 0
     },
     "2026-08-06": {
-      "PHISHING": 26,
+      "PHISHING": 30,
       "SAFE": 0
     },
     "at": {
@@ -433,16 +433,16 @@
       "SAFE": 0
     },
     "01": {
-      "PHISHING": 8,
-      "SAFE": 0
+      "PHISHING": 9,
+      "SAFE": 4
     },
     "17": {
       "PHISHING": 2,
-      "SAFE": 0
+      "SAFE": 3
     },
     "21": {
       "PHISHING": 2,
-      "SAFE": 0
+      "SAFE": 3
     },
     "7daa3be9-4da2-4a01-84cc-": {
       "PHISHING": 0,
@@ -473,103 +473,559 @@
       "SAFE": 0
     },
     "15": {
-      "PHISHING": 24,
+      "PHISHING": 28,
       "SAFE": 0
     },
     "00": {
-      "PHISHING": 30,
-      "SAFE": 0
+      "PHISHING": 35,
+      "SAFE": 5
     },
     "starting": {
-      "PHISHING": 6,
+      "PHISHING": 7,
       "SAFE": 0
     },
     "web": {
-      "PHISHING": 6,
+      "PHISHING": 7,
       "SAFE": 0
     },
     "application": {
-      "PHISHING": 6,
+      "PHISHING": 7,
       "SAFE": 0
     },
     "warn": {
-      "PHISHING": 12,
+      "PHISHING": 14,
       "SAFE": 0
     },
     "query": {
-      "PHISHING": 12,
+      "PHISHING": 14,
       "SAFE": 0
     },
     "error": {
-      "PHISHING": 12,
+      "PHISHING": 14,
       "SAFE": 0
     },
     "select": {
-      "PHISHING": 24,
+      "PHISHING": 28,
       "SAFE": 0
     },
     "users": {
-      "PHISHING": 6,
+      "PHISHING": 7,
       "SAFE": 0
     },
     "where": {
-      "PHISHING": 6,
+      "PHISHING": 7,
       "SAFE": 0
     },
     "username": {
-      "PHISHING": 6,
-      "SAFE": 0
+      "PHISHING": 7,
+      "SAFE": 17
     },
     "admin": {
-      "PHISHING": 6,
+      "PHISHING": 7,
       "SAFE": 0
     },
     "union": {
-      "PHISHING": 12,
+      "PHISHING": 14,
       "SAFE": 0
     },
     "all": {
-      "PHISHING": 6,
+      "PHISHING": 7,
       "SAFE": 0
     },
     "null": {
-      "PHISHING": 18,
+      "PHISHING": 21,
       "SAFE": 0
     },
     "02": {
-      "PHISHING": 6,
-      "SAFE": 0
+      "PHISHING": 7,
+      "SAFE": 3
     },
     "malicious": {
-      "PHISHING": 6,
+      "PHISHING": 7,
       "SAFE": 0
     },
     "bypass": {
-      "PHISHING": 6,
+      "PHISHING": 7,
       "SAFE": 0
     },
     "or": {
-      "PHISHING": 6,
+      "PHISHING": 7,
       "SAFE": 0
     },
     "03": {
-      "PHISHING": 6,
-      "SAFE": 0
+      "PHISHING": 7,
+      "SAFE": 2
     },
     "syntax": {
-      "PHISHING": 6,
+      "PHISHING": 7,
       "SAFE": 0
     },
     "exception": {
-      "PHISHING": 6,
+      "PHISHING": 7,
       "SAFE": 0
     },
     "password": {
-      "PHISHING": 6,
+      "PHISHING": 7,
       "SAFE": 0
     },
     "accounts": {
-      "PHISHING": 6,
+      "PHISHING": 7,
+      "SAFE": 0
+    },
+    "michel": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "john": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "167": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "132": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "179": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "121": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "united": {
+      "PHISHING": 0,
+      "SAFE": 16
+    },
+    "states": {
+      "PHISHING": 0,
+      "SAFE": 16
+    },
+    "eventtime": {
+      "PHISHING": 0,
+      "SAFE": 16
+    },
+    "2022-01-01t07": {
+      "PHISHING": 0,
+      "SAFE": 5
+    },
+    "58": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "42": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "built": {
+      "PHISHING": 0,
+      "SAFE": 8
+    },
+    "company": {
+      "PHISHING": 0,
+      "SAFE": 16
+    },
+    "cybert": {
+      "PHISHING": 0,
+      "SAFE": 16
+    },
+    "protocol": {
+      "PHISHING": 0,
+      "SAFE": 16
+    },
+    "tcp": {
+      "PHISHING": 0,
+      "SAFE": 16
+    },
+    "port": {
+      "PHISHING": 0,
+      "SAFE": 16
+    },
+    "443": {
+      "PHISHING": 0,
+      "SAFE": 16
+    },
+    "index": {
+      "PHISHING": 0,
+      "SAFE": 20
+    },
+    "south": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "carolina": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "2022-01-01t17": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "26": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "59": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "teardown": {
+      "PHISHING": 0,
+      "SAFE": 8
+    },
+    "sam": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "browne": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "151": {
+      "PHISHING": 0,
+      "SAFE": 4
+    },
+    "164": {
+      "PHISHING": 0,
+      "SAFE": 4
+    },
+    "65": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "80": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "florida": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "45": {
+      "PHISHING": 0,
+      "SAFE": 4
+    },
+    "39": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "penny": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "107": {
+      "PHISHING": 0,
+      "SAFE": 6
+    },
+    "14": {
+      "PHISHING": 0,
+      "SAFE": 3
+    },
+    "105": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "104": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "2022-01-01t08": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "52": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "55": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "taxis": {
+      "PHISHING": 0,
+      "SAFE": 4
+    },
+    "2022-01-01t16": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "07": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "19": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "anita": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "57": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "163": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "44": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "2022-01-01t18": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "24": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "bobby": {
+      "PHISHING": 0,
+      "SAFE": 3
+    },
+    "232": {
+      "PHISHING": 0,
+      "SAFE": 4
+    },
+    "195": {
+      "PHISHING": 0,
+      "SAFE": 4
+    },
+    "29": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "ohio": {
+      "PHISHING": 0,
+      "SAFE": 4
+    },
+    "2022-01-01t12": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "28": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "13": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "andrey": {
+      "PHISHING": 0,
+      "SAFE": 6
+    },
+    "37": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "64": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "169": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "223": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "215": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "25": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "maine": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "49": {
+      "PHISHING": 0,
+      "SAFE": 3
+    },
+    "247": {
+      "PHISHING": 0,
+      "SAFE": 3
+    },
+    "246": {
+      "PHISHING": 0,
+      "SAFE": 3
+    },
+    "102": {
+      "PHISHING": 0,
+      "SAFE": 3
+    },
+    "20": {
+      "PHISHING": 0,
+      "SAFE": 3
+    },
+    "2022-01-01t09": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "11": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "georgia": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "2022-01-01t13": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "sour": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "192": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "168": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "50": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "time": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "method": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "request": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "2021-06-25t07": {
+      "PHISHING": 0,
+      "SAFE": 23
+    },
+    "23": {
+      "PHISHING": 0,
+      "SAFE": 9
+    },
+    "000z": {
+      "PHISHING": 0,
+      "SAFE": 23
+    },
+    "get": {
+      "PHISHING": 0,
+      "SAFE": 21
+    },
+    "401": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "unauthorized": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "200": {
+      "PHISHING": 0,
+      "SAFE": 21
+    },
+    "success": {
+      "PHISHING": 0,
+      "SAFE": 20
+    },
+    "css": {
+      "PHISHING": 0,
+      "SAFE": 4
+    },
+    "js": {
+      "PHISHING": 0,
+      "SAFE": 4
+    },
+    "post": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "authorizeduserid": {
+      "PHISHING": 0,
+      "SAFE": 13
+    },
+    "5eckr4dtalldadmgqmmj3g": {
+      "PHISHING": 0,
+      "SAFE": 5
+    },
+    "46": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "api": {
+      "PHISHING": 0,
+      "SAFE": 7
+    },
+    "factory": {
+      "PHISHING": 0,
+      "SAFE": 14
+    },
+    "machine": {
+      "PHISHING": 0,
+      "SAFE": 10
+    },
+    "meiyo": {
+      "PHISHING": 0,
+      "SAFE": 3
+    },
+    "73": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "47": {
+      "PHISHING": 0,
+      "SAFE": 4
+    },
+    "48": {
+      "PHISHING": 0,
+      "SAFE": 8
+    },
+    "1ftyzhwx9c8jjtziyqq4bs": {
+      "PHISHING": 0,
+      "SAFE": 8
+    },
+    "04": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "laserwelder": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "12": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "berlin": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "lasercutter": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "su": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "gaagal": {
+      "PHISHING": 1,
       "SAFE": 0
     }
   }

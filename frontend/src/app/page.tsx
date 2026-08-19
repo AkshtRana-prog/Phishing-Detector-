@@ -71,6 +71,11 @@ interface CanvasAnimationProps {
 
 function TransitionAnimation({ onComplete }: CanvasAnimationProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const onCompleteRef = useRef(onComplete);
+
+  useEffect(() => {
+    onCompleteRef.current = onComplete;
+  }, [onComplete]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -332,7 +337,7 @@ function TransitionAnimation({ onComplete }: CanvasAnimationProps) {
       if (elapsed >= 3700) {
         cancelAnimationFrame(animationId);
         window.removeEventListener("resize", handleResize);
-        onComplete();
+        onCompleteRef.current();
         return;
       }
 
@@ -345,7 +350,7 @@ function TransitionAnimation({ onComplete }: CanvasAnimationProps) {
       cancelAnimationFrame(animationId);
       window.removeEventListener("resize", handleResize);
     };
-  }, [onComplete]);
+  }, []);
 
   return (
     <canvas 
@@ -851,8 +856,8 @@ export default function SOCDashboard() {
             <div className="relative inline-flex items-center justify-center mb-6">
               <div className="absolute inset-0 bg-purple-500/30 rounded-full blur-xl animate-pulse"></div>
               <div className="relative w-20 h-20 rounded-full border-2 border-dashed border-purple-500/50 flex items-center justify-center bg-slate-900/90 shadow-[0_0_20px_rgba(168,85,247,0.4)] animate-[spin_40s_linear_infinite]"></div>
-              <div className="absolute w-14 h-14 rounded-full border-2 border-purple-400 bg-slate-950 flex items-center justify-center shadow-inner">
-                <Shield className="h-6 w-6 text-purple-400" />
+              <div className="absolute w-14 h-14 rounded-full border-2 border-purple-400 bg-slate-950 overflow-hidden flex items-center justify-center shadow-inner">
+                <img src="/logo.jpg" alt="Logo" className="w-full h-full object-cover" />
               </div>
             </div>
             <h1 className="font-extrabold text-lg md:text-xl tracking-wider text-slate-100 uppercase">THREAT INTELLIGENCE</h1>
@@ -967,7 +972,9 @@ export default function SOCDashboard() {
       <header className="border-b border-slate-900 bg-slate-950/60 backdrop-blur-2xl px-8 py-4.5 flex items-center justify-between sticky top-0 z-50 shadow-2xl">
         <div className="flex items-center gap-8">
           <div className="flex items-center gap-3">
-            <div className="w-2.5 h-2.5 bg-cyan-500 rounded-full animate-ping"></div>
+            <div className="w-8 h-8 rounded-full border border-cyan-500/40 overflow-hidden shrink-0 shadow-lg shadow-cyan-950/20">
+              <img src="/logo.jpg" alt="Logo" className="w-full h-full object-cover" />
+            </div>
             <span className="font-black text-base md:text-lg tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-400 uppercase">
               THREAT COMMAND CENTER
             </span>
