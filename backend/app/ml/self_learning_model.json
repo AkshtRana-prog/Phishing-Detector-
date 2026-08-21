@@ -1,6 +1,6 @@
 {
   "class_counts": {
-    "PHISHING": 28,
+    "PHISHING": 31,
     "SAFE": 13
   },
   "token_counts": {
@@ -9,7 +9,7 @@
       "SAFE": 0
     },
     "com": {
-      "PHISHING": 12,
+      "PHISHING": 15,
       "SAFE": 5
     },
     "login-microsoft-auth": {
@@ -161,7 +161,7 @@
       "SAFE": 1
     },
     "google": {
-      "PHISHING": 0,
+      "PHISHING": 3,
       "SAFE": 1
     },
     "facebook": {
@@ -1026,6 +1026,22 @@
     },
     "gaagal": {
       "PHISHING": 1,
+      "SAFE": 0
+    },
+    "https": {
+      "PHISHING": 3,
+      "SAFE": 0
+    },
+    "gemini": {
+      "PHISHING": 3,
+      "SAFE": 0
+    },
+    "app": {
+      "PHISHING": 3,
+      "SAFE": 0
+    },
+    "6b9f8ba999e2bc19": {
+      "PHISHING": 3,
       "SAFE": 0
     }
   }

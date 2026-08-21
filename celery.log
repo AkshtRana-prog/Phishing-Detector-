@@ -1,1 +1,34 @@
-./start_platform.sh: ./venv/bin/celery: /home/aksht/Phishing-Detector-/venv/bin/python3: bad interpreter: No such file or directory
+[!] NLP Model loading skipped (Using Heuristic Fallback). Reason: No module named 'transformers'
+[!] Audio Deepfake Model skipped (Using Heuristic Fallback). Reason: No module named 'transformers'
+ 
+ -------------- celery@kali v5.6.3 (recovery)
+--- ***** ----- 
+-- ******* ---- Linux-6.18.12+kali-amd64-x86_64-with-glibc2.42 2026-08-21 18:54:46
+- *** --- * --- 
+- ** ---------- [config]
+- ** ---------- .> app:         tasks:0x7f2c6c1f9e80
+- ** ---------- .> transport:   redis://localhost:6379/0
+- ** ---------- .> results:     redis://localhost:6379/0
+- *** --- * --- .> concurrency: 12 (prefork)
+-- ******* ---- .> task events: OFF (enable -E to monitor tasks in this worker)
+--- ***** ----- 
+ -------------- [queues]
+                .> celery           exchange=celery(direct) key=celery
+                
+
+[tasks]
+  . backend.app.tasks.analyze_deepfake_task
+  . backend.app.tasks.analyze_eml_task
+  . backend.app.tasks.analyze_log_task
+  . backend.app.tasks.analyze_url_task
+
+[2026-08-21 18:54:47,613: INFO/MainProcess] Connected to redis://localhost:6379/0
+[2026-08-21 18:54:47,620: INFO/MainProcess] mingle: searching for neighbors
+[2026-08-21 18:54:48,637: INFO/MainProcess] mingle: all alone
+[2026-08-21 18:54:48,670: INFO/MainProcess] celery@kali ready.
+[2026-08-21 18:54:48,868: INFO/MainProcess] Task backend.app.tasks.analyze_url_task[fa1a4642-d00c-4b44-b362-94449f463be2] received
+[2026-08-21 18:54:48,920: INFO/ForkPoolWorker-3] Task backend.app.tasks.analyze_url_task[fa1a4642-d00c-4b44-b362-94449f463be2] succeeded in 0.051603047999947194s: None
+[2026-08-21 18:54:49,129: INFO/MainProcess] Task backend.app.tasks.analyze_url_task[7c1da80a-bf24-4aee-a41d-81005d302823] received
+[2026-08-21 18:54:49,138: INFO/ForkPoolWorker-3] Task backend.app.tasks.analyze_url_task[7c1da80a-bf24-4aee-a41d-81005d302823] succeeded in 0.00851021200003288s: None
+[2026-08-21 18:54:49,360: INFO/MainProcess] Task backend.app.tasks.analyze_url_task[01513c04-94f9-4a89-bbb1-75a83da1246d] received
+[2026-08-21 18:54:49,368: INFO/ForkPoolWorker-3] Task backend.app.tasks.analyze_url_task[01513c04-94f9-4a89-bbb1-75a83da1246d] succeeded in 0.007479350000039631s: None

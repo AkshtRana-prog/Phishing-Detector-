@@ -1,26 +1,349 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #080F17;
+  --foreground: #F3F5F7;
+  --surface-primary: #0D111A;
+  --surface-secondary: #111725;
+  --border-color: rgba(255, 255, 255, 0.06);
+  --text-secondary: #8D96A3;
+  --text-muted: #626B78;
+}
+
+.glass-premium {
+  background: rgba(13, 17, 26, 0.75);
+  backdrop-filter: blur(20px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.6);
+}
+
+.glass-sidebar {
+  background: rgba(8, 15, 23, 0.65) !important;
+  backdrop-filter: blur(24px) saturate(190%) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.glass-header {
+  background: rgba(8, 15, 23, 0.6) !important;
+  backdrop-filter: blur(20px) saturate(190%) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.glass-drawer {
+  background: rgba(13, 17, 26, 0.75) !important;
+  backdrop-filter: blur(30px) saturate(200%) !important;
+  border-left: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: -15px 0 50px rgba(0, 0, 0, 0.6) !important;
+}
+
+@keyframes orb-float-1 {
+  0%, 100% { transform: translateY(0px) scale(1); }
+  50% { transform: translateY(-10px) scale(1.05); }
+}
+
+@keyframes orb-float-2 {
+  0%, 100% { transform: translateY(0px) scale(1); }
+  50% { transform: translateY(10px) scale(0.95); }
+}
+
+.animate-orb-1 {
+  animation: orb-float-1 20s infinite ease-in-out;
+}
+
+.animate-orb-2 {
+  animation: orb-float-2 25s infinite ease-in-out;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-surface-primary: var(--surface-primary);
+  --color-border-color: var(--border-color);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
 }
+
+/* Glassmorphism Design Tokens */
+.glass-panel {
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+}
+
+.glass-panel-elevated {
+  background: rgba(20, 30, 54, 0.75);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.35);
+}
+
+/* Shifting Ambient Orbs Animation */
+@keyframes orb-slow-float-1 {
+  0% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  33% {
+    transform: translate(60px, -80px) scale(1.2);
+  }
+  66% {
+    transform: translate(-40px, 40px) scale(0.85);
+  }
+  100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+}
+
+@keyframes orb-slow-float-2 {
+  0% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  50% {
+    transform: translate(-80px, 70px) scale(1.15);
+  }
+  100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+}
+
+@keyframes orb-slow-float-3 {
+  0% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  50% {
+    transform: translate(50px, 50px) scale(0.9);
+  }
+  100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+}
+
+.animate-orb-1 {
+  animation: orb-slow-float-1 25s infinite ease-in-out;
+}
+
+.animate-orb-2 {
+  animation: orb-slow-float-2 30s infinite ease-in-out;
+}
+
+.animate-orb-3 {
+  animation: orb-slow-float-3 28s infinite ease-in-out;
+}
+
+/* Light mode overrides */
+.theme-light {
+  --background: #F4F6F9 !important;
+  --foreground: #1E293B !important;
+  background-color: #F4F6F9 !important;
+  color: #1E293B !important;
+}
+
+/* Map all dark background utilities to light mode colors */
+.theme-light [class*="bg-[#080F17]"],
+.theme-light [class*="bg-[#080B12]"],
+.theme-light [class*="bg-[#080b12]"],
+.theme-light [class*="bg-slate-950"] {
+  background-color: #F4F6F9 !important;
+}
+
+.theme-light [class*="bg-[#0D111A]"],
+.theme-light [class*="bg-[#0d111a]"],
+.theme-light [class*="bg-[#111725]"],
+.theme-light [class*="bg-[#111725]/80"],
+.theme-light [class*="bg-[#111725]/90"],
+.theme-light [class*="bg-slate-900"] {
+  background-color: #FFFFFF !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Ensure the log cards and header search input are explicitly white */
+.theme-light [class*="bg-[#080B12]/60"],
+.theme-light [class*="bg-[#080b12]/60"],
+.theme-light [class*="bg-[#080B12]/80"],
+.theme-light [class*="bg-[#080b12]/80"] {
+  background-color: #FFFFFF !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+}
+
+.theme-light .border-white\/5,
+.theme-light .border-white\/8,
+.theme-light .border-white\/10 {
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+.theme-light .text-\[\#8D96A3\],
+.theme-light .text-slate-400,
+.theme-light [class*="text-[#8D96A3]"] {
+  color: #475569 !important;
+}
+
+.theme-light .text-\[\#626B78\],
+.theme-light .text-slate-500,
+.theme-light [class*="text-[#626B78]"] {
+  color: #64748B !important;
+}
+
+.theme-light .text-white,
+.theme-light [class*="text-white"] {
+  color: #0F172A !important;
+}
+
+.theme-light .glass-sidebar {
+  background: rgba(255, 255, 255, 0.75) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  border-right: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+.theme-light .glass-header {
+  background: rgba(255, 255, 255, 0.7) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+.theme-light .glass-drawer {
+  background: rgba(255, 255, 255, 0.85) !important;
+  backdrop-filter: blur(30px) saturate(180%) !important;
+  border-left: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: -15px 0 50px rgba(0, 0, 0, 0.05) !important;
+}
+
+.theme-light .glass-premium {
+  background: rgba(255, 255, 255, 0.8) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.06) !important;
+}
+
+.theme-light input,
+.theme-light textarea {
+  background-color: #FFFFFF !important;
+  color: #0F172A !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+}
+
+.theme-light table thead tr {
+  background-color: #F1F5F9 !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+.theme-light table tbody tr:hover {
+  background-color: #F8FAFC !important;
+}
+
+.theme-light .bg-radial-orb {
+  opacity: 0.12 !important;
+}
+
+.theme-light .text-purple-400 {
+  color: #7C3AED !important;
+}
+
+.theme-light .text-blue-400 {
+  color: #2563EB !important;
+}
+
+.theme-light .bg-purple-600 {
+  background-color: #7C3AED !important;
+}
+
+.theme-light .bg-blue-500 {
+  background-color: #2563EB !important;
+}
+
+.theme-light .bg-white\/5 {
+  background-color: rgba(0, 0, 0, 0.03) !important;
+}
+
+.theme-light .bg-white\/10 {
+  background-color: rgba(0, 0, 0, 0.06) !important;
+}
+
+/* Override dark black overlays in light mode to clean light gray containers */
+.theme-light [class*="bg-black/40"],
+.theme-light [class*="bg-black/25"],
+.theme-light [class*="bg-black/20"],
+.theme-light [class*="bg-black/"] {
+  background-color: #F1F5F9 !important;
+  color: #1E293B !important;
+  border: 1px solid rgba(0, 0, 0, 0.06) !important;
+}
+
+@media print {
+  /* Setup page settings to fit standard A4/Letter nicely */
+  @page {
+    size: letter portrait;
+    margin: 0;
+  }
+
+  body, html {
+    background: #080F17 !important;
+    color: #FFFFFF !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Hide sidebar, top headers, action controls, and popups */
+  aside, 
+  header, 
+  nav, 
+  button, 
+  select, 
+  .no-print,
+  .no-print * {
+    display: none !important;
+  }
+
+  /* Override main layout grid behavior for full-width print flow */
+  .flex-1, 
+  main,
+  div {
+    box-shadow: none !important;
+  }
+
+  /* Setup full page printable grid */
+  .print-report-grid {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Force each card to be exactly one printed page */
+  .print-report-grid > div {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    min-height: 100vh !important;
+    page-break-after: always !important;
+    break-after: page !important;
+    margin: 0 !important;
+    padding: 48px !important;
+    box-sizing: border-box !important;
+    background: #0D111A !important;
+    border: none !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+
+
+
+

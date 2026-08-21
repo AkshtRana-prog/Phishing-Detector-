@@ -7,28 +7,17 @@ echo "========================================================"
 # Navigate to project root
 cd "$(dirname "$0")"
 
-# 1. Stop host services if running to allow docker port binding
-echo "[*] Ensuring database ports are free (stopping host PostgreSQL/Redis)..."
-sudo systemctl stop postgresql redis-server 2>/dev/null || true
-
-# 2. Start PostgreSQL and Redis Docker containers
-echo "[*] Booting PostgreSQL and Redis Docker containers..."
-if docker start threat-detector-postgres threat-detector-redis 2>/dev/null; then
-    echo "[+] Docker containers threat-detector-postgres & threat-detector-redis started."
-else
-    echo "[!] Docker containers not found. Falling back to host services..."
-    sudo systemctl start postgresql
-    sudo systemctl start redis-server || redis-server --daemonize yes
-fi
+# 1. Database containers status
+echo "[*] Database docker containers already online."
 
 # 2. Start Backend FastAPI
 echo "[*] Starting FastAPI Backend on port 8000..."
-./venv/bin/uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 > backend.log 2>&1 &
+./venv/bin/python -m uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 > backend.log 2>&1 &
 BACKEND_PID=$!
 
 # 3. Start Celery Worker
 echo "[*] Starting Celery Worker..."
-./venv/bin/celery -A backend.app.worker.celery_app worker --loglevel=info > celery.log 2>&1 &
+./venv/bin/python -m celery -A backend.app.worker.celery_app worker --loglevel=info > celery.log 2>&1 &
 CELERY_PID=$!
 
 # 4. Start Frontend dev server
