@@ -505,6 +505,7 @@ export default function SOCDashboard() {
   const [filterStatus, setFilterStatus] = useState("ALL");
   const [filterSeverity, setFilterSeverity] = useState("ALL");
   const [filterSearch, setFilterSearch] = useState("");
+  const [activeDropdownId, setActiveDropdownId] = useState<string | null>(null);
 
   useEffect(() => {
     setCurrentTime(new Date());
@@ -529,6 +530,13 @@ export default function SOCDashboard() {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  // Close dropdown on click outside
+  useEffect(() => {
+    const handleOutsideClick = () => setActiveDropdownId(null);
+    window.addEventListener("click", handleOutsideClick);
+    return () => window.removeEventListener("click", handleOutsideClick);
   }, []);
 
   // Load user session
@@ -1672,21 +1680,32 @@ export default function SOCDashboard() {
                             <td className="p-3 text-right" onClick={e=>e.stopPropagation()}>
                               <div className="flex justify-end items-center gap-2">
                                 {userEmail === "admin@orion.com" ? (
-                                  <div className="relative group">
-                                    <button className="px-2.5 py-1 bg-white/5 border border-white/10 hover:border-purple-500/20 text-[9px] font-mono font-bold rounded text-blue-400 hover:text-white transition flex items-center gap-1.5 cursor-pointer">
+                                  <div className="relative">
+                                    <button 
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setActiveDropdownId(activeDropdownId === inc.id ? null : inc.id);
+                                      }}
+                                      className="px-2.5 py-1 bg-white/5 border border-white/10 hover:border-purple-500/20 text-[9px] font-mono font-bold rounded text-blue-400 hover:text-white transition flex items-center gap-1.5 cursor-pointer"
+                                    >
                                       TRAIN ML <ChevronDown className="h-3 w-3" />
                                     </button>
-                                    <div className="absolute right-0 bottom-full mb-1 w-32 bg-[#0D111A] border border-white/10 rounded-lg shadow-xl overflow-hidden hidden group-hover:block z-50">
-                                      {["PHISHING", "DEEPFAKE", "SUSPICIOUS", "SAFE"].map(label => (
-                                        <button
-                                          key={label}
-                                          onClick={() => handleTrainML(inc.id, label)}
-                                          className="w-full text-left px-3 py-1.5 hover:bg-white/5 text-[9px] text-[#8D96A3] hover:text-white transition"
-                                        >
-                                          {label}
-                                        </button>
-                                      ))}
-                                    </div>
+                                    {activeDropdownId === inc.id && (
+                                      <div className="absolute right-0 top-full mt-1 w-32 bg-[#0D111A] border border-white/10 rounded-lg shadow-xl overflow-hidden z-50 animate-in fade-in duration-150">
+                                        {["PHISHING", "DEEPFAKE", "SUSPICIOUS", "SAFE"].map(label => (
+                                          <button
+                                            key={label}
+                                            onClick={() => {
+                                              handleTrainML(inc.id, label);
+                                              setActiveDropdownId(null);
+                                            }}
+                                            className="w-full text-left px-3 py-1.5 hover:bg-white/5 text-[9px] text-[#8D96A3] hover:text-white transition cursor-pointer"
+                                          >
+                                            {label}
+                                          </button>
+                                        ))}
+                                      </div>
+                                    )}
                                   </div>
                                 ) : (
                                   <span className="text-[9px] text-[#626B78] font-mono border border-white/5 px-2 py-0.5 rounded">ANALYST</span>
@@ -1853,22 +1872,33 @@ export default function SOCDashboard() {
                           </td>
                           <td className="p-3.5 text-right" onClick={e=>e.stopPropagation()}>
                             <div className="flex justify-end items-center gap-2">
-                              {userEmail === "admin@orion.com" ? (
-                                <div className="relative group">
-                                  <button className="px-2.5 py-1 bg-white/5 border border-white/10 hover:border-purple-500/20 text-[9px] font-mono font-bold rounded text-blue-400 hover:text-white transition flex items-center gap-1.5 cursor-pointer">
+                               {userEmail === "admin@orion.com" ? (
+                                <div className="relative">
+                                  <button 
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setActiveDropdownId(activeDropdownId === inc.id ? null : inc.id);
+                                    }}
+                                    className="px-2.5 py-1 bg-white/5 border border-white/10 hover:border-purple-500/20 text-[9px] font-mono font-bold rounded text-blue-400 hover:text-white transition flex items-center gap-1.5 cursor-pointer"
+                                  >
                                     TRAIN ML <ChevronDown className="h-3 w-3" />
                                   </button>
-                                  <div className="absolute right-0 bottom-full mb-1 w-32 bg-[#0D111A] border border-white/10 rounded-lg shadow-xl overflow-hidden hidden group-hover:block z-50">
-                                    {["PHISHING", "DEEPFAKE", "SUSPICIOUS", "SAFE"].map(label => (
-                                      <button
-                                        key={label}
-                                        onClick={() => handleTrainML(inc.id, label)}
-                                        className="w-full text-left px-3 py-1.5 hover:bg-white/5 text-[9px] text-[#8D96A3] hover:text-white transition"
-                                      >
-                                        {label}
-                                      </button>
-                                    ))}
-                                  </div>
+                                  {activeDropdownId === inc.id && (
+                                    <div className="absolute right-0 top-full mt-1 w-32 bg-[#0D111A] border border-white/10 rounded-lg shadow-xl overflow-hidden z-50 animate-in fade-in duration-150">
+                                      {["PHISHING", "DEEPFAKE", "SUSPICIOUS", "SAFE"].map(label => (
+                                        <button
+                                          key={label}
+                                          onClick={() => {
+                                            handleTrainML(inc.id, label);
+                                            setActiveDropdownId(null);
+                                          }}
+                                          className="w-full text-left px-3 py-1.5 hover:bg-white/5 text-[9px] text-[#8D96A3] hover:text-white transition cursor-pointer"
+                                        >
+                                          {label}
+                                        </button>
+                                      ))}
+                                    </div>
+                                  )}
                                 </div>
                               ) : (
                                 <span className="text-[9px] text-[#626B78] font-mono border border-white/5 px-2 py-0.5 rounded">ANALYST</span>
