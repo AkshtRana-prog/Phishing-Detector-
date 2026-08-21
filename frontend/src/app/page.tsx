@@ -1987,6 +1987,51 @@ export default function SOCDashboard() {
                     </button>
                   </form>
                 </div>
+
+                {/* Logs & PCAP Ingestion */}
+                <div className="bg-[#0D111A] border border-white/5 p-5 rounded-xl flex flex-col justify-between hover:border-white/10 transition">
+                  <div>
+                    <h2 className="text-sm font-bold text-white mb-2">Analyze System Logs & PCAP</h2>
+                    <p className="text-xs text-[#8D96A3] leading-relaxed mb-4">
+                      Upload system syslog files or packet captures (PCAP) to correlate network compromise indicators.
+                    </p>
+                  </div>
+                  <form onSubmit={startLogScan} className="flex items-center gap-3">
+                    <input 
+                      type="file"
+                      accept=".log,.txt,.pcap,.pcapng"
+                      onChange={e => setLogFile(e.target.files?.[0] || null)}
+                      required
+                      className="text-xs text-[#8D96A3]"
+                    />
+                    <button type="submit" className="bg-gradient-to-r from-purple-600 to-blue-500 text-white font-bold text-xs px-4 py-2 rounded-lg cursor-pointer shrink-0">
+                      Start
+                    </button>
+                  </form>
+                </div>
+
+                {/* Deepfake Media Ingestion */}
+                <div className="bg-[#0D111A] border border-white/5 p-5 rounded-xl flex flex-col justify-between hover:border-white/10 transition">
+                  <div>
+                    <h2 className="text-sm font-bold text-white mb-2">Analyze Deepfake Media</h2>
+                    <p className="text-xs text-[#8D96A3] leading-relaxed mb-4">
+                      Analyze video frames (.mp4) or audio voice clone tracks (.mp3, .wav) for synthetic manipulation signals.
+                    </p>
+                  </div>
+                  <form onSubmit={startMediaScan} className="flex items-center gap-3">
+                    <input 
+                      type="file"
+                      accept=".mp4,.avi,.mov,.mp3,.wav"
+                      onChange={e => setMediaFile(e.target.files?.[0] || null)}
+                      required
+                      className="text-xs text-[#8D96A3]"
+                    />
+                    <button type="submit" className="bg-gradient-to-r from-purple-600 to-blue-500 text-white font-bold text-xs px-4 py-2 rounded-lg cursor-pointer shrink-0">
+                      Start
+                    </button>
+                  </form>
+                </div>
+
               </div>
             </div>
           )}
