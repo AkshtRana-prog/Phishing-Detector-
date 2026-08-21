@@ -1,7 +1,7 @@
 {
   "class_counts": {
-    "PHISHING": 31,
-    "SAFE": 13
+    "PHISHING": 29,
+    "SAFE": 16
   },
   "token_counts": {
     "paypal-security-update": {
@@ -9,8 +9,8 @@
       "SAFE": 0
     },
     "com": {
-      "PHISHING": 15,
-      "SAFE": 5
+      "PHISHING": 12,
+      "SAFE": 9
     },
     "login-microsoft-auth": {
       "PHISHING": 1,
@@ -30,7 +30,7 @@
     },
     "org": {
       "PHISHING": 1,
-      "SAFE": 0
+      "SAFE": 2
     },
     "goog1e": {
       "PHISHING": 1,
@@ -46,7 +46,7 @@
     },
     "account": {
       "PHISHING": 1,
-      "SAFE": 0
+      "SAFE": 1
     },
     "suspended": {
       "PHISHING": 1,
@@ -54,11 +54,11 @@
     },
     "verification": {
       "PHISHING": 1,
-      "SAFE": 0
+      "SAFE": 2
     },
     "required": {
       "PHISHING": 2,
-      "SAFE": 0
+      "SAFE": 2
     },
     "immediate": {
       "PHISHING": 1,
@@ -66,7 +66,7 @@
     },
     "action": {
       "PHISHING": 1,
-      "SAFE": 16
+      "SAFE": 18
     },
     "you": {
       "PHISHING": 1,
@@ -154,14 +154,14 @@
     },
     "microsoft": {
       "PHISHING": 0,
-      "SAFE": 1
+      "SAFE": 4
     },
     "amazon": {
       "PHISHING": 0,
       "SAFE": 1
     },
     "google": {
-      "PHISHING": 3,
+      "PHISHING": 0,
       "SAFE": 1
     },
     "facebook": {
@@ -210,7 +210,7 @@
     },
     "for": {
       "PHISHING": 0,
-      "SAFE": 1
+      "SAFE": 3
     },
     "recent": {
       "PHISHING": 0,
@@ -398,11 +398,11 @@
     },
     "jul": {
       "PHISHING": 0,
-      "SAFE": 2
+      "SAFE": 3
     },
     "2026": {
       "PHISHING": 0,
-      "SAFE": 2
+      "SAFE": 3
     },
     "avail": {
       "PHISHING": 0,
@@ -434,7 +434,7 @@
     },
     "01": {
       "PHISHING": 9,
-      "SAFE": 4
+      "SAFE": 5
     },
     "17": {
       "PHISHING": 2,
@@ -454,11 +454,11 @@
     },
     "classification": {
       "PHISHING": 1,
-      "SAFE": 1
+      "SAFE": 2
     },
     "safe": {
       "PHISHING": 0,
-      "SAFE": 1
+      "SAFE": 2
     },
     "a43884c4-bb3b-4370-b67c-": {
       "PHISHING": 1,
@@ -478,7 +478,7 @@
     },
     "00": {
       "PHISHING": 35,
-      "SAFE": 5
+      "SAFE": 6
     },
     "starting": {
       "PHISHING": 7,
@@ -550,7 +550,7 @@
     },
     "or": {
       "PHISHING": 7,
-      "SAFE": 0
+      "SAFE": 2
     },
     "03": {
       "PHISHING": 7,
@@ -814,7 +814,7 @@
     },
     "13": {
       "PHISHING": 0,
-      "SAFE": 1
+      "SAFE": 2
     },
     "andrey": {
       "PHISHING": 0,
@@ -1010,7 +1010,7 @@
     },
     "12": {
       "PHISHING": 0,
-      "SAFE": 1
+      "SAFE": 2
     },
     "berlin": {
       "PHISHING": 0,
@@ -1029,20 +1029,220 @@
       "SAFE": 0
     },
     "https": {
-      "PHISHING": 3,
+      "PHISHING": 0,
+      "SAFE": 4
+    },
+    "msevents": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "two-step": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "eml": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "team": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "account-security-noreply": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "accountprotection": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "akshtrana943": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "gmail": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "sun": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "16": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "0700": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "18ccz85prtu4": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "0qsshjks8s3n3": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "ph1pepf0001736e": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "result": {
+      "PHISHING": 0,
+      "SAFE": 3
+    },
+    "pass": {
+      "PHISHING": 0,
+      "SAFE": 3
+    },
+    "confidence": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "90": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "url": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "http": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "www": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "w3": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "1999": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "xhtml": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "flagged": {
+      "PHISHING": 0,
+      "SAFE": 3
+    },
+    "website": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "is": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "not": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "using": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "secure": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "encryption": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "malformed": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "invalid": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "domain": {
+      "PHISHING": 0,
+      "SAFE": 6
+    },
+    "structure": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "format": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "validation": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "failed": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "numbers": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "in": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "tr": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "xhtml1": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "dtd": {
+      "PHISHING": 0,
+      "SAFE": 2
+    },
+    "xhtml1-transitional": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "suspicious": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "content": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "signatures": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "has-at-symbol": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "insecure-ssl": {
+      "PHISHING": 0,
+      "SAFE": 1
+    },
+    "recovery-codes": {
+      "PHISHING": 1,
       "SAFE": 0
     },
-    "gemini": {
-      "PHISHING": 3,
+    "txt": {
+      "PHISHING": 1,
       "SAFE": 0
     },
-    "app": {
-      "PHISHING": 3,
-      "SAFE": 0
+    "github": {
+      "PHISHING": 0,
+      "SAFE": 1
     },
-    "6b9f8ba999e2bc19": {
-      "PHISHING": 3,
-      "SAFE": 0
+    "akshtrana-prog": {
+      "PHISHING": 0,
+      "SAFE": 1
     }
   }
 }

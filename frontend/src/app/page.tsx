@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { 
   Shield, 
+  Link,
   Upload, 
   AlertTriangle, 
   CheckCircle2, 
@@ -401,6 +402,8 @@ export default function SOCDashboard() {
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [accuracyTooltipOpen, setAccuracyTooltipOpen] = useState(false);
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const [apiOffline, setApiOffline] = useState(false);
 
   // Diagnostic Scan state
   const [diagnosticRunning, setDiagnosticRunning] = useState(false);
@@ -534,7 +537,10 @@ export default function SOCDashboard() {
 
   // Close dropdown on click outside
   useEffect(() => {
-    const handleOutsideClick = () => setActiveDropdownId(null);
+    const handleOutsideClick = () => {
+      setActiveDropdownId(null);
+      setProfileDropdownOpen(false);
+    };
     window.addEventListener("click", handleOutsideClick);
     return () => window.removeEventListener("click", handleOutsideClick);
   }, []);
@@ -575,9 +581,13 @@ export default function SOCDashboard() {
       if (res.ok) {
         const data = await res.json();
         setIncidents(data);
+        setApiOffline(false);
+      } else {
+        setApiOffline(true);
       }
     } catch (e) {
       console.error(e);
+      setApiOffline(true);
     } finally {
       if (!silent) setLoadingList(false);
     }
@@ -597,11 +607,16 @@ export default function SOCDashboard() {
           total_scans: data.total_scans,
           status_distribution: data.status_distribution,
           severity_distribution: data.severity_distribution,
-          vector_distribution: data.vector_distribution
+          vector_distribution: data.vector_distribution,
+          time_trends: data.time_trends || []
         }));
+        setApiOffline(false);
+      } else {
+        setApiOffline(true);
       }
     } catch (e) {
       console.error(e);
+      setApiOffline(true);
     }
   };
 
@@ -920,6 +935,23 @@ export default function SOCDashboard() {
     return `Good evening, ${name} 🌙`;
   };
 
+  // Helper to format timestamps to relative time words
+  const formatTimeAgo = (dateStr: string) => {
+    try {
+      const date = new Date(dateStr);
+      const diffMs = new Date().getTime() - date.getTime();
+      const diffMins = Math.floor(diffMs / 60000);
+      if (diffMins < 1) return "Just now";
+      if (diffMins < 60) return `${diffMins}m ago`;
+      const diffHours = Math.floor(diffMins / 60);
+      if (diffHours < 24) return `${diffHours}h ago`;
+      const diffDays = Math.floor(diffHours / 24);
+      return `${diffDays}d ago`;
+    } catch (e) {
+      return "Recently";
+    }
+  };
+
   // Severity color badge mapping (Outlined visual styling)
   const getSeverityBadge = (sev: string) => {
     switch (sev.toUpperCase()) {
@@ -1120,24 +1152,23 @@ export default function SOCDashboard() {
         <div>
           {/* Logo header */}
           <div className="p-4 border-b border-white/5 flex items-center justify-between">
-            <div className="flex items-center gap-3 overflow-hidden">
-              <div className="w-8 h-8 rounded-full border border-blue-500/20 overflow-hidden shrink-0">
-                <img src="/logo.jpg" alt="Logo" className="w-full h-full object-cover" />
+            {sidebarCollapsed ? (
+              <div className="w-full flex justify-center">
+                <div className="w-8 h-8 rounded-full border border-blue-500/20 overflow-hidden shrink-0">
+                  <img src="/logo.jpg" alt="Logo" className="w-full h-full object-cover" />
+                </div>
               </div>
-              {!sidebarCollapsed && (
+            ) : (
+              <div className="flex items-center gap-3 overflow-hidden">
+                <div className="w-8 h-8 rounded-full border border-blue-500/20 overflow-hidden shrink-0">
+                  <img src="/logo.jpg" alt="Logo" className="w-full h-full object-cover" />
+                </div>
                 <div className="truncate">
                   <span className="font-extrabold text-xs tracking-wider text-white uppercase bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">ORION SOC</span>
                   <p className="text-[8px] text-[#8D96A3] tracking-widest uppercase">Lead Architect</p>
                 </div>
-              )}
-            </div>
-            <button 
-              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-              className="p-1 hover:bg-white/5 rounded text-[#8D96A3] hover:text-white transition cursor-pointer"
-              title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-            >
-              <Menu className="h-4 w-4" />
-            </button>
+              </div>
+            )}
           </div>
 
           {/* Sidebar Nav categories */}
@@ -1156,19 +1187,23 @@ export default function SOCDashboard() {
               {!sidebarCollapsed && <span className="px-2.5 text-[8px] font-bold text-[#626B78] uppercase tracking-widest block mb-1">Investigate</span>}
               <div className="flex flex-col gap-0.5">
                 {[
-                  { id: "url_analysis", label: "URL Analysis" },
-                  { id: "email_analysis", label: "Email Analysis" },
-                  { id: "log_analysis", label: "Logs / PCAP" },
-                  { id: "media_analysis", label: "Media Analysis" }
-                ].map(sub => (
-                  <button
-                    key={sub.id}
-                    onClick={() => setActiveTab(sub.id)}
-                    className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-lg text-xs transition text-left cursor-pointer ${activeTab === sub.id ? "text-white bg-white/5 border-l-2 border-purple-500 pl-2 font-medium" : "text-[#8D96A3] hover:text-white hover:bg-white/5"}`}
-                  >
-                    {!sidebarCollapsed ? <span>{sub.label}</span> : <span className="font-mono text-[9px]">{sub.label.charAt(0)}</span>}
-                  </button>
-                ))}
+                  { id: "url_analysis", label: "URL Analysis", icon: Link },
+                  { id: "email_analysis", label: "Email Analysis", icon: Mail },
+                  { id: "log_analysis", label: "Logs / PCAP", icon: Terminal },
+                  { id: "media_analysis", label: "Media Analysis", icon: Video }
+                ].map(sub => {
+                  const Icon = sub.icon;
+                  return (
+                    <button
+                      key={sub.id}
+                      onClick={() => setActiveTab(sub.id)}
+                      className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-lg text-xs transition text-left cursor-pointer ${activeTab === sub.id ? "text-white bg-white/5 border-l-2 border-purple-500 pl-2 font-medium" : "text-[#8D96A3] hover:text-white hover:bg-white/5"}`}
+                    >
+                      <Icon className="h-4 w-4 shrink-0" />
+                      {!sidebarCollapsed && <span>{sub.label}</span>}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
@@ -1177,17 +1212,21 @@ export default function SOCDashboard() {
               {!sidebarCollapsed && <span className="px-2.5 text-[8px] font-bold text-[#626B78] uppercase tracking-widest block mb-1">Operations</span>}
               <div className="flex flex-col gap-0.5">
                 {[
-                  { id: "incidents", label: "Threat Queue" },
-                  { id: "activity", label: "Activity Logs" }
-                ].map(sub => (
-                  <button
-                    key={sub.id}
-                    onClick={() => setActiveTab(sub.id)}
-                    className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-lg text-xs transition text-left cursor-pointer ${activeTab === sub.id ? "text-white bg-white/5 border-l-2 border-purple-500 pl-2 font-medium" : "text-[#8D96A3] hover:text-white hover:bg-white/5"}`}
-                  >
-                    {!sidebarCollapsed ? <span>{sub.label}</span> : <span className="font-mono text-[9px]">{sub.label.charAt(0)}</span>}
-                  </button>
-                ))}
+                  { id: "incidents", label: "Threat Queue", icon: Shield },
+                  { id: "activity", label: "Activity Logs", icon: Activity }
+                ].map(sub => {
+                  const Icon = sub.icon;
+                  return (
+                    <button
+                      key={sub.id}
+                      onClick={() => setActiveTab(sub.id)}
+                      className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-lg text-xs transition text-left cursor-pointer ${activeTab === sub.id ? "text-white bg-white/5 border-l-2 border-purple-500 pl-2 font-medium" : "text-[#8D96A3] hover:text-white hover:bg-white/5"}`}
+                    >
+                      <Icon className="h-4 w-4 shrink-0" />
+                      {!sidebarCollapsed && <span>{sub.label}</span>}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
@@ -1198,7 +1237,8 @@ export default function SOCDashboard() {
                 onClick={() => setActiveTab("analytics")}
                 className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-lg text-xs transition text-left cursor-pointer ${activeTab === "analytics" ? "text-white bg-white/5 border-l-2 border-purple-500 pl-2 font-medium" : "text-[#8D96A3] hover:text-white hover:bg-white/5"}`}
               >
-                {!sidebarCollapsed ? <span>Threat Analytics</span> : <TrendingUp className="h-3.5 w-3.5" />}
+                <TrendingUp className="h-4 w-4 shrink-0" />
+                {!sidebarCollapsed && <span>Threat Analytics</span>}
               </button>
             </div>
 
@@ -1209,7 +1249,8 @@ export default function SOCDashboard() {
                 onClick={() => setActiveTab("reports")}
                 className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-lg text-xs transition text-left cursor-pointer ${activeTab === "reports" ? "text-white bg-white/5 border-l-2 border-purple-500 pl-2 font-medium" : "text-[#8D96A3] hover:text-white hover:bg-white/5"}`}
               >
-                {!sidebarCollapsed ? <span>Reports</span> : <FileText className="h-3.5 w-3.5" />}
+                <FileText className="h-4 w-4 shrink-0" />
+                {!sidebarCollapsed && <span>Reports</span>}
               </button>
             </div>
 
@@ -1220,7 +1261,8 @@ export default function SOCDashboard() {
                 onClick={() => setActiveTab("settings")}
                 className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-lg text-xs transition text-left cursor-pointer ${activeTab === "settings" ? "text-white bg-white/5 border-l-2 border-purple-500 pl-2 font-medium" : "text-[#8D96A3] hover:text-white hover:bg-white/5"}`}
               >
-                {!sidebarCollapsed ? <span>Settings</span> : <Settings className="h-3.5 w-3.5" />}
+                <Settings className="h-4 w-4 shrink-0" />
+                {!sidebarCollapsed && <span>Settings</span>}
               </button>
             </div>
           </nav>
@@ -1272,7 +1314,11 @@ export default function SOCDashboard() {
         {/* TOP HEADER (Thin & Liquid Glass) */}
         <header className="h-12 glass-header px-6 flex items-center justify-between sticky top-0 z-[100]">
           <div className="flex items-center gap-3">
-            <button className="p-1 hover:bg-white/5 rounded text-[#8D96A3] hover:text-white transition cursor-pointer">
+            <button 
+              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+              className="p-1 hover:bg-white/5 rounded text-[#8D96A3] hover:text-white transition cursor-pointer"
+              title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            >
               <Menu className="h-4 w-4" />
             </button>
           </div>
@@ -1354,14 +1400,48 @@ export default function SOCDashboard() {
             </div>
 
             {/* Profile Dropdown */}
-            <div className="flex items-center gap-2.5 pl-3 border-l border-white/5">
-              <div className="w-6.5 h-6.5 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 overflow-hidden shrink-0">
-                <img src="/logo.jpg" alt="Profile" className="w-full h-full object-cover" />
+            <div className="relative">
+              <div 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setProfileDropdownOpen(!profileDropdownOpen);
+                }}
+                className="flex items-center gap-2.5 pl-3 border-l border-white/5 cursor-pointer select-none"
+              >
+                <div className="w-6.5 h-6.5 rounded-full overflow-hidden shrink-0">
+                  <img src="/logo.jpg" alt="Profile" className="w-full h-full object-cover" />
+                </div>
+                <div className="hidden sm:flex items-center gap-1">
+                  <span className="text-[10px] font-bold text-white block truncate w-20">{getAnalystName(userEmail)}</span>
+                  <ChevronDown className={`h-3 w-3 text-[#626B78] transition-transform duration-200 ${profileDropdownOpen ? "rotate-180" : ""}`} />
+                </div>
               </div>
-              <div className="hidden sm:flex items-center gap-1 cursor-pointer">
-                <span className="text-[10px] font-bold text-white block truncate w-20">{getAnalystName(userEmail)}</span>
-                <ChevronDown className="h-3 w-3 text-[#626B78]" />
-              </div>
+
+              {profileDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-[#0D111A] border border-white/10 rounded-xl shadow-2xl p-2 z-50 animate-in fade-in duration-150">
+                  <div className="px-3 py-2 border-b border-white/5 mb-1.5">
+                    <span className="text-[9px] text-[#8D96A3] block uppercase tracking-wider">Active Session</span>
+                    <span className="text-[10px] font-bold text-white block truncate">{userEmail}</span>
+                  </div>
+                  <button 
+                    onClick={() => { setActiveTab("settings"); setProfileDropdownOpen(false); }}
+                    className="w-full text-left px-3 py-1.5 hover:bg-white/5 rounded-lg text-xs text-[#8D96A3] hover:text-white transition cursor-pointer"
+                  >
+                    Account Settings
+                  </button>
+                  <button 
+                    onClick={() => {
+                      localStorage.removeItem("soc_user_email");
+                      setUserEmail("");
+                      setIsLoggedIn(false);
+                      setProfileDropdownOpen(false);
+                    }}
+                    className="w-full text-left px-3 py-1.5 hover:bg-rose-500/10 rounded-lg text-xs text-rose-500 font-bold transition cursor-pointer mt-1"
+                  >
+                    Log Out Session
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </header>
@@ -1371,6 +1451,24 @@ export default function SOCDashboard() {
           <div className="mx-6 mt-4 p-3 bg-emerald-950/20 border border-emerald-500/30 text-emerald-400 text-[10.5px] rounded-lg animate-in slide-in-from-top-3 flex items-center justify-between">
             <span>{diagnosticMessage}</span>
             <button onClick={() => setDiagnosticMessage(null)} className="text-emerald-400 hover:text-white"><X className="h-4 w-4" /></button>
+          </div>
+        )}
+
+        {apiOffline && (
+          <div className="mx-6 mt-4 p-3 bg-rose-950/20 border border-rose-500/30 text-rose-450 text-[10.5px] rounded-lg animate-in slide-in-from-top-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 bg-rose-500 rounded-full animate-ping"></span>
+              <span><strong>API Connection Offline:</strong> The backend threat detection service is unreachable. Make sure the backend server is running.</span>
+            </div>
+            <button 
+              onClick={() => {
+                fetchIncidents(true);
+                fetchAnalytics();
+              }} 
+              className="px-2.5 py-1 bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 rounded text-[9.5px] font-bold transition cursor-pointer"
+            >
+              Retry Connection
+            </button>
           </div>
         )}
 
@@ -1792,26 +1890,47 @@ export default function SOCDashboard() {
                     <h2 className="text-[10px] font-bold text-[#8D96A3] uppercase tracking-wider">Recent Reports</h2>
                   </div>
                   <div className="flex flex-col gap-2.5">
+                    {/* Global Analytics Summary */}
                     <div className="flex items-center justify-between text-[11px] p-2 bg-[#080F17] rounded-lg border border-white/5 hover:bg-white/5 transition">
-                      <div className="flex items-center gap-2">
-                        <FileText className="h-4 w-4 text-purple-400" />
-                        <div>
-                          <span className="text-white block font-medium truncate w-28">Incident Report</span>
-                          <span className="text-[#626B78] text-[9px]">Generated 2h ago</span>
+                      <div className="flex items-center gap-2 overflow-hidden">
+                        <FileText className="h-4 w-4 text-purple-400 shrink-0" />
+                        <div className="truncate">
+                          <span className="text-white block font-medium truncate w-32">Global SOC Summary</span>
+                          <span className="text-[#626B78] text-[9px]">Generated today</span>
                         </div>
                       </div>
-                      <button className="text-[#8D96A3] hover:text-white cursor-pointer"><Download className="h-3.5 w-3.5" /></button>
+                      <button 
+                        onClick={downloadGlobalReport}
+                        className="text-[#8D96A3] hover:text-white cursor-pointer p-1 rounded hover:bg-white/5 transition"
+                        title="Download Global Summary Report"
+                      >
+                        <Download className="h-3.5 w-3.5" />
+                      </button>
                     </div>
-                    <div className="flex items-center justify-between text-[11px] p-2 bg-[#080F17] rounded-lg border border-white/5 hover:bg-white/5 transition">
-                      <div className="flex items-center gap-2">
-                        <FileText className="h-4 w-4 text-pink-400" />
-                        <div>
-                          <span className="text-white block font-medium truncate w-28">Weekly Summary</span>
-                          <span className="text-[#626B78] text-[9px]">Generated 1d ago</span>
+
+                    {/* Incident Reports (Up to 3 most recent) */}
+                    {incidents.slice(0, 3).map((inc) => (
+                      <div key={inc.id} className="flex items-center justify-between text-[11px] p-2 bg-[#080F17] rounded-lg border border-white/5 hover:bg-white/5 transition">
+                        <div className="flex items-center gap-2 overflow-hidden">
+                          <FileText className="h-4 w-4 text-pink-400 shrink-0" />
+                          <div className="truncate">
+                            <span className="text-white block font-medium truncate w-32">{inc.vector_type} Analysis ({inc.id.substring(0, 8)})</span>
+                            <span className="text-[#626B78] text-[9px]">Generated {formatTimeAgo(inc.timestamp)}</span>
+                          </div>
                         </div>
+                        <button 
+                          onClick={() => downloadReport(inc.id)}
+                          className="text-[#8D96A3] hover:text-white cursor-pointer p-1 rounded hover:bg-white/5 transition"
+                          title="Download/Print Incident Report"
+                        >
+                          <Download className="h-3.5 w-3.5" />
+                        </button>
                       </div>
-                      <button className="text-[#8D96A3] hover:text-white cursor-pointer"><Download className="h-3.5 w-3.5" /></button>
-                    </div>
+                    ))}
+
+                    {incidents.length === 0 && (
+                      <span className="text-[10px] text-[#626B78] italic block text-center py-2">No reports generated yet</span>
+                    )}
                   </div>
                 </div>
 

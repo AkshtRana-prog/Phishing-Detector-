@@ -19,7 +19,7 @@ app = FastAPI(title="Phishing & Deepfake Threat Detection Platform API")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -435,6 +435,40 @@ def get_analytics(x_user_email: Optional[str] = Header(None), db: Session = Depe
         if vec in vec_counts:
             vec_counts[vec] += 1
 
+    # Calculate time trends dynamically from the user's incidents
+    trends_by_date = {}
+    
+    # Sort incidents by timestamp
+    for inc in sorted(incidents, key=lambda x: x.timestamp):
+        date_str = inc.timestamp.strftime("%b %d") # e.g. "Jun 05"
+        if date_str not in trends_by_date:
+            trends_by_date[date_str] = {
+                "name": date_str,
+                "Phishing": 0,
+                "Deepfake": 0,
+                "Exploits": 0,
+                "Safe": 0
+            }
+        
+        status = inc.status.upper()
+        if status == "PHISHING":
+            trends_by_date[date_str]["Phishing"] += 1
+        elif status == "DEEPFAKE":
+            trends_by_date[date_str]["Deepfake"] += 1
+        elif status == "SUSPICIOUS":
+            trends_by_date[date_str]["Exploits"] += 1
+        elif status == "SAFE":
+            trends_by_date[date_str]["Safe"] += 1
+
+    # Convert to list
+    time_trends = list(trends_by_date.values())
+    
+    # Fallback to default trend if empty
+    if not time_trends:
+        time_trends = [
+            { "name": datetime.utcnow().strftime("%b %d"), "Phishing": 0, "Deepfake": 0, "Exploits": 0, "Safe": 0 }
+        ]
+
     # Format data for chart
     return {
         "total_scans": total,
@@ -446,12 +480,7 @@ def get_analytics(x_user_email: Optional[str] = Header(None), db: Session = Depe
         },
         "severity_distribution": sev_counts,
         "vector_distribution": vec_counts,
-        "time_trends": [
-            # Realistic data points for trends charts based on current counts
-            {"date": "Day 1", "attacks": 2, "safes": 5},
-            {"date": "Day 2", "attacks": 4, "safes": 8},
-            {"date": "Day 3", "attacks": phishing_count, "safes": safe_count}
-        ]
+        "time_trends": time_trends
     }
 
 import smtplib
