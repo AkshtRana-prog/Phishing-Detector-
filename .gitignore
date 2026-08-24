@@ -6,3 +6,4 @@ logs/
 reports/*.csv
 .env
 .env
+task.md
