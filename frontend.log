@@ -13,3 +13,4 @@
  GET / 200 in 91ms (next.js: 24ms, application-code: 67ms)
 ✓ Compiled in 1059ms
  GET / 200 in 112ms (next.js: 39ms, application-code: 73ms)
+[browser] Cannot update a component (`JavascriptAnimate`) while rendering a different component (`StaticArea`). To locate the bad setState() call inside `StaticArea`, follow the stack trace as described in https://react.dev/link/setstate-in-render 

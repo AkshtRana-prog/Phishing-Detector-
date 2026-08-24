@@ -149,3 +149,9 @@ INFO:     127.0.0.1:44754 - "GET /incidents HTTP/1.1" 200 OK
 INFO:     127.0.0.1:44760 - "GET /analytics HTTP/1.1" 200 OK
 INFO:     127.0.0.1:33996 - "GET /incidents HTTP/1.1" 200 OK
 INFO:     127.0.0.1:34004 - "GET /analytics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34012 - "GET /incidents HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34018 - "GET /analytics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45406 - "GET /incidents HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45420 - "GET /analytics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38976 - "GET /analytics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38972 - "GET /incidents HTTP/1.1" 200 OK
