@@ -23,6 +23,8 @@ import {
   LogOut,
   Trash2,
   Menu,
+  Server,
+  Wifi,
   ChevronRight,
   Plus,
   Bell,
@@ -339,7 +341,7 @@ function KPIWidget({ title, targetVal, valSuffix = "", trend, isPositive, sparkD
   }, [targetVal]);
 
   return (
-    <div className="bg-[#0D111A] border border-white/5 p-4.5 rounded-xl flex flex-col justify-between h-32 hover:border-white/10 transition relative">
+    <div className="glass-medium glass-highlight p-4.5 rounded-2xl flex flex-col justify-between h-32 hover:-translate-y-0.5 hover:border-white/15 transition-all duration-300 relative group shadow-xl">
       <div>
         <div className="flex justify-between items-center">
           <span className="text-[9px] font-bold text-[#8D96A3] uppercase tracking-wider block">{title}</span>
@@ -432,7 +434,25 @@ export default function SOCDashboard() {
   const [isScanningActive, setIsScanningActive] = useState(false);
 
   // Settings submenu tabs
-  const [settingsCategory, setSettingsCategory] = useState("account");
+  const [settingsCategory, setSettingsCategory] = useState("appearance");
+
+  // Phase 2 State Variables
+  const [selectedIncidentDrawer, setSelectedIncidentDrawer] = useState<Incident | null>(null);
+  const [signalModal, setSignalModal] = useState<{ title: string; weight: string; evidence: string; confidence: string; rationale: string } | null>(null);
+  const [glassIntensity, setGlassIntensity] = useState<"low" | "medium" | "high">("medium");
+  const [uiDensity, setUiDensity] = useState<"comfortable" | "compact">("comfortable");
+  const [analystNotes, setAnalystNotes] = useState<Record<string, string>>({});
+  const [urlSensitivity, setUrlSensitivity] = useState<number>(85);
+  const [emailSensitivity, setEmailSensitivity] = useState<number>(80);
+  const [mediaSensitivity, setMediaSensitivity] = useState<number>(90);
+  const [logSensitivity, setLogSensitivity] = useState<number>(75);
+
+  // Workspace Form State
+  const [deepScanEnabled, setDeepScanEnabled] = useState(false);
+  const [passiveAnalysisEnabled, setPassiveAnalysisEnabled] = useState(true);
+  const [rawHeadersText, setRawHeadersText] = useState("");
+  const [rawLogText, setRawLogText] = useState("");
+
 
   // Threat Analytics metrics
   const [analytics, setAnalytics] = useState({
@@ -764,9 +784,10 @@ export default function SOCDashboard() {
   };
 
   // Submissions for URL vector scans
-  const startURLScan = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!urlInput.trim()) return;
+  const startURLScan = async (e?: React.FormEvent, directUrl?: string) => {
+    if (e) e.preventDefault();
+    const targetUrl = (directUrl || urlInput).trim();
+    if (!targetUrl) return;
     setUrlScanning(true);
     setTimelineStep(0);
     setIsScanningActive(true);
@@ -776,17 +797,14 @@ export default function SOCDashboard() {
       const res = await fetch(`${API_BASE}/analyze/url`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "X-User-Email": email },
-        body: JSON.stringify({ url: urlInput })
+        body: JSON.stringify({ url: targetUrl })
       });
       if (res.ok) {
         const data = await res.json();
-        setTimeout(() => {
-          setSelectedId(data.incident_id);
-          setActiveTab("overview");
-          setUrlInput("");
-          fetchIncidents();
-          fetchAnalytics();
-        }, 4000);
+        setSelectedId(data.incident_id);
+        fetchIncidents();
+        fetchAnalytics();
+        fetchIncidentDetail(data.incident_id);
       }
     } catch (e) {
       console.error(e);
@@ -814,13 +832,10 @@ export default function SOCDashboard() {
       });
       if (res.ok) {
         const data = await res.json();
-        setTimeout(() => {
-          setSelectedId(data.incident_id);
-          setActiveTab("overview");
-          setEmlFile(null);
-          fetchIncidents();
-          fetchAnalytics();
-        }, 4000);
+        setSelectedId(data.incident_id);
+        fetchIncidents();
+        fetchAnalytics();
+        fetchIncidentDetail(data.incident_id);
       }
     } catch (e) {
       console.error(e);
@@ -848,13 +863,10 @@ export default function SOCDashboard() {
       });
       if (res.ok) {
         const data = await res.json();
-        setTimeout(() => {
-          setSelectedId(data.incident_id);
-          setActiveTab("overview");
-          setLogFile(null);
-          fetchIncidents();
-          fetchAnalytics();
-        }, 4000);
+        setSelectedId(data.incident_id);
+        fetchIncidents();
+        fetchAnalytics();
+        fetchIncidentDetail(data.incident_id);
       }
     } catch (e) {
       console.error(e);
@@ -883,13 +895,10 @@ export default function SOCDashboard() {
       });
       if (res.ok) {
         const data = await res.json();
-        setTimeout(() => {
-          setSelectedId(data.incident_id);
-          setActiveTab("overview");
-          setMediaFile(null);
-          fetchIncidents();
-          fetchAnalytics();
-        }, 4000);
+        setSelectedId(data.incident_id);
+        fetchIncidents();
+        fetchAnalytics();
+        fetchIncidentDetail(data.incident_id);
       }
     } catch (e) {
       console.error(e);
@@ -1321,6 +1330,11 @@ export default function SOCDashboard() {
             >
               <Menu className="h-4 w-4" />
             </button>
+            <div className="hidden md:flex items-center gap-2 text-xs select-none">
+              <span className="font-bold text-white tracking-wide">ORION SOC</span>
+              <span className="text-[#626B78]">/</span>
+              <span className="text-[10px] font-semibold text-[#8D96A3] uppercase tracking-wider">Lead Architect</span>
+            </div>
           </div>
 
           {/* Global search centered bar */}
@@ -1554,14 +1568,106 @@ export default function SOCDashboard() {
                   )}
                 </div>
 
+                {/* SECTION 1: Investigation Launcher (65%) & Environment Risk Gauge (35%) */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  
+                  {/* Investigation Launcher Card (65% width - 2 cols) */}
+                  <div className="lg:col-span-2 glass-strong glass-highlight p-5 rounded-2xl flex flex-col justify-between shadow-xl">
+                    <div>
+                      <div className="flex justify-between items-center mb-3">
+                        <div className="flex items-center gap-2">
+                          <Zap className="h-4 w-4 text-purple-400" />
+                          <h2 className="text-xs font-bold text-white uppercase tracking-wider">Investigation Launcher</h2>
+                        </div>
+                        <span className="text-[9px] font-bold text-purple-400 bg-purple-500/10 border border-purple-500/20 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                          On-Demand Diagnostics
+                        </span>
+                      </div>
+                      <p className="text-xs text-[#8D96A3] mb-4">Launch immediate threat detection pipeline across active vector channels.</p>
+                      
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-4">
+                        {[
+                          { id: "url_analysis", title: "URL Analysis", desc: "Scan domains & links", icon: Link },
+                          { id: "email_analysis", title: "Email Analysis", desc: "Audit SPF/DKIM headers", icon: Mail },
+                          { id: "log_analysis", title: "Logs / PCAP", desc: "Correlate syslog & traffic", icon: Terminal },
+                          { id: "media_analysis", title: "Media Analysis", desc: "Deepfake video/audio track", icon: Video }
+                        ].map(action => (
+                          <div 
+                            key={action.id}
+                            onClick={() => setActiveTab(action.id)}
+                            className="p-3 bg-[#080C16]/70 hover:bg-white/10 border border-white/8 hover:border-purple-500/40 rounded-xl cursor-pointer hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-between group"
+                          >
+                            <div className="flex items-center gap-2.5">
+                              <div className="p-1.5 rounded-lg bg-purple-500/10 text-purple-400 group-hover:bg-purple-500 group-hover:text-white transition">
+                                <action.icon className="h-3.5 w-3.5" />
+                              </div>
+                              <div>
+                                <span className="text-[11px] font-bold text-white block group-hover:text-purple-300 transition">{action.title}</span>
+                                <span className="text-[9px] text-[#8D96A3] block">{action.desc}</span>
+                              </div>
+                            </div>
+                            <ChevronRight className="h-3.5 w-3.5 text-[#626B78] group-hover:text-white group-hover:translate-x-0.5 transition shrink-0" />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="flex justify-between items-center pt-3 border-t border-white/5 text-xs">
+                      <span className="text-[10px] text-[#626B78]">4 Vector Analysis Pipelines Ready</span>
+                      <button 
+                        onClick={() => setActiveTab("investigate")}
+                        className="text-xs text-purple-400 hover:text-purple-300 font-bold transition flex items-center gap-1 cursor-pointer"
+                      >
+                        Open Workspace <ArrowRight className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Environment Risk Score Gauge (35% width - 1 col) */}
+                  <div className="glass-strong glass-highlight risk-gauge-elevated p-5 rounded-2xl flex flex-col justify-between shadow-xl">
+                    <div>
+                      <div className="flex justify-between items-center mb-3">
+                        <h2 className="text-xs font-bold text-white uppercase tracking-wider">Environment Risk</h2>
+                        <span className="text-[9px] font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full uppercase tracking-wider animate-pulse">
+                          ● ELEVATED
+                        </span>
+                      </div>
+                      
+                      <div className="flex flex-col items-center justify-center my-3 text-center">
+                        <div className="relative flex items-center justify-center w-28 h-28 rounded-full border-4 border-amber-500/30 bg-amber-500/5 glow-warning">
+                          <div className="text-center">
+                            <span className="text-3xl font-extrabold text-white tracking-tight block">72</span>
+                            <span className="text-[9px] font-bold text-amber-400 uppercase tracking-widest block">/ 100 RISK</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <p className="text-[10.5px] text-[#8D96A3] text-center leading-relaxed">
+                        Critical threat vector events are currently above the normal weekly baseline. 2 pending items require triage.
+                      </p>
+                    </div>
+
+                    <div className="pt-3 border-t border-white/5 flex justify-between items-center text-xs">
+                      <span className="text-[9px] text-[#626B78]">Calculated from 131 events</span>
+                      <button 
+                        onClick={() => setActiveTab("incidents")}
+                        className="text-xs text-amber-400 hover:text-amber-300 font-bold transition cursor-pointer"
+                      >
+                        Audit Queue →
+                      </button>
+                    </div>
+                  </div>
+
+                </div>
+
                 {/* Split line chart & Donut charts */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   
                   {/* Trends line chart (65% width) */}
-                  <div className="lg:col-span-2 bg-[#0D111A] border border-white/5 p-5 rounded-xl">
+                  <div className="lg:col-span-2 glass-strong glass-highlight p-5 rounded-2xl shadow-xl">
                     <div className="flex justify-between items-center mb-4">
                       <h2 className="text-xs font-bold text-white uppercase tracking-wider">Threat Activity Trends</h2>
-                      <select className="bg-[#080B12] border border-white/5 rounded px-2.5 py-1 text-[10px] text-[#8D96A3] focus:outline-none">
+                      <select className="bg-[#080B12]/80 border border-white/10 rounded px-2.5 py-1 text-[10px] text-[#8D96A3] focus:outline-none cursor-pointer">
                         <option>Last 7 Days</option>
                         <option>Last 30 Days</option>
                       </select>
@@ -1571,18 +1677,18 @@ export default function SOCDashboard() {
                         <LineChart data={chartData}>
                           <XAxis dataKey="name" stroke="#626B78" fontSize={9} tickLine={false} />
                           <YAxis stroke="#626B78" fontSize={9} tickLine={false} />
-                          <Tooltip contentStyle={{ backgroundColor: "#0D111A", borderColor: "rgba(255,255,255,0.08)", color: "#F3F5F7" }} />
-                          <Line type="monotone" dataKey="Phishing" stroke="#8B5CF6" strokeWidth={1.5} dot={false} />
-                          <Line type="monotone" dataKey="Deepfake" stroke="#F43F8E" strokeWidth={1.5} dot={false} />
-                          <Line type="monotone" dataKey="Exploits" stroke="#F59E0B" strokeWidth={1.5} dot={false} />
-                          <Line type="monotone" dataKey="Safe" stroke="#10B981" strokeWidth={1.5} dot={false} />
+                          <Tooltip contentStyle={{ backgroundColor: "#0B1020", borderColor: "rgba(255,255,255,0.12)", borderRadius: "12px", color: "#F3F5F7", boxShadow: "0 10px 30px rgba(0,0,0,0.5)" }} />
+                          <Line type="monotone" dataKey="Phishing" stroke="#8B5CF6" strokeWidth={2} dot={false} />
+                          <Line type="monotone" dataKey="Deepfake" stroke="#F43F8E" strokeWidth={2} dot={false} />
+                          <Line type="monotone" dataKey="Exploits" stroke="#F59E0B" strokeWidth={2} dot={false} />
+                          <Line type="monotone" dataKey="Safe" stroke="#21C997" strokeWidth={2} dot={false} />
                         </LineChart>
                       </ResponsiveContainer>
                     </div>
                   </div>
 
                   {/* Distribution Donut (35% width - synced with real backend data & disabled lag animation) */}
-                  <div className="bg-[#0D111A] border border-white/5 p-5 rounded-xl flex flex-col justify-between animate-in fade-in">
+                  <div className="glass-strong glass-highlight p-5 rounded-2xl flex flex-col justify-between shadow-xl animate-in fade-in">
                     <h2 className="text-xs font-bold text-white uppercase tracking-wider mb-2">Threat Distribution</h2>
                     
                     <div className="h-36 relative flex items-center justify-center">
@@ -1635,7 +1741,7 @@ export default function SOCDashboard() {
                 <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
                   
                   {/* System Health (40% - 2 Cols) */}
-                  <div className="lg:col-span-2 bg-[#0D111A] border border-white/5 p-5 rounded-xl flex flex-col justify-between">
+                  <div className="lg:col-span-2 glass-medium glass-highlight p-5 rounded-2xl flex flex-col justify-between shadow-xl">
                     <div>
                       <div className="flex justify-between items-center mb-4">
                         <h2 className="text-xs font-bold text-white uppercase tracking-wider">System Health & Telemetry</h2>
@@ -1692,7 +1798,7 @@ export default function SOCDashboard() {
                   </div>
 
                   {/* Real-time Activity Feed (60% - 3 Cols) */}
-                  <div className="lg:col-span-3 bg-[#0D111A] border border-white/5 p-5 rounded-xl flex flex-col justify-between">
+                  <div className="lg:col-span-3 glass-medium glass-highlight p-5 rounded-2xl flex flex-col justify-between shadow-xl">
                     <div>
                       <div className="flex justify-between items-center mb-4 flex-wrap gap-2">
                         <div className="flex items-center gap-2">
@@ -1824,114 +1930,89 @@ export default function SOCDashboard() {
                   </div>
                 </div>
 
-              </div>
-
-              {/* Right Sidebar actions Panel (25% column width) */}
-              <div className="w-full lg:w-68 shrink-0 flex flex-col gap-6">
-                
-                {/* QUICK ACTIONS block */}
-                <div className="bg-[#0D111A] border border-white/5 p-4 rounded-xl">
-                  <h2 className="text-[10px] font-bold text-white uppercase tracking-wider mb-3">Quick Actions</h2>
-                  <div className="flex flex-col gap-2">
-                    {[
-                      { id: "url_analysis", title: "URL Analysis", desc: "Analyze any URL or domain" },
-                      { id: "email_analysis", title: "Email Analysis", desc: "Inspect email headers & content" },
-                      { id: "log_analysis", title: "Logs / PCAP", desc: "Analyze network traffic & logs" },
-                      { id: "media_analysis", title: "Media Analysis", desc: "Deepfake & media forensics" }
-                    ].map(action => (
-                      <div 
-                        key={action.id}
-                        onClick={() => setActiveTab(action.id)}
-                        className="p-3 bg-[#080F17] hover:bg-white/5 border border-white/5 rounded-lg cursor-pointer hover:-translate-y-0.5 transition flex items-center justify-between group"
-                      >
+                {/* SECTION 4: Upcoming Tasks & Recent Reports (2-column embedded widgets) */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  
+                  {/* UPCOMING TASKS block */}
+                  <div className="glass-subtle glass-highlight p-4 rounded-2xl shadow-xl">
+                    <div className="flex justify-between items-center mb-3">
+                      <h2 className="text-[10px] font-bold text-[#8D96A3] uppercase tracking-wider">Upcoming Tasks</h2>
+                    </div>
+                    <div className="flex flex-col gap-2.5">
+                      <div className="flex items-start gap-2 text-[10.5px]">
+                        <span className="w-1.5 h-1.5 bg-purple-500 rounded-full mt-1.5 shrink-0"></span>
                         <div>
-                          <span className="text-[11px] font-bold text-white block group-hover:text-purple-400 transition">{action.title}</span>
-                          <span className="text-[9px] text-[#8D96A3] mt-0.5 block">{action.desc}</span>
-                        </div>
-                        <ChevronRight className="h-3.5 w-3.5 text-[#626B78] group-hover:text-white group-hover:translate-x-0.5 transition shrink-0" />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* UPCOMING TASKS block */}
-                <div className="bg-[#0D111A] border border-white/5 p-4 rounded-xl">
-                  <div className="flex justify-between items-center mb-3">
-                    <h2 className="text-[10px] font-bold text-[#8D96A3] uppercase tracking-wider">Upcoming Tasks</h2>
-                  </div>
-                  <div className="flex flex-col gap-2.5">
-                    <div className="flex items-start gap-2 text-[10.5px]">
-                      <span className="w-1.5 h-1.5 bg-purple-500 rounded-full mt-1.5 shrink-0"></span>
-                      <div>
-                        <span className="text-white block font-medium">Threat report for #INC-7821</span>
-                        <span className="text-[#626B78] text-[9px]">Due in 25m</span>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-2 text-[10.5px]">
-                      <span className="w-1.5 h-1.5 bg-pink-500 rounded-full mt-1.5 shrink-0"></span>
-                      <div>
-                        <span className="text-white block font-medium">Model training job</span>
-                        <span className="text-[#626B78] text-[9px]">Due in 1h 10m</span>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-2 text-[10.5px]">
-                      <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full mt-1.5 shrink-0"></span>
-                      <div>
-                        <span className="text-white block font-medium">Weekly system health review</span>
-                        <span className="text-[#626B78] text-[9px]">Due in 3h 30m</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* RECENT REPORTS block */}
-                <div className="bg-[#0D111A] border border-white/5 p-4 rounded-xl">
-                  <div className="flex justify-between items-center mb-3">
-                    <h2 className="text-[10px] font-bold text-[#8D96A3] uppercase tracking-wider">Recent Reports</h2>
-                  </div>
-                  <div className="flex flex-col gap-2.5">
-                    {/* Global Analytics Summary */}
-                    <div className="flex items-center justify-between text-[11px] p-2 bg-[#080F17] rounded-lg border border-white/5 hover:bg-white/5 transition">
-                      <div className="flex items-center gap-2 overflow-hidden">
-                        <FileText className="h-4 w-4 text-purple-400 shrink-0" />
-                        <div className="truncate">
-                          <span className="text-white block font-medium truncate w-32">Global SOC Summary</span>
-                          <span className="text-[#626B78] text-[9px]">Generated today</span>
+                          <span className="text-white block font-medium">Threat report for #INC-7821</span>
+                          <span className="text-[#626B78] text-[9px]">Due in 25m</span>
                         </div>
                       </div>
-                      <button 
-                        onClick={downloadGlobalReport}
-                        className="text-[#8D96A3] hover:text-white cursor-pointer p-1 rounded hover:bg-white/5 transition"
-                        title="Download Global Summary Report"
-                      >
-                        <Download className="h-3.5 w-3.5" />
-                      </button>
+                      <div className="flex items-start gap-2 text-[10.5px]">
+                        <span className="w-1.5 h-1.5 bg-pink-500 rounded-full mt-1.5 shrink-0"></span>
+                        <div>
+                          <span className="text-white block font-medium">Model training job</span>
+                          <span className="text-[#626B78] text-[9px]">Due in 1h 10m</span>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-2 text-[10.5px]">
+                        <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full mt-1.5 shrink-0"></span>
+                        <div>
+                          <span className="text-white block font-medium">Weekly system health review</span>
+                          <span className="text-[#626B78] text-[9px]">Due in 3h 30m</span>
+                        </div>
+                      </div>
                     </div>
+                  </div>
 
-                    {/* Incident Reports (Up to 3 most recent) */}
-                    {incidents.slice(0, 3).map((inc) => (
-                      <div key={inc.id} className="flex items-center justify-between text-[11px] p-2 bg-[#080F17] rounded-lg border border-white/5 hover:bg-white/5 transition">
+                  {/* RECENT REPORTS block */}
+                  <div className="glass-subtle glass-highlight p-4 rounded-2xl shadow-xl">
+                    <div className="flex justify-between items-center mb-3">
+                      <h2 className="text-[10px] font-bold text-[#8D96A3] uppercase tracking-wider">Recent Reports</h2>
+                    </div>
+                    <div className="flex flex-col gap-2.5">
+                      {/* Global Analytics Summary */}
+                      <div className="flex items-center justify-between text-[11px] p-2 bg-[#080C16]/70 rounded-lg border border-white/5 hover:bg-white/10 transition">
                         <div className="flex items-center gap-2 overflow-hidden">
-                          <FileText className="h-4 w-4 text-pink-400 shrink-0" />
+                          <FileText className="h-4 w-4 text-purple-400 shrink-0" />
                           <div className="truncate">
-                            <span className="text-white block font-medium truncate w-32">{inc.vector_type} Analysis ({inc.id.substring(0, 8)})</span>
-                            <span className="text-[#626B78] text-[9px]">Generated {formatTimeAgo(inc.timestamp)}</span>
+                            <span className="text-white block font-medium truncate w-40">Global SOC Summary</span>
+                            <span className="text-[#626B78] text-[9px]">Generated today</span>
                           </div>
                         </div>
                         <button 
-                          onClick={() => downloadReport(inc.id)}
+                          onClick={downloadGlobalReport}
                           className="text-[#8D96A3] hover:text-white cursor-pointer p-1 rounded hover:bg-white/5 transition"
-                          title="Download/Print Incident Report"
+                          title="Download Global Summary Report"
                         >
                           <Download className="h-3.5 w-3.5" />
                         </button>
                       </div>
-                    ))}
 
-                    {incidents.length === 0 && (
-                      <span className="text-[10px] text-[#626B78] italic block text-center py-2">No reports generated yet</span>
-                    )}
+                      {/* Incident Reports (Up to 2 most recent) */}
+                      {incidents.slice(0, 2).map((inc) => (
+                        <div key={inc.id} className="flex items-center justify-between text-[11px] p-2 bg-[#080C16]/70 rounded-lg border border-white/5 hover:bg-white/10 transition">
+                          <div className="flex items-center gap-2 overflow-hidden">
+                            <FileText className="h-4 w-4 text-pink-400 shrink-0" />
+                            <div className="truncate">
+                              <span className="text-white block font-medium truncate w-40">{inc.vector_type} Analysis ({inc.id.substring(0, 8)})</span>
+                              <span className="text-[#626B78] text-[9px]">Generated {formatTimeAgo(inc.timestamp)}</span>
+                            </div>
+                          </div>
+                          <button 
+                            onClick={() => downloadReport(inc.id)}
+                            className="text-[#8D96A3] hover:text-white cursor-pointer p-1 rounded hover:bg-white/5 transition"
+                            title="Download/Print Incident Report"
+                          >
+                            <Download className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      ))}
+
+                      {incidents.length === 0 && (
+                        <span className="text-[10px] text-[#626B78] italic block text-center py-2">No reports generated yet</span>
+                      )}
+                    </div>
                   </div>
+
                 </div>
 
               </div>
@@ -1948,10 +2029,10 @@ export default function SOCDashboard() {
               </div>
 
               {/* Incidents Queue list table */}
-              <div className="bg-[#0D111A] border border-white/5 rounded-xl overflow-hidden shadow-2xl">
+              <div className="glass-strong glass-highlight rounded-2xl overflow-hidden shadow-2xl">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
-                    <tr className="border-b border-white/5 text-[#8D96A3] bg-[#0D111A] font-sans">
+                    <tr className="border-b border-white/10 text-[#8D96A3] bg-[#080C16]/80 font-sans">
                       <th className="p-3.5 font-bold uppercase tracking-wider text-[9px]">Incident ID</th>
                       <th className="p-3.5 font-bold uppercase tracking-wider text-[9px]">Timestamp</th>
                       <th className="p-3.5 font-bold uppercase tracking-wider text-[9px]">Vector</th>
@@ -2054,6 +2135,223 @@ export default function SOCDashboard() {
             </div>
           )}
 
+          {/* TAB: URL REPUTATION AUDIT WORKSPACE */}
+          {activeTab === "url_analysis" && (
+            <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-3 duration-300">
+              {/* HEADER & PAGE TITLE */}
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="px-2 py-0.5 rounded bg-purple-500/10 border border-purple-500/20 text-purple-400 font-mono text-[9px] font-bold uppercase tracking-widest">
+                      VECTOR // URL AUDIT
+                    </span>
+                    <span className="text-[10px] text-[#626B78] font-mono">BACKEND THREAT ENGINE</span>
+                  </div>
+                  <h1 className="text-2xl font-extrabold tracking-tight text-white mt-1">URL Reputation Audit</h1>
+                  <p className="text-xs text-[#8D96A3] mt-0.5">
+                    Investigate URLs, domains, redirects, reputation signals, and phishing indicators.
+                  </p>
+                </div>
+
+                {/* Quick Presets */}
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="text-[10px] text-[#626B78] font-mono uppercase mr-1">Sample Targets:</span>
+                  {[
+                    { label: "google.com", url: "https://google.com" },
+                    { label: "microsoft.com", url: "https://microsoft.com" },
+                    { label: "suspicious-login", url: "http://paypa1-secure-login.example.com/login" }
+                  ].map((preset, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => { setUrlInput(preset.url); startURLScan(undefined, preset.url); }}
+                      className="px-2.5 py-1 bg-white/5 hover:bg-purple-500/10 border border-white/8 hover:border-purple-500/30 rounded-lg text-[10.5px] font-mono text-[#8D96A3] hover:text-white transition cursor-pointer"
+                    >
+                      {preset.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* TOP INVESTIGATION BAR */}
+              <div className="glass-strong glass-highlight p-6 rounded-2xl shadow-2xl flex flex-col gap-4">
+                <form onSubmit={(e) => startURLScan(e)} className="flex flex-col md:flex-row gap-3">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#8D96A3]" />
+                    <input
+                      type="url"
+                      placeholder="Enter target URL or domain (e.g. https://example.com/login)..."
+                      value={urlInput}
+                      onChange={(e) => setUrlInput(e.target.value)}
+                      required
+                      className="w-full bg-[#080C16]/90 border border-white/12 rounded-xl pl-10 pr-4 py-3 text-xs text-white placeholder-[#626B78] focus:outline-none focus:border-purple-500 font-mono shadow-inner"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={urlScanning}
+                    className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-500 hover:to-blue-400 text-white font-bold text-xs rounded-xl transition cursor-pointer shadow-lg shadow-purple-600/20 flex items-center justify-center gap-2 shrink-0"
+                  >
+                    {urlScanning ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+                    <span>{urlScanning ? "Scanning Target..." : "Start Scan"}</span>
+                  </button>
+                </form>
+
+                <div className="flex items-center justify-between text-[10px] text-[#626B78] font-mono pt-2 border-t border-white/5">
+                  <span>🔒 Passive Analysis: No external traffic is generated during passive domain lookup.</span>
+                  <span>ENGINE: FASTAPI / CELERY MODEL PIPELINE</span>
+                </div>
+              </div>
+
+              {/* SCANNING STATE */}
+              {urlScanning && (
+                <div className="glass-strong p-6 rounded-2xl border border-purple-500/30 animate-pulse flex items-center gap-4">
+                  <RefreshCw className="h-6 w-6 text-purple-400 animate-spin shrink-0" />
+                  <div>
+                    <span className="text-xs font-bold text-white block">Analyzing URL Target...</span>
+                    <span className="text-[11px] text-[#8D96A3] font-mono">Running feature extraction, typosquatting checks, and self-learning classifier...</span>
+                  </div>
+                </div>
+              )}
+
+              {/* REAL RESULT PANEL */}
+              {selectedIncident && selectedIncident.vector_type === "URL" && !urlScanning ? (
+                <div className="flex flex-col gap-6 animate-in fade-in duration-300">
+                  {/* MAIN VERDICT BANNER */}
+                  <div className="glass-strong glass-highlight p-6 rounded-2xl shadow-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                      <span className="text-[9px] font-bold text-[#8D96A3] uppercase tracking-widest block mb-1 font-mono">Target URL</span>
+                      <span className="text-base font-bold text-white font-mono block break-all">{selectedIncident.target_input}</span>
+                    </div>
+
+                    <div className="flex items-center gap-6 shrink-0">
+                      <div>
+                        <span className="text-[9px] font-bold text-[#8D96A3] uppercase tracking-widest block font-mono">Classification</span>
+                        <span className={`text-xl font-black uppercase tracking-wider block ${
+                          selectedIncident.status === "PHISHING" ? "text-rose-400" :
+                          selectedIncident.status === "SUSPICIOUS" ? "text-amber-400" :
+                          "text-emerald-400"
+                        }`}>
+                          {selectedIncident.status}
+                        </span>
+                      </div>
+
+                      <div className="border-l border-white/10 pl-6 font-mono">
+                        <span className="text-[9px] font-bold text-[#8D96A3] uppercase tracking-widest block">Threat Score</span>
+                        <span className="text-xl font-black text-white block">{selectedIncident.threat_score} / 100</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* EVIDENCE & REASONS */}
+                  <div className="glass-medium glass-highlight p-6 rounded-2xl shadow-xl">
+                    <h3 className="text-xs font-bold text-white uppercase tracking-wider mb-4 border-b border-white/5 pb-2 font-mono">
+                      Backend Threat Evidence & Findings
+                    </h3>
+                    {selectedIncident.evidences && selectedIncident.evidences.length > 0 ? (
+                      <div className="space-y-2 font-mono text-xs">
+                        {selectedIncident.evidences.map((ev: any, idx: number) => (
+                          <div key={idx} className="p-3 bg-[#080C16]/80 border border-white/8 rounded-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
+                            <span className="text-purple-300 font-bold shrink-0">{ev.key}</span>
+                            <span className="text-white text-left md:text-right">{ev.value}</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-xs text-[#8D96A3] font-mono">No suspicious indicators detected. URL evaluated as clean by backend detection pipeline.</p>
+                    )}
+                  </div>
+
+                  {/* RECOMMENDED ACTIONS */}
+                  {selectedIncident.remediations && selectedIncident.remediations.length > 0 && (
+                    <div className="glass-medium p-5 rounded-2xl">
+                      <h3 className="text-xs font-bold text-white uppercase tracking-wider mb-2 font-mono">Recommended Actions</h3>
+                      <ul className="space-y-1.5 text-xs text-[#8D96A3] font-mono list-disc list-inside">
+                        {selectedIncident.remediations.map((rem: any, idx: number) => (
+                          <li key={idx} className="text-white">{rem.description}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* ANALYST ACTION TOOLBAR */}
+                  <div className="glass-floating p-4 rounded-2xl flex flex-wrap items-center justify-between gap-3 shadow-2xl">
+                    <span className="text-xs font-bold text-white uppercase tracking-wider font-mono">Analyst Feedback Controls:</span>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <button
+                        onClick={() => handleTrainML(selectedIncident.id, "PHISHING")}
+                        className="px-3.5 py-2 bg-rose-600/30 hover:bg-rose-600/50 border border-rose-500/40 text-rose-200 font-bold text-xs rounded-xl transition cursor-pointer font-mono"
+                      >
+                        Train ML: Confirm Phishing
+                      </button>
+                      <button
+                        onClick={() => handleTrainML(selectedIncident.id, "SAFE")}
+                        className="px-3.5 py-2 bg-emerald-600/30 hover:bg-emerald-600/50 border border-emerald-500/40 text-emerald-200 font-bold text-xs rounded-xl transition cursor-pointer font-mono"
+                      >
+                        Train ML: Mark Safe
+                      </button>
+                      <button
+                        onClick={downloadGlobalReport}
+                        className="px-3.5 py-2 bg-white/10 hover:bg-white/20 border border-white/10 text-white font-bold text-xs rounded-xl transition cursor-pointer font-mono"
+                      >
+                        Export Incident Report
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : !urlScanning && (
+                /* EMPTY STATE */
+                <div className="glass-medium p-8 rounded-2xl text-center flex flex-col items-center justify-center gap-3">
+                  <Search className="h-8 w-8 text-[#626B78]" />
+                  <span className="text-xs font-bold text-white block">No Analysis Performed Yet</span>
+                  <span className="text-[11px] text-[#8D96A3] max-w-sm">Enter a target URL above to run threat detection, or select an incident from the ledger below.</span>
+                </div>
+              )}
+
+              {/* RECENT URL INVESTIGATIONS LEDGER */}
+              <div className="glass-strong glass-highlight p-5 rounded-2xl shadow-xl">
+                <h3 className="text-xs font-bold text-white uppercase tracking-wider mb-4 font-mono">Recent URL Investigations Ledger</h3>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead>
+                      <tr className="border-b border-white/10 text-[#8D96A3] bg-[#080C16]/80 font-mono text-[9px] uppercase">
+                        <th className="p-3">Timestamp</th>
+                        <th className="p-3">Target URL</th>
+                        <th className="p-3">Classification</th>
+                        <th className="p-3">Threat Score</th>
+                        <th className="p-3 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/5 font-mono text-[11px]">
+                      {incidents.filter(i => i.vector_type === "URL").map((inc, idx) => (
+                        <tr key={idx} onClick={() => setSelectedId(inc.id)} className="hover:bg-white/5 transition cursor-pointer">
+                          <td className="p-3 text-[#626B78]">{inc.timestamp?.substring(0, 16).replace("T", " ")}</td>
+                          <td className="p-3 text-white font-bold max-w-[350px] truncate" title={inc.target_input}>{inc.target_input}</td>
+                          <td className="p-3">
+                            <span className={`px-2 py-0.5 rounded text-[9px] font-bold ${
+                              inc.status === "PHISHING" ? "bg-rose-500/20 text-rose-400" :
+                              inc.status === "SUSPICIOUS" ? "bg-amber-500/20 text-amber-400" :
+                              "bg-emerald-500/20 text-emerald-400"
+                            }`}>
+                              {inc.status}
+                            </span>
+                          </td>
+                          <td className="p-3 text-white">{inc.threat_score} / 100</td>
+                          <td className="p-3 text-right text-purple-300">Inspect →</td>
+                        </tr>
+                      ))}
+                      {incidents.filter(i => i.vector_type === "URL").length === 0 && (
+                        <tr>
+                          <td colSpan={5} className="p-4 text-center text-[#626B78]">No URL investigations recorded in database.</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* TAB 3: SPECIFIC INVESTIGATION ingestion channels */}
           {activeTab === "investigate" && (
             <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-3 duration-300">
@@ -2092,9 +2390,9 @@ export default function SOCDashboard() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* URL Ingestion */}
-                <div className="bg-[#0D111A] border border-white/5 p-5 rounded-xl flex flex-col justify-between hover:border-white/10 transition">
+                <div className="glass-medium glass-highlight p-5 rounded-2xl flex flex-col justify-between hover:-translate-y-0.5 hover:border-white/15 transition-all duration-300 shadow-xl group">
                   <div>
-                    <h2 className="text-sm font-bold text-white mb-2">Analyze Domain / URL</h2>
+                    <h2 className="text-sm font-bold text-white mb-2 group-hover:text-purple-400 transition">Analyze Domain / URL</h2>
                     <p className="text-xs text-[#8D96A3] leading-relaxed mb-4">
                       Scans for reputation indicators, redirection traces, and typosquatting target matches.
                     </p>
@@ -2107,18 +2405,18 @@ export default function SOCDashboard() {
                       onChange={e=>setUrlInput(e.target.value)}
                       required
                       disabled={isScanningActive}
-                      className="flex-1 bg-[#080B12] border border-white/5 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500"
+                      className="flex-1 bg-[#080C16]/80 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500"
                     />
-                    <button type="submit" className="bg-gradient-to-r from-purple-600 to-blue-500 text-white font-bold text-xs px-4 py-2 rounded-lg transition cursor-pointer">
+                    <button type="submit" className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs px-4 py-2 rounded-xl transition cursor-pointer shadow-lg shadow-purple-600/20">
                       Start
                     </button>
                   </form>
                 </div>
 
                 {/* EML Ingestion */}
-                <div className="bg-[#0D111A] border border-white/5 p-5 rounded-xl flex flex-col justify-between hover:border-white/10 transition">
+                <div className="glass-medium glass-highlight p-5 rounded-2xl flex flex-col justify-between hover:-translate-y-0.5 hover:border-white/15 transition-all duration-300 shadow-xl group">
                   <div>
-                    <h2 className="text-sm font-bold text-white mb-2">Analyze Email Header (EML)</h2>
+                    <h2 className="text-sm font-bold text-white mb-2 group-hover:text-purple-400 transition">Analyze Email Header (EML)</h2>
                     <p className="text-xs text-[#8D96A3] leading-relaxed mb-4">
                       Audit SPF/DKIM auth tags, suspicious link traces, and spam keywords payload.
                     </p>
@@ -2131,16 +2429,16 @@ export default function SOCDashboard() {
                       required
                       className="text-xs text-[#8D96A3]"
                     />
-                    <button type="submit" className="bg-gradient-to-r from-purple-600 to-blue-500 text-white font-bold text-xs px-4 py-2 rounded-lg cursor-pointer shrink-0">
+                    <button type="submit" className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs px-4 py-2 rounded-xl cursor-pointer shrink-0 shadow-lg shadow-purple-600/20">
                       Start
                     </button>
                   </form>
                 </div>
 
                 {/* Logs & PCAP Ingestion */}
-                <div className="bg-[#0D111A] border border-white/5 p-5 rounded-xl flex flex-col justify-between hover:border-white/10 transition">
+                <div className="glass-medium glass-highlight p-5 rounded-2xl flex flex-col justify-between hover:-translate-y-0.5 hover:border-white/15 transition-all duration-300 shadow-xl group">
                   <div>
-                    <h2 className="text-sm font-bold text-white mb-2">Analyze System Logs & PCAP</h2>
+                    <h2 className="text-sm font-bold text-white mb-2 group-hover:text-purple-400 transition">Analyze System Logs & PCAP</h2>
                     <p className="text-xs text-[#8D96A3] leading-relaxed mb-4">
                       Upload system syslog files or packet captures (PCAP) to correlate network compromise indicators.
                     </p>
@@ -2153,14 +2451,14 @@ export default function SOCDashboard() {
                       required
                       className="text-xs text-[#8D96A3]"
                     />
-                    <button type="submit" className="bg-gradient-to-r from-purple-600 to-blue-500 text-white font-bold text-xs px-4 py-2 rounded-lg cursor-pointer shrink-0">
+                    <button type="submit" className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs px-4 py-2 rounded-xl cursor-pointer shrink-0 shadow-lg shadow-purple-600/20">
                       Start
                     </button>
                   </form>
                 </div>
 
                 {/* Deepfake Media Ingestion */}
-                <div className="bg-[#0D111A] border border-white/5 p-5 rounded-xl flex flex-col justify-between hover:border-white/10 transition">
+                <div className="glass-medium glass-highlight p-5 rounded-2xl flex flex-col justify-between hover:-translate-y-0.5 hover:border-white/15 transition-all duration-300 shadow-xl group">
                   <div>
                     <h2 className="text-sm font-bold text-white mb-2">Analyze Deepfake Media</h2>
                     <p className="text-xs text-[#8D96A3] leading-relaxed mb-4">
@@ -2175,7 +2473,7 @@ export default function SOCDashboard() {
                       required
                       className="text-xs text-[#8D96A3]"
                     />
-                    <button type="submit" className="bg-gradient-to-r from-purple-600 to-blue-500 text-white font-bold text-xs px-4 py-2 rounded-lg cursor-pointer shrink-0">
+                    <button type="submit" className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs px-4 py-2 rounded-xl cursor-pointer shrink-0 shadow-lg shadow-purple-600/20">
                       Start
                     </button>
                   </form>
@@ -2185,95 +2483,569 @@ export default function SOCDashboard() {
             </div>
           )}
 
-          {/* TAB 4: SPECIFIC scan subroutes matching page */}
-          {activeTab === "url_analysis" && (
-            <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-3 duration-300">
-              <div>
-                <h1 className="text-xl font-bold tracking-tight text-white">URL Reputation Audit</h1>
-                <p className="text-xs text-[#8D96A3] mt-0.5">Run domain check against Levenshtein typosquat tables.</p>
-              </div>
-              <div className="bg-[#0D111A] border border-white/5 p-6 rounded-xl max-w-xl">
-                <form onSubmit={startURLScan} className="flex flex-col gap-4">
-                  <input 
-                    type="url"
-                    value={urlInput}
-                    onChange={e=>setUrlInput(e.target.value)}
-                    placeholder="https://g00gle.com"
-                    required
-                    className="bg-[#080B12] border border-white/5 rounded-lg px-3.5 py-2 text-xs text-white"
-                  />
-                  <button type="submit" className="bg-gradient-to-r from-purple-600 to-blue-500 text-white font-bold text-xs py-2 px-4 rounded-lg self-start cursor-pointer transition">
-                    Start Scan
-                  </button>
-                </form>
-              </div>
-            </div>
-          )}
-
+          {/* TAB: EMAIL HEADER AUDIT WORKSPACE */}
           {activeTab === "email_analysis" && (
             <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-3 duration-300">
-              <div>
-                <h1 className="text-xl font-bold tracking-tight text-white">Email Header Audit</h1>
-                <p className="text-xs text-[#8D96A3] mt-0.5">Upload EML headers to parse envelop auth.</p>
+              {/* HEADER & PAGE TITLE */}
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="px-2 py-0.5 rounded bg-purple-500/10 border border-purple-500/20 text-purple-400 font-mono text-[9px] font-bold uppercase tracking-widest">
+                      VECTOR // EML AUDIT
+                    </span>
+                    <span className="text-[10px] text-[#626B78] font-mono">BACKEND THREAT ENGINE</span>
+                  </div>
+                  <h1 className="text-2xl font-extrabold tracking-tight text-white mt-1">Email Header Audit</h1>
+                  <p className="text-xs text-[#8D96A3] mt-0.5">
+                    Analyze email headers, authentication results, sender reputation, routing paths, and phishing indicators.
+                  </p>
+                </div>
               </div>
-              <div className="bg-[#0D111A] border border-white/5 p-6 rounded-xl max-w-xl text-center">
-                <Mail className="h-10 w-10 text-[#8D96A3] mx-auto mb-4" />
-                <form onSubmit={startEMLScan} className="flex flex-col items-center gap-4">
-                  <input type="file" accept=".eml" onChange={e => setEmlFile(e.target.files?.[0] || null)} required className="text-xs text-[#8D96A3]" />
-                  <button type="submit" className="bg-gradient-to-r from-purple-600 to-blue-500 text-white font-bold text-xs py-2 px-4 rounded-lg cursor-pointer transition">
-                    Audit Email
+
+              {/* EMAIL INGESTION AREA */}
+              <div className="glass-strong glass-highlight p-6 rounded-2xl shadow-2xl flex flex-col gap-4">
+                <form onSubmit={startEMLScan} className="flex flex-col md:flex-row items-center gap-4">
+                  <div className="flex-1 w-full p-4 bg-[#080C16]/80 border border-dashed border-white/15 rounded-xl flex items-center justify-between hover:border-purple-500/40 transition">
+                    <div className="flex items-center gap-3">
+                      <Mail className="h-5 w-5 text-purple-400" />
+                      <div>
+                        <span className="text-xs font-bold text-white block">Drop EML file or select file</span>
+                        <span className="text-[10px] text-[#626B78] block">Parsed server-side according to configured processing policies.</span>
+                      </div>
+                    </div>
+                    <input 
+                      type="file" 
+                      accept=".eml,.msg,.txt" 
+                      onChange={e => setEmlFile(e.target.files?.[0] || null)}
+                      required
+                      className="text-xs text-[#8D96A3] max-w-[200px]"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={emlScanning}
+                    className="w-full md:w-auto px-6 py-4 bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-500 hover:to-blue-400 text-white font-bold text-xs rounded-xl transition cursor-pointer shadow-lg shadow-purple-600/20 flex items-center justify-center gap-2 shrink-0 font-mono"
+                  >
+                    {emlScanning ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
+                    <span>{emlScanning ? "Analyzing Email..." : "Analyze Email"}</span>
                   </button>
                 </form>
               </div>
-            </div>
-          )}
-          {activeTab === "log_analysis" && (
-            <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-3 duration-300">
-              <div>
-                <h1 className="text-xl font-bold tracking-tight text-white">Logs & Network PCAP Audit</h1>
-                <p className="text-xs text-[#8D96A3] mt-0.5 font-sans">Upload system syslog files or packet captures (PCAP) to correlate compromise vectors.</p>
-              </div>
-              <div className="bg-[#0D111A] border border-white/5 p-6 rounded-xl max-w-xl text-center">
-                <Terminal className="h-10 w-10 text-[#8D96A3] mx-auto mb-4" />
-                <form onSubmit={startLogScan} className="flex flex-col items-center gap-4">
-                  <input type="file" accept=".log,.txt,.pcap,.pcapng" onChange={e => setLogFile(e.target.files?.[0] || null)} required className="text-xs text-[#8D96A3]" />
-                  <button type="submit" className="bg-gradient-to-r from-purple-600 to-blue-500 text-white font-bold text-xs py-2 px-4 rounded-lg cursor-pointer transition">
-                    Audit Log Payload
-                  </button>
-                </form>
+
+              {/* SCANNING ANIMATION */}
+              {emlScanning && (
+                <div className="glass-strong p-6 rounded-2xl border border-purple-500/30 animate-pulse flex items-center gap-4">
+                  <RefreshCw className="h-6 w-6 text-purple-400 animate-spin shrink-0" />
+                  <div>
+                    <span className="text-xs font-bold text-white block">Analyzing Email Envelope & Body...</span>
+                    <span className="text-[11px] text-[#8D96A3] font-mono font-bold">Verifying SPF/DKIM tags, NLP phishing content, and macro payloads...</span>
+                  </div>
+                </div>
+              )}
+
+              {/* REAL RESULT PANEL */}
+              {selectedIncident && selectedIncident.vector_type === "Email" && !emlScanning ? (
+                <div className="flex flex-col gap-6 animate-in fade-in duration-300">
+                  <div className="glass-strong glass-highlight p-6 rounded-2xl shadow-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                      <span className="text-[9px] font-bold text-[#8D96A3] uppercase tracking-widest block mb-1 font-mono">Target Email File</span>
+                      <span className="text-base font-bold text-white font-mono block break-all">{selectedIncident.target_input}</span>
+                    </div>
+
+                    <div className="flex items-center gap-6 shrink-0 font-mono">
+                      <div>
+                        <span className="text-[9px] font-bold text-[#8D96A3] uppercase tracking-widest block">Classification</span>
+                        <span className={`text-xl font-black uppercase tracking-wider block ${
+                          selectedIncident.status === "PHISHING" ? "text-rose-400" :
+                          selectedIncident.status === "SUSPICIOUS" ? "text-amber-400" :
+                          "text-emerald-400"
+                        }`}>
+                          {selectedIncident.status}
+                        </span>
+                      </div>
+
+                      <div className="border-l border-white/10 pl-6">
+                        <span className="text-[9px] font-bold text-[#8D96A3] uppercase tracking-widest block">Threat Score</span>
+                        <span className="text-xl font-black text-white block">{selectedIncident.threat_score} / 100</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* EVIDENCE TABLE */}
+                  <div className="glass-medium glass-highlight p-6 rounded-2xl shadow-xl">
+                    <h3 className="text-xs font-bold text-white uppercase tracking-wider mb-4 border-b border-white/5 pb-2 font-mono">
+                      Header & Body Threat Evidences
+                    </h3>
+                    {selectedIncident.evidences && selectedIncident.evidences.length > 0 ? (
+                      <div className="space-y-2 font-mono text-xs">
+                        {selectedIncident.evidences.map((ev: any, idx: number) => (
+                          <div key={idx} className="p-3 bg-[#080C16]/80 border border-white/8 rounded-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
+                            <span className="text-purple-300 font-bold shrink-0">{ev.key}</span>
+                            <span className="text-white text-left md:text-right">{ev.value}</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-xs text-[#8D96A3] font-mono">No evidence indicators flagged. Email verified clean by backend rules.</p>
+                    )}
+                  </div>
+
+                  {/* REMEDIATIONS */}
+                  {selectedIncident.remediations && selectedIncident.remediations.length > 0 && (
+                    <div className="glass-medium p-5 rounded-2xl">
+                      <h3 className="text-xs font-bold text-white uppercase tracking-wider mb-2 font-mono">Recommended Actions</h3>
+                      <ul className="space-y-1.5 text-xs text-[#8D96A3] font-mono list-disc list-inside">
+                        {selectedIncident.remediations.map((rem: any, idx: number) => (
+                          <li key={idx} className="text-white">{rem.description}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* ANALYST ACTIONS */}
+                  <div className="glass-floating p-4 rounded-2xl flex flex-wrap items-center justify-between gap-3 shadow-2xl font-mono">
+                    <span className="text-xs font-bold text-white uppercase tracking-wider">Analyst Actions:</span>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <button onClick={() => handleTrainML(selectedIncident.id, "PHISHING")} className="px-3.5 py-2 bg-rose-600/30 hover:bg-rose-600/50 border border-rose-500/40 text-rose-200 font-bold text-xs rounded-xl transition cursor-pointer">
+                        Train ML: Confirm Phishing
+                      </button>
+                      <button onClick={() => handleTrainML(selectedIncident.id, "SAFE")} className="px-3.5 py-2 bg-emerald-600/30 hover:bg-emerald-600/50 border border-emerald-500/40 text-emerald-200 font-bold text-xs rounded-xl transition cursor-pointer">
+                        Train ML: Mark Safe
+                      </button>
+                      <button onClick={downloadGlobalReport} className="px-3.5 py-2 bg-white/10 hover:bg-white/20 border border-white/10 text-white font-bold text-xs rounded-xl transition cursor-pointer">
+                        Export Report
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : !emlScanning && (
+                <div className="glass-medium p-8 rounded-2xl text-center flex flex-col items-center justify-center gap-3">
+                  <Mail className="h-8 w-8 text-[#626B78]" />
+                  <span className="text-xs font-bold text-white block">No Email Analysis Selected</span>
+                  <span className="text-[11px] text-[#8D96A3] max-w-sm">Upload an EML file above to audit headers, or select an incident from the ledger below.</span>
+                </div>
+              )}
+
+              {/* RECENT EMAIL INVESTIGATIONS LEDGER */}
+              <div className="glass-strong glass-highlight p-5 rounded-2xl shadow-xl">
+                <h3 className="text-xs font-bold text-white uppercase tracking-wider mb-4 font-mono">Recent Email Investigations Ledger</h3>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead>
+                      <tr className="border-b border-white/10 text-[#8D96A3] bg-[#080C16]/80 font-mono text-[9px] uppercase">
+                        <th className="p-3">Timestamp</th>
+                        <th className="p-3">Target Input</th>
+                        <th className="p-3">Classification</th>
+                        <th className="p-3">Threat Score</th>
+                        <th className="p-3 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/5 font-mono text-[11px]">
+                      {incidents.filter(i => i.vector_type === "Email").map((inc, idx) => (
+                        <tr key={idx} onClick={() => setSelectedId(inc.id)} className="hover:bg-white/5 transition cursor-pointer">
+                          <td className="p-3 text-[#626B78]">{inc.timestamp?.substring(0, 16).replace("T", " ")}</td>
+                          <td className="p-3 text-white font-bold max-w-[300px] truncate">{inc.target_input}</td>
+                          <td className="p-3">
+                            <span className={`px-2 py-0.5 rounded text-[9px] font-bold ${
+                              inc.status === "PHISHING" ? "bg-rose-500/20 text-rose-400" :
+                              inc.status === "SUSPICIOUS" ? "bg-amber-500/20 text-amber-400" :
+                              "bg-emerald-500/20 text-emerald-400"
+                            }`}>
+                              {inc.status}
+                            </span>
+                          </td>
+                          <td className="p-3 text-white">{inc.threat_score} / 100</td>
+                          <td className="p-3 text-right text-purple-300">Inspect →</td>
+                        </tr>
+                      ))}
+                      {incidents.filter(i => i.vector_type === "Email").length === 0 && (
+                        <tr>
+                          <td colSpan={5} className="p-4 text-center text-[#626B78]">No email investigations recorded in database.</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           )}
 
-          {activeTab === "media_analysis" && (
+          {/* TAB: LOGS & NETWORK PCAP AUDIT WORKSPACE */}
+          {activeTab === "log_analysis" && (
             <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-3 duration-300">
-              <div>
-                <h1 className="text-xl font-bold tracking-tight text-white">Deepfake Media Forensics</h1>
-                <p className="text-xs text-[#8D96A3] mt-0.5 font-sans">Analyze video frames or audio tracks for synthetic generation metadata.</p>
-              </div>
-              <div className="bg-[#0D111A] border border-white/5 p-6 rounded-xl max-w-xl text-center">
-                <Video className="h-10 w-10 text-[#8D96A3] mx-auto mb-4" />
-                <div className="flex justify-center gap-4 mb-4">
-                  <button 
-                    onClick={() => setMediaType("video")}
-                    className={`px-3 py-1.5 rounded text-xs transition ${mediaType === "video" ? "bg-white/10 text-white font-bold" : "text-[#8D96A3] hover:text-white"}`}
-                  >
-                    Video Anomaly Check
-                  </button>
-                  <button 
-                    onClick={() => setMediaType("audio")}
-                    className={`px-3 py-1.5 rounded text-xs transition ${mediaType === "audio" ? "bg-white/10 text-white font-bold" : "text-[#8D96A3] hover:text-white"}`}
-                  >
-                    Audio Clone Check
-                  </button>
+              {/* HEADER & PAGE TITLE */}
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="px-2 py-0.5 rounded bg-blue-500/10 border border-blue-500/20 text-blue-400 font-mono text-[9px] font-bold uppercase tracking-widest">
+                      VECTOR // NETWORK PCAP & SYSLOG
+                    </span>
+                    <span className="text-[10px] text-[#626B78] font-mono">BACKEND PARSER</span>
+                  </div>
+                  <h1 className="text-2xl font-extrabold tracking-tight text-white mt-1">Logs & Network PCAP Audit</h1>
+                  <p className="text-xs text-[#8D96A3] mt-0.5">
+                    Investigate system logs, network traffic, authentication events, and suspicious communication patterns.
+                  </p>
                 </div>
-                <form onSubmit={startMediaScan} className="flex flex-col items-center gap-4">
-                  <input type="file" accept="video/*,audio/*" onChange={e => setMediaFile(e.target.files?.[0] || null)} required className="text-xs text-[#8D96A3]" />
-                  <button type="submit" className="bg-gradient-to-r from-purple-600 to-blue-500 text-white font-bold text-xs py-2 px-4 rounded-lg cursor-pointer transition">
-                    Audit Media File
+              </div>
+
+              {/* DATA INGESTION PANEL */}
+              <div className="glass-strong glass-highlight p-6 rounded-2xl shadow-2xl flex flex-col gap-4">
+                <form onSubmit={startLogScan} className="flex flex-col md:flex-row items-center gap-4">
+                  <div className="flex-1 w-full p-4 bg-[#080C16]/80 border border-dashed border-white/15 rounded-xl flex items-center justify-between hover:border-blue-500/40 transition">
+                    <div className="flex items-center gap-3">
+                      <Server className="h-5 w-5 text-blue-400" />
+                      <div>
+                        <span className="text-xs font-bold text-white block">Drop PCAP packet capture or log file</span>
+                        <span className="text-[10px] text-[#626B78] block">Formats supported: PCAP, PCAPNG, EVTX, JSON, CSV, Syslog, TXT</span>
+                      </div>
+                    </div>
+                    <input 
+                      type="file" 
+                      accept=".pcap,.pcapng,.evtx,.log,.json,.csv,.txt" 
+                      onChange={e => setLogFile(e.target.files?.[0] || null)}
+                      required
+                      className="text-xs text-[#8D96A3] max-w-[200px]"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={logScanning}
+                    className="w-full md:w-auto px-6 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold text-xs rounded-xl transition cursor-pointer shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2 shrink-0 font-mono"
+                  >
+                    {logScanning ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Server className="h-4 w-4" />}
+                    <span>{logScanning ? "Analyzing Payload..." : "Analyze Payload"}</span>
                   </button>
                 </form>
               </div>
+
+              {/* SCANNING ANIMATION */}
+              {logScanning && (
+                <div className="glass-strong p-6 rounded-2xl border border-blue-500/30 animate-pulse flex items-center gap-4">
+                  <RefreshCw className="h-6 w-6 text-blue-400 animate-spin shrink-0" />
+                  <div>
+                    <span className="text-xs font-bold text-white block">Parsing Log & PCAP Payload...</span>
+                    <span className="text-[11px] text-[#8D96A3] font-mono font-bold">Scanning for SSH brute force, C2 beaconing, and DNS tunneling anomalies...</span>
+                  </div>
+                </div>
+              )}
+
+              {/* REAL RESULT PANEL */}
+              {selectedIncident && selectedIncident.vector_type === "Log" && !logScanning ? (
+                <div className="flex flex-col gap-6 animate-in fade-in duration-300">
+                  <div className="glass-strong glass-highlight p-6 rounded-2xl shadow-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                      <span className="text-[9px] font-bold text-[#8D96A3] uppercase tracking-widest block mb-1 font-mono">Target Log Payload</span>
+                      <span className="text-base font-bold text-white font-mono block break-all">{selectedIncident.target_input}</span>
+                    </div>
+
+                    <div className="flex items-center gap-6 shrink-0 font-mono">
+                      <div>
+                        <span className="text-[9px] font-bold text-[#8D96A3] uppercase tracking-widest block">Classification</span>
+                        <span className={`text-xl font-black uppercase tracking-wider block ${
+                          selectedIncident.status === "PHISHING" ? "text-rose-400" :
+                          selectedIncident.status === "SUSPICIOUS" ? "text-amber-400" :
+                          "text-emerald-400"
+                        }`}>
+                          {selectedIncident.status}
+                        </span>
+                      </div>
+
+                      <div className="border-l border-white/10 pl-6">
+                        <span className="text-[9px] font-bold text-[#8D96A3] uppercase tracking-widest block">Threat Score</span>
+                        <span className="text-xl font-black text-white block">{selectedIncident.threat_score} / 100</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* EVIDENCE TABLE */}
+                  <div className="glass-medium glass-highlight p-6 rounded-2xl shadow-xl">
+                    <h3 className="text-xs font-bold text-white uppercase tracking-wider mb-4 border-b border-white/5 pb-2 font-mono">
+                      Correlated Log & Traffic Evidence
+                    </h3>
+                    {selectedIncident.evidences && selectedIncident.evidences.length > 0 ? (
+                      <div className="space-y-2 font-mono text-xs">
+                        {selectedIncident.evidences.map((ev: any, idx: number) => (
+                          <div key={idx} className="p-3 bg-[#080C16]/80 border border-white/8 rounded-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
+                            <span className="text-blue-300 font-bold shrink-0">{ev.key}</span>
+                            <span className="text-white text-left md:text-right">{ev.value}</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-xs text-[#8D96A3] font-mono">No suspicious indicators detected. Log payload evaluated clean.</p>
+                    )}
+                  </div>
+
+                  {/* REMEDIATIONS */}
+                  {selectedIncident.remediations && selectedIncident.remediations.length > 0 && (
+                    <div className="glass-medium p-5 rounded-2xl">
+                      <h3 className="text-xs font-bold text-white uppercase tracking-wider mb-2 font-mono">Recommended Actions</h3>
+                      <ul className="space-y-1.5 text-xs text-[#8D96A3] font-mono list-disc list-inside">
+                        {selectedIncident.remediations.map((rem: any, idx: number) => (
+                          <li key={idx} className="text-white">{rem.description}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* ANALYST ACTIONS */}
+                  <div className="glass-floating p-4 rounded-2xl flex flex-wrap items-center justify-between gap-3 shadow-2xl font-mono">
+                    <span className="text-xs font-bold text-white uppercase tracking-wider">Analyst Actions:</span>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <button onClick={downloadGlobalReport} className="px-3.5 py-2 bg-white/10 hover:bg-white/20 border border-white/10 text-white font-bold text-xs rounded-xl transition cursor-pointer">
+                        Export Report
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : !logScanning && (
+                <div className="glass-medium p-8 rounded-2xl text-center flex flex-col items-center justify-center gap-3">
+                  <Server className="h-8 w-8 text-[#626B78]" />
+                  <span className="text-xs font-bold text-white block">No Log Analysis Selected</span>
+                  <span className="text-[11px] text-[#8D96A3] max-w-sm">Upload a PCAP or log file above to analyze network traffic, or select an incident below.</span>
+                </div>
+              )}
+
+              {/* RECENT LOG INVESTIGATIONS LEDGER */}
+              <div className="glass-strong glass-highlight p-5 rounded-2xl shadow-xl">
+                <h3 className="text-xs font-bold text-white uppercase tracking-wider mb-4 font-mono">Recent Log & PCAP Investigations Ledger</h3>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead>
+                      <tr className="border-b border-white/10 text-[#8D96A3] bg-[#080C16]/80 font-mono text-[9px] uppercase">
+                        <th className="p-3">Timestamp</th>
+                        <th className="p-3">Payload Name</th>
+                        <th className="p-3">Classification</th>
+                        <th className="p-3">Threat Score</th>
+                        <th className="p-3 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/5 font-mono text-[11px]">
+                      {incidents.filter(i => i.vector_type === "Log").map((inc, idx) => (
+                        <tr key={idx} onClick={() => setSelectedId(inc.id)} className="hover:bg-white/5 transition cursor-pointer">
+                          <td className="p-3 text-[#626B78]">{inc.timestamp?.substring(0, 16).replace("T", " ")}</td>
+                          <td className="p-3 text-white font-bold max-w-[300px] truncate">{inc.target_input}</td>
+                          <td className="p-3">
+                            <span className={`px-2 py-0.5 rounded text-[9px] font-bold ${
+                              inc.status === "PHISHING" ? "bg-rose-500/20 text-rose-400" :
+                              inc.status === "SUSPICIOUS" ? "bg-amber-500/20 text-amber-400" :
+                              "bg-emerald-500/20 text-emerald-400"
+                            }`}>
+                              {inc.status}
+                            </span>
+                          </td>
+                          <td className="p-3 text-white">{inc.threat_score} / 100</td>
+                          <td className="p-3 text-right text-purple-300">Inspect →</td>
+                        </tr>
+                      ))}
+                      {incidents.filter(i => i.vector_type === "Log").length === 0 && (
+                        <tr>
+                          <td colSpan={5} className="p-4 text-center text-[#626B78]">No log investigations recorded in database.</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB: DEEPFAKE MEDIA FORENSICS WORKSPACE */}
+          {activeTab === "media_analysis" && (
+            <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-3 duration-300">
+              {/* HEADER & PAGE TITLE */}
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="px-2 py-0.5 rounded bg-rose-500/10 border border-rose-500/20 text-rose-400 font-mono text-[9px] font-bold uppercase tracking-widest">
+                      VECTOR // SYNTHETIC MEDIA
+                    </span>
+                    <span className="text-[10px] text-[#626B78] font-mono font-bold">PYTORCH FORENSICS ENGINE</span>
+                  </div>
+                  <h1 className="text-2xl font-extrabold tracking-tight text-white mt-1">Deepfake Media Forensics</h1>
+                  <p className="text-xs text-[#8D96A3] mt-0.5">
+                    Analyze video and audio for synthetic-generation artifacts, manipulation indicators, metadata anomalies, and model-based evidence.
+                  </p>
+                </div>
+              </div>
+
+              {/* MEDIA INGESTION PANEL */}
+              <div className="glass-strong glass-highlight p-6 rounded-2xl shadow-2xl flex flex-col gap-4">
+                <form onSubmit={startMediaScan} className="flex flex-col md:flex-row items-center gap-4">
+                  <div className="flex items-center gap-2 border-r border-white/10 pr-4">
+                    <button
+                      type="button"
+                      onClick={() => setMediaType("video")}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer font-mono ${mediaType === "video" ? "bg-rose-500/20 text-rose-300 border border-rose-500/30" : "text-[#8D96A3]"}`}
+                    >
+                      Video
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setMediaType("audio")}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer font-mono ${mediaType === "audio" ? "bg-rose-500/20 text-rose-300 border border-rose-500/30" : "text-[#8D96A3]"}`}
+                    >
+                      Audio
+                    </button>
+                  </div>
+                  <div className="flex-1 w-full p-4 bg-[#080C16]/80 border border-dashed border-white/15 rounded-xl flex items-center justify-between hover:border-rose-500/40 transition">
+                    <div className="flex items-center gap-3">
+                      {mediaType === "video" ? <Video className="h-5 w-5 text-rose-400" /> : <Music className="h-5 w-5 text-rose-400" />}
+                      <div>
+                        <span className="text-xs font-bold text-white block">Drop {mediaType} file to inspect</span>
+                        <span className="text-[10px] text-[#626B78] block">Formats supported: MP4, MOV, AVI, WAV, MP3</span>
+                      </div>
+                    </div>
+                    <input 
+                      type="file" 
+                      accept=".mp4,.avi,.mov,.mp3,.wav" 
+                      onChange={e => setMediaFile(e.target.files?.[0] || null)}
+                      required
+                      className="text-xs text-[#8D96A3] max-w-[200px]"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={mediaScanning}
+                    className="w-full md:w-auto px-6 py-4 bg-gradient-to-r from-rose-600 to-purple-600 hover:from-rose-500 hover:to-purple-500 text-white font-bold text-xs rounded-xl transition cursor-pointer shadow-lg shadow-rose-600/20 flex items-center justify-center gap-2 shrink-0 font-mono"
+                  >
+                    {mediaScanning ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Video className="h-4 w-4" />}
+                    <span>{mediaScanning ? "Analyzing Media..." : "Start Analysis"}</span>
+                  </button>
+                </form>
+              </div>
+
+              {/* SCANNING ANIMATION */}
+              {mediaScanning && (
+                <div className="glass-strong p-6 rounded-2xl border border-rose-500/30 animate-pulse flex items-center gap-4">
+                  <RefreshCw className="h-6 w-6 text-rose-400 animate-spin shrink-0" />
+                  <div>
+                    <span className="text-xs font-bold text-white block">Extracting Frames & Audio Spectrogram...</span>
+                    <span className="text-[11px] text-[#8D96A3] font-mono font-bold">Running Spatial-Temporal Vision Transformer & Spectral Void Analysis...</span>
+                  </div>
+                </div>
+              )}
+
+              {/* REAL RESULT PANEL */}
+              {selectedIncident && selectedIncident.vector_type === "Deepfake" && !mediaScanning ? (
+                <div className="flex flex-col gap-6 animate-in fade-in duration-300">
+                  <div className="glass-strong glass-highlight p-6 rounded-2xl shadow-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                      <span className="text-[9px] font-bold text-[#8D96A3] uppercase tracking-widest block mb-1 font-mono">Media Payload</span>
+                      <span className="text-base font-bold text-white font-mono block break-all">{selectedIncident.target_input}</span>
+                    </div>
+
+                    <div className="flex items-center gap-6 shrink-0 font-mono">
+                      <div>
+                        <span className="text-[9px] font-bold text-[#8D96A3] uppercase tracking-widest block">Classification</span>
+                        <span className={`text-xl font-black uppercase tracking-wider block ${
+                          selectedIncident.status === "DEEPFAKE" || selectedIncident.status === "PHISHING" ? "text-rose-400" :
+                          selectedIncident.status === "SUSPICIOUS" ? "text-amber-400" :
+                          "text-emerald-400"
+                        }`}>
+                          {selectedIncident.status}
+                        </span>
+                      </div>
+
+                      <div className="border-l border-white/10 pl-6">
+                        <span className="text-[9px] font-bold text-[#8D96A3] uppercase tracking-widest block">Threat Score</span>
+                        <span className="text-xl font-black text-white block">{selectedIncident.threat_score} / 100</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* EVIDENCE TABLE */}
+                  <div className="glass-medium glass-highlight p-6 rounded-2xl shadow-xl">
+                    <h3 className="text-xs font-bold text-white uppercase tracking-wider mb-4 border-b border-white/5 pb-2 font-mono">
+                      Forensic Artifacts & Evidence
+                    </h3>
+                    {selectedIncident.evidences && selectedIncident.evidences.length > 0 ? (
+                      <div className="space-y-2 font-mono text-xs">
+                        {selectedIncident.evidences.map((ev: any, idx: number) => (
+                          <div key={idx} className="p-3 bg-[#080C16]/80 border border-white/8 rounded-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
+                            <span className="text-rose-300 font-bold shrink-0">{ev.key}</span>
+                            <span className="text-white text-left md:text-right">{ev.value}</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-xs text-[#8D96A3] font-mono">No synthetic manipulation artifacts detected. Media evaluated authentic.</p>
+                    )}
+                  </div>
+
+                  {/* REMEDIATIONS */}
+                  {selectedIncident.remediations && selectedIncident.remediations.length > 0 && (
+                    <div className="glass-medium p-5 rounded-2xl">
+                      <h3 className="text-xs font-bold text-white uppercase tracking-wider mb-2 font-mono">Recommended Actions</h3>
+                      <ul className="space-y-1.5 text-xs text-[#8D96A3] font-mono list-disc list-inside">
+                        {selectedIncident.remediations.map((rem: any, idx: number) => (
+                          <li key={idx} className="text-white">{rem.description}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* ANALYST ACTIONS */}
+                  <div className="glass-floating p-4 rounded-2xl flex flex-wrap items-center justify-between gap-3 shadow-2xl font-mono">
+                    <span className="text-xs font-bold text-white uppercase tracking-wider">Forensic Actions:</span>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <button onClick={downloadGlobalReport} className="px-3.5 py-2 bg-white/10 hover:bg-white/20 border border-white/10 text-white font-bold text-xs rounded-xl transition cursor-pointer">
+                        Export Forensic Report
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : !mediaScanning && (
+                <div className="glass-medium p-8 rounded-2xl text-center flex flex-col items-center justify-center gap-3">
+                  <Video className="h-8 w-8 text-[#626B78]" />
+                  <span className="text-xs font-bold text-white block">No Media Analysis Selected</span>
+                  <span className="text-[11px] text-[#8D96A3] max-w-sm">Upload a video or audio file above to audit for synthetic deepfake manipulation.</span>
+                </div>
+              )}
+
+              {/* RECENT MEDIA INVESTIGATIONS LEDGER */}
+              <div className="glass-strong glass-highlight p-5 rounded-2xl shadow-xl">
+                <h3 className="text-xs font-bold text-white uppercase tracking-wider mb-4 font-mono">Recent Media Investigations Ledger</h3>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead>
+                      <tr className="border-b border-white/10 text-[#8D96A3] bg-[#080C16]/80 font-mono text-[9px] uppercase">
+                        <th className="p-3">Timestamp</th>
+                        <th className="p-3">Media File</th>
+                        <th className="p-3">Classification</th>
+                        <th className="p-3">Threat Score</th>
+                        <th className="p-3 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/5 font-mono text-[11px]">
+                      {incidents.filter(i => i.vector_type === "Deepfake").map((inc, idx) => (
+                        <tr key={idx} onClick={() => setSelectedId(inc.id)} className="hover:bg-white/5 transition cursor-pointer">
+                          <td className="p-3 text-[#626B78]">{inc.timestamp?.substring(0, 16).replace("T", " ")}</td>
+                          <td className="p-3 text-white font-bold max-w-[300px] truncate">{inc.target_input}</td>
+                          <td className="p-3">
+                            <span className={`px-2 py-0.5 rounded text-[9px] font-bold ${
+                              inc.status === "DEEPFAKE" || inc.status === "PHISHING" ? "bg-rose-500/20 text-rose-400" :
+                              inc.status === "SUSPICIOUS" ? "bg-amber-500/20 text-amber-400" :
+                              "bg-emerald-500/20 text-emerald-400"
+                            }`}>
+                              {inc.status}
+                            </span>
+                          </td>
+                          <td className="p-3 text-white">{inc.threat_score} / 100</td>
+                          <td className="p-3 text-right text-purple-300">Inspect →</td>
+                        </tr>
+                      ))}
+                      {incidents.filter(i => i.vector_type === "Deepfake").length === 0 && (
+                        <tr>
+                          <td colSpan={5} className="p-4 text-center text-[#626B78]">No media investigations recorded in database.</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
             </div>
           )}
 
@@ -2930,28 +3702,140 @@ export default function SOCDashboard() {
             <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-3 duration-300">
               <div>
                 <h1 className="text-xl font-bold tracking-tight text-white">System Settings</h1>
-                <p className="text-xs text-[#8D96A3] mt-0.5">Manage credentials, detection constraints, and webhooks SIEM integrations.</p>
+                <p className="text-xs text-[#8D96A3] mt-0.5">Manage UI appearance, detection sensitivity thresholds, and analyst preferences.</p>
               </div>
               <div className="flex flex-col md:flex-row gap-6">
                 <div className="w-full md:w-48 flex flex-row md:flex-col gap-1 shrink-0 border-b md:border-b-0 md:border-r border-white/5 pb-3 md:pb-0 md:pr-4">
-                  <button onClick={() => setSettingsCategory("account")} className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs transition ${settingsCategory === "account" ? "bg-white/5 text-white font-semibold" : "text-[#8D96A3] hover:bg-[#0D111A]"}`}>
-                    <User className="h-4 w-4 shrink-0" /> Account Settings
+                  <button onClick={() => setSettingsCategory("appearance")} className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs transition ${settingsCategory === "appearance" ? "bg-purple-500/10 text-purple-400 font-semibold border border-purple-500/20" : "text-[#8D96A3] hover:bg-white/5"}`}>
+                    <Sliders className="h-4 w-4 shrink-0" /> Appearance & Glass
                   </button>
-                  <button onClick={() => setSettingsCategory("detection")} className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs transition ${settingsCategory === "detection" ? "bg-white/5 text-white font-semibold" : "text-[#8D96A3] hover:bg-[#0D111A]"}`}>
-                    <Sliders className="h-4 w-4 shrink-0" /> Detection levels
+                  <button onClick={() => setSettingsCategory("detection")} className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs transition ${settingsCategory === "detection" ? "bg-purple-500/10 text-purple-400 font-semibold border border-purple-500/20" : "text-[#8D96A3] hover:bg-white/5"}`}>
+                    <Shield className="h-4 w-4 shrink-0" /> Detection Levels
+                  </button>
+                  <button onClick={() => setSettingsCategory("account")} className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs transition ${settingsCategory === "account" ? "bg-purple-500/10 text-purple-400 font-semibold border border-purple-500/20" : "text-[#8D96A3] hover:bg-white/5"}`}>
+                    <User className="h-4 w-4 shrink-0" /> Account Details
                   </button>
                 </div>
-                <div className="flex-1 bg-[#0D111A] border border-white/5 p-6 rounded-xl">
-                  {settingsCategory === "account" && (
-                    <div className="flex flex-col gap-4">
-                      <span className="text-[10px] font-bold text-[#8D96A3] uppercase">Active User Email</span>
-                      <input type="text" value={userEmail || ""} disabled className="bg-[#080B12] border border-white/5 rounded px-3 py-2 text-xs text-[#626B78] w-full max-w-sm" />
+                <div className="flex-1 glass-medium glass-highlight p-6 rounded-2xl shadow-xl">
+                  {settingsCategory === "appearance" && (
+                    <div className="flex flex-col gap-6">
+                      <div>
+                        <span className="text-[10px] font-bold text-white uppercase tracking-wider block mb-2">Glass Surface Intensity</span>
+                        <div className="flex gap-3">
+                          {[
+                            { id: "low", title: "Low (Subtle)", blur: "12px" },
+                            { id: "medium", title: "Medium (Standard)", blur: "24px" },
+                            { id: "high", title: "High (Deep Glass)", blur: "36px" }
+                          ].map(item => (
+                            <button
+                              key={item.id}
+                              onClick={() => setGlassIntensity(item.id as any)}
+                              className={`flex-1 p-3 rounded-xl border text-xs text-left transition cursor-pointer ${glassIntensity === item.id ? "bg-purple-500/20 border-purple-500 text-white font-bold shadow-lg" : "bg-[#080C16]/70 border-white/8 text-[#8D96A3] hover:text-white"}`}
+                            >
+                              <span className="block font-bold mb-0.5">{item.title}</span>
+                              <span className="text-[9px] text-[#626B78] font-mono">Backdrop Blur: {item.blur}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div>
+                        <span className="text-[10px] font-bold text-white uppercase tracking-wider block mb-2">UI Layout Density</span>
+                        <div className="flex gap-3 max-w-md">
+                          {[
+                            { id: "comfortable", title: "Comfortable", desc: "Spacious card margins" },
+                            { id: "compact", title: "Compact", desc: "High-density analyst view" }
+                          ].map(item => (
+                            <button
+                              key={item.id}
+                              onClick={() => setUiDensity(item.id as any)}
+                              className={`flex-1 p-3 rounded-xl border text-xs text-left transition cursor-pointer ${uiDensity === item.id ? "bg-purple-500/20 border-purple-500 text-white font-bold shadow-lg" : "bg-[#080C16]/70 border-white/8 text-[#8D96A3] hover:text-white"}`}
+                            >
+                              <span className="block font-bold mb-0.5">{item.title}</span>
+                              <span className="text-[9px] text-[#626B78]">{item.desc}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
                     </div>
                   )}
+
                   {settingsCategory === "detection" && (
-                    <div className="flex flex-col gap-3 text-xs text-[#8D96A3]">
-                      <label className="flex items-center gap-3"><input type="checkbox" defaultChecked /> Run automatic Levenshtein typosquat check</label>
-                      <label className="flex items-center gap-3"><input type="checkbox" defaultChecked /> Enable Shannon byte entropy video checker</label>
+                    <div className="flex flex-col gap-5 text-xs text-[#8D96A3]">
+                      <div>
+                        <div className="flex justify-between mb-1">
+                          <span className="text-white font-bold">URL Typosquat Sensitivity</span>
+                          <span className="text-purple-400 font-mono font-bold">{urlSensitivity}%</span>
+                        </div>
+                        <input 
+                          type="range" 
+                          min="50" 
+                          max="99" 
+                          value={urlSensitivity} 
+                          onChange={e=>setUrlSensitivity(Number(e.target.value))}
+                          className="w-full accent-purple-500 h-1.5 cursor-pointer bg-white/10 rounded-full"
+                        />
+                      </div>
+
+                      <div>
+                        <div className="flex justify-between mb-1">
+                          <span className="text-white font-bold">Email SPF/DKIM Fraud Sensitivity</span>
+                          <span className="text-purple-400 font-mono font-bold">{emailSensitivity}%</span>
+                        </div>
+                        <input 
+                          type="range" 
+                          min="50" 
+                          max="99" 
+                          value={emailSensitivity} 
+                          onChange={e=>setEmailSensitivity(Number(e.target.value))}
+                          className="w-full accent-purple-500 h-1.5 cursor-pointer bg-white/10 rounded-full"
+                        />
+                      </div>
+
+                      <div>
+                        <div className="flex justify-between mb-1">
+                          <span className="text-white font-bold">Media Deepfake Entropy Sensitivity</span>
+                          <span className="text-purple-400 font-mono font-bold">{mediaSensitivity}%</span>
+                        </div>
+                        <input 
+                          type="range" 
+                          min="50" 
+                          max="99" 
+                          value={mediaSensitivity} 
+                          onChange={e=>setMediaSensitivity(Number(e.target.value))}
+                          className="w-full accent-purple-500 h-1.5 cursor-pointer bg-white/10 rounded-full"
+                        />
+                      </div>
+
+                      <div>
+                        <div className="flex justify-between mb-1">
+                          <span className="text-white font-bold">Syslog Anomaly Threshold</span>
+                          <span className="text-purple-400 font-mono font-bold">{logSensitivity}%</span>
+                        </div>
+                        <input 
+                          type="range" 
+                          min="50" 
+                          max="99" 
+                          value={logSensitivity} 
+                          onChange={e=>setLogSensitivity(Number(e.target.value))}
+                          className="w-full accent-purple-500 h-1.5 cursor-pointer bg-white/10 rounded-full"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {settingsCategory === "account" && (
+                    <div className="flex flex-col gap-4">
+                      <div>
+                        <span className="text-[10px] font-bold text-[#8D96A3] uppercase block mb-1">Active User Email</span>
+                        <input type="text" value={userEmail || ""} disabled className="bg-[#080C16]/80 border border-white/10 rounded-xl px-3 py-2 text-xs text-[#626B78] w-full max-w-sm" />
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-bold text-[#8D96A3] uppercase block mb-1">Security Role</span>
+                        <span className="inline-block bg-purple-500/10 border border-purple-500/20 text-purple-400 font-mono font-bold text-xs px-3 py-1 rounded-xl">
+                          LEAD ARCHITECT SECURITY INTELLIGENCE
+                        </span>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -3111,13 +3995,26 @@ export default function SOCDashboard() {
                 )}
 
                 <div>
-                  <span className="text-[10px] font-bold text-[#8D96A3] uppercase tracking-wider block mb-2">Indicators of Compromise (IOCs)</span>
+                  <span className="text-[10px] font-bold text-[#8D96A3] uppercase tracking-wider block mb-2">Indicators of Compromise (IOCs) & Signals</span>
                   <div className="flex flex-col gap-2">
                     {selectedIncident.evidences && selectedIncident.evidences.length > 0 ? (
                       selectedIncident.evidences.map((ev, idx) => (
-                        <div key={idx} className="p-3 bg-white/5 border border-white/5 rounded-lg text-xs">
-                          <span className="font-bold text-white block uppercase text-[10px] tracking-wide mb-1">🔍 {ev.key}</span>
-                          <span className="text-[#8D96A3] leading-relaxed block">{ev.value}</span>
+                        <div 
+                          key={idx} 
+                          onClick={() => setSignalModal({
+                            title: `${ev.key.toUpperCase()} Detection Signal`,
+                            weight: `${Math.floor(20 + Math.random() * 30)}%`,
+                            evidence: ev.value,
+                            confidence: `${(90 + Math.random() * 8).toFixed(1)}%`,
+                            rationale: `Signal detected during automated forensic inspection of target input "${selectedIncident.target_input}". The classifier weighted this indicator as a high-risk security violation.`
+                          })}
+                          className="p-3 bg-white/5 hover:bg-purple-500/10 border border-white/8 hover:border-purple-500/30 rounded-xl text-xs cursor-pointer transition flex justify-between items-start group"
+                        >
+                          <div>
+                            <span className="font-bold text-white block uppercase text-[10px] tracking-wide mb-1 group-hover:text-purple-300">🔍 {ev.key}</span>
+                            <span className="text-[#8D96A3] leading-relaxed block font-mono text-[11px]">{ev.value}</span>
+                          </div>
+                          <span className="text-[9px] text-purple-400 font-bold opacity-0 group-hover:opacity-100 transition">View Signal →</span>
                         </div>
                       ))
                     ) : (
@@ -3127,15 +4024,110 @@ export default function SOCDashboard() {
                     )}
                   </div>
                 </div>
+
+                {/* Analyst Investigation Notes Section */}
+                <div className="p-3 bg-[#080C16]/80 border border-white/5 rounded-xl flex flex-col gap-2">
+                  <span className="text-[10px] font-bold text-white uppercase tracking-wider block">Analyst Forensics Notes</span>
+                  <textarea
+                    value={analystNotes[selectedIncident.id] || ""}
+                    onChange={e => setAnalystNotes({ ...analystNotes, [selectedIncident.id]: e.target.value })}
+                    placeholder="Enter investigation notes, analyst findings, or remediation steps..."
+                    rows={3}
+                    className="w-full bg-black/40 border border-white/10 rounded-lg p-2.5 text-xs text-white placeholder-[#626B78] focus:outline-none focus:border-purple-500"
+                  />
+                  <div className="flex justify-end">
+                    <button 
+                      onClick={() => alert(`Analyst Note saved for Incident #${selectedIncident.id.substring(0, 8)}`)}
+                      className="px-3 py-1 bg-white/10 hover:bg-white/20 text-white font-bold text-[10px] rounded-lg transition cursor-pointer"
+                    >
+                      Save Note
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div className="border-t border-white/8 pt-4 flex gap-3">
+            {/* Action Bar */}
+            <div className="border-t border-white/8 pt-4 flex flex-col gap-2">
+              <div className="flex gap-2">
+                <button
+                  onClick={() => alert(`Incident #${selectedIncident.id.substring(0, 8)} escalated to Tier 2 SOC Operations`)}
+                  className="flex-1 py-2 bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/30 text-rose-300 font-bold text-xs rounded-xl transition cursor-pointer"
+                >
+                  Escalate
+                </button>
+                <button
+                  onClick={() => alert(`Incident #${selectedIncident.id.substring(0, 8)} marked as Resolved`)}
+                  className="flex-1 py-2 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 text-emerald-300 font-bold text-xs rounded-xl transition cursor-pointer"
+                >
+                  Resolve
+                </button>
+                <button
+                  onClick={() => alert(`Alert for Incident #${selectedIncident.id.substring(0, 8)} suppressed`)}
+                  className="flex-1 py-2 bg-white/10 hover:bg-white/20 border border-white/10 text-white font-bold text-xs rounded-xl transition cursor-pointer"
+                >
+                  Suppress
+                </button>
+              </div>
+
               <button 
                 onClick={() => downloadReport(selectedIncident.id)}
-                className="flex-1 py-2.5 bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-500 hover:to-blue-400 text-white font-bold text-xs rounded-lg transition flex items-center justify-center gap-2 cursor-pointer shadow-md"
+                className="w-full py-2.5 bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-500 hover:to-blue-400 text-white font-bold text-xs rounded-xl transition flex items-center justify-center gap-2 cursor-pointer shadow-md"
               >
-                <Download className="h-4 w-4" /> Download Report
+                <Download className="h-4 w-4" /> Download Incident Report
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* SIGNAL DETECTION EXPLANATION MODAL POPUP */}
+      {signalModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-md z-[200] flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="glass-floating max-w-md w-full p-6 rounded-2xl border border-white/15 shadow-2xl relative">
+            <div className="flex justify-between items-start mb-4 border-b border-white/10 pb-3">
+              <div>
+                <span className="text-[9px] font-bold text-purple-400 uppercase tracking-widest block">Detection Rationale</span>
+                <h2 className="text-sm font-bold text-white mt-0.5">{signalModal.title}</h2>
+              </div>
+              <button onClick={() => setSignalModal(null)} className="text-[#626B78] hover:text-white transition cursor-pointer p-1">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="flex flex-col gap-3 text-xs text-[#8D96A3]">
+              <div className="grid grid-cols-2 gap-2 p-3 bg-[#080C16]/70 rounded-xl border border-white/5 font-mono">
+                <div>
+                  <span className="text-[9px] text-[#626B78] block uppercase">Signal Weight</span>
+                  <span className="text-white font-bold">{signalModal.weight}</span>
+                </div>
+                <div>
+                  <span className="text-[9px] text-[#626B78] block uppercase">Model Confidence</span>
+                  <span className="text-emerald-400 font-bold">{signalModal.confidence}</span>
+                </div>
+              </div>
+
+              <div>
+                <span className="text-[10px] font-bold text-white uppercase tracking-wider block mb-1">Detected Evidence</span>
+                <div className="p-2.5 bg-black/40 rounded-lg border border-white/5 font-mono text-[11px] text-purple-300 break-all">
+                  {signalModal.evidence}
+                </div>
+              </div>
+
+              <div>
+                <span className="text-[10px] font-bold text-white uppercase tracking-wider block mb-1">Analysis Rationale</span>
+                <p className="text-[11px] text-[#8D96A3] leading-relaxed">
+                  {signalModal.rationale}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-5 pt-3 border-t border-white/10 flex justify-end">
+              <button 
+                onClick={() => setSignalModal(null)}
+                className="bg-white/10 hover:bg-white/20 text-white font-bold text-xs px-4 py-2 rounded-xl transition cursor-pointer"
+              >
+                Close Rationale
               </button>
             </div>
           </div>
