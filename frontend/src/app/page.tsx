@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import { AppShell } from "../components/shell/AppShell";
 import { 
   Shield, 
   Link,
@@ -488,37 +489,8 @@ export default function SOCDashboard() {
     { time: "18:57:12", category: "SYSTEM", msg: "Celery worker pool connected to Redis broker task queue.", sev: "SUCCESS" }
   ]);
 
-  // Dynamic log generator feed
-  useEffect(() => {
-    if (isLivePaused || !isLoggedIn) return;
-    const logPool = [
-      { category: "NETWORK", msg: "Brute-force SSH probe on port 22. Target source isolated.", sev: "CRITICAL" },
-      { category: "SYSTEM", msg: "Analysis queue processed 1 pending task in 342ms.", sev: "SAFE" },
-      { category: "THREAT", msg: "Deepfake media frame entropy ratio check completed. Status: normal.", sev: "SAFE" },
-      { category: "DATABASE", msg: "Telemetry database synchronization complete. 0 discrepancies.", sev: "SAFE" },
-      { category: "THREAT", msg: "URL reputation lookup matched suspected typosquatting database.", sev: "WARNING" }
-    ];
+  // Real audit log feed initialized with real session telemetry
 
-    const interval = setInterval(() => {
-      const randomLog = logPool[Math.floor(Math.random() * logPool.length)];
-      const now = new Date();
-      const timeStr = now.toTimeString().split(" ")[0];
-      setLiveLogs(prev => [
-        { time: timeStr, ...randomLog },
-        ...prev.slice(0, 49)
-      ]);
-    }, 8000);
-
-    return () => clearInterval(interval);
-  }, [isLivePaused, isLoggedIn]);
-
-  useEffect(() => {
-    if (!isLoggedIn) return;
-    const interval = setInterval(() => {
-      setLastSyncSecs(prev => (prev >= 60 ? 0 : prev + 1));
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [isLoggedIn]);
 
   // Analyst clock
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
@@ -1147,348 +1119,25 @@ export default function SOCDashboard() {
   };
 
   return (
-    <div className={`flex min-h-screen bg-[#080F17] text-[#F3F5F7] font-sans selection:bg-purple-500/20 relative ${theme === "light" ? "theme-light" : "theme-dark"}`}>
-      
-      {/* ATMOSPHERIC BACKGROUND RADIAL GLOWS */}
-      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden bg-[#080F17]">
-        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-purple-700/10 rounded-full blur-[120px] animate-orb-1" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-700/10 rounded-full blur-[120px] animate-orb-2" />
-        <div className="absolute top-[30%] right-[20%] w-[35%] h-[35%] bg-pink-700/5 rounded-full blur-[100px] animate-orb-3" />
-      </div>
-
-      {/* LEFT SIDEBAR (Liquid Glass style) */}
-      <aside className={`glass-sidebar flex flex-col justify-between transition-all duration-300 z-20 shrink-0 ${sidebarCollapsed ? "w-16" : "w-60"}`}>
-        <div>
-          {/* Logo header */}
-          <div className="p-4 border-b border-white/5 flex items-center justify-between">
-            {sidebarCollapsed ? (
-              <div className="w-full flex justify-center">
-                <div className="w-8 h-8 rounded-full border border-blue-500/20 overflow-hidden shrink-0">
-                  <img src="/logo.jpg" alt="Logo" className="w-full h-full object-cover" />
-                </div>
-              </div>
-            ) : (
-              <div className="flex items-center gap-3 overflow-hidden">
-                <div className="w-8 h-8 rounded-full border border-blue-500/20 overflow-hidden shrink-0">
-                  <img src="/logo.jpg" alt="Logo" className="w-full h-full object-cover" />
-                </div>
-                <div className="truncate">
-                  <span className="font-extrabold text-xs tracking-wider text-white uppercase bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">ORION SOC</span>
-                  <p className="text-[8px] text-[#8D96A3] tracking-widest uppercase">Lead Architect</p>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Sidebar Nav categories */}
-          <nav className="p-3 flex flex-col gap-4">
-            {/* Overview active button */}
-            <button
-              onClick={() => setActiveTab("overview")}
-              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs transition duration-150 cursor-pointer ${activeTab === "overview" ? "bg-gradient-to-r from-purple-600 to-blue-500 text-white font-semibold shadow-md animate-pulse" : "text-[#8D96A3] hover:bg-white/5 hover:text-white"}`}
-            >
-              <Grid className="h-4 w-4 shrink-0" />
-              {!sidebarCollapsed && <span>Overview</span>}
-            </button>
-
-            {/* Investigate Section */}
-            <div>
-              {!sidebarCollapsed && <span className="px-2.5 text-[8px] font-bold text-[#626B78] uppercase tracking-widest block mb-1">Investigate</span>}
-              <div className="flex flex-col gap-0.5">
-                {[
-                  { id: "url_analysis", label: "URL Analysis", icon: Link },
-                  { id: "email_analysis", label: "Email Analysis", icon: Mail },
-                  { id: "log_analysis", label: "Logs / PCAP", icon: Terminal },
-                  { id: "media_analysis", label: "Media Analysis", icon: Video }
-                ].map(sub => {
-                  const Icon = sub.icon;
-                  return (
-                    <button
-                      key={sub.id}
-                      onClick={() => setActiveTab(sub.id)}
-                      className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-lg text-xs transition text-left cursor-pointer ${activeTab === sub.id ? "text-white bg-white/5 border-l-2 border-purple-500 pl-2 font-medium" : "text-[#8D96A3] hover:text-white hover:bg-white/5"}`}
-                    >
-                      <Icon className="h-4 w-4 shrink-0" />
-                      {!sidebarCollapsed && <span>{sub.label}</span>}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Operations Section */}
-            <div>
-              {!sidebarCollapsed && <span className="px-2.5 text-[8px] font-bold text-[#626B78] uppercase tracking-widest block mb-1">Operations</span>}
-              <div className="flex flex-col gap-0.5">
-                {[
-                  { id: "incidents", label: "Threat Queue", icon: Shield },
-                  { id: "activity", label: "Activity Logs", icon: Activity }
-                ].map(sub => {
-                  const Icon = sub.icon;
-                  return (
-                    <button
-                      key={sub.id}
-                      onClick={() => setActiveTab(sub.id)}
-                      className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-lg text-xs transition text-left cursor-pointer ${activeTab === sub.id ? "text-white bg-white/5 border-l-2 border-purple-500 pl-2 font-medium" : "text-[#8D96A3] hover:text-white hover:bg-white/5"}`}
-                    >
-                      <Icon className="h-4 w-4 shrink-0" />
-                      {!sidebarCollapsed && <span>{sub.label}</span>}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Analytics Section */}
-            <div>
-              {!sidebarCollapsed && <span className="px-2.5 text-[8px] font-bold text-[#626B78] uppercase tracking-widest block mb-1">Analytics</span>}
-              <button
-                onClick={() => setActiveTab("analytics")}
-                className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-lg text-xs transition text-left cursor-pointer ${activeTab === "analytics" ? "text-white bg-white/5 border-l-2 border-purple-500 pl-2 font-medium" : "text-[#8D96A3] hover:text-white hover:bg-white/5"}`}
-              >
-                <TrendingUp className="h-4 w-4 shrink-0" />
-                {!sidebarCollapsed && <span>Threat Analytics</span>}
-              </button>
-            </div>
-
-            {/* Reporting Section */}
-            <div>
-              {!sidebarCollapsed && <span className="px-2.5 text-[8px] font-bold text-[#626B78] uppercase tracking-widest block mb-1">Reporting</span>}
-              <button
-                onClick={() => setActiveTab("reports")}
-                className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-lg text-xs transition text-left cursor-pointer ${activeTab === "reports" ? "text-white bg-white/5 border-l-2 border-purple-500 pl-2 font-medium" : "text-[#8D96A3] hover:text-white hover:bg-white/5"}`}
-              >
-                <FileText className="h-4 w-4 shrink-0" />
-                {!sidebarCollapsed && <span>Reports</span>}
-              </button>
-            </div>
-
-            {/* System Section */}
-            <div>
-              {!sidebarCollapsed && <span className="px-2.5 text-[8px] font-bold text-[#626B78] uppercase tracking-widest block mb-1">System</span>}
-              <button
-                onClick={() => setActiveTab("settings")}
-                className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-lg text-xs transition text-left cursor-pointer ${activeTab === "settings" ? "text-white bg-white/5 border-l-2 border-purple-500 pl-2 font-medium" : "text-[#8D96A3] hover:text-white hover:bg-white/5"}`}
-              >
-                <Settings className="h-4 w-4 shrink-0" />
-                {!sidebarCollapsed && <span>Settings</span>}
-              </button>
-            </div>
-          </nav>
-        </div>
-
-        {/* Sidebar bottom player + Healthy badge */}
-        <div className="p-3 border-t border-white/5 flex flex-col gap-3">
-          
-          {/* Subtle Now Playing Player */}
-          {!sidebarCollapsed && (
-            <div className="mb-1">
-              <MusicPlayer />
-            </div>
-          )}
-
-          {/* System Healthy status card */}
-          {!sidebarCollapsed && (
-            <div className="flex items-center gap-2 px-2.5 py-2 bg-emerald-500/5 border border-emerald-500/10 rounded-xl text-[10px] text-emerald-400">
-              <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span>
-              <div className="flex flex-col">
-                <span className="font-bold uppercase tracking-wider text-[8px]">System Healthy</span>
-                <span className="text-[#8D96A3] text-[9px] mt-0.5">All systems operational</span>
-              </div>
-            </div>
-          )}
-
-          {/* User profile extraction */}
-          <div className="flex items-center justify-between gap-2 overflow-hidden">
-            {!sidebarCollapsed && (
-              <div className="px-2 truncate">
-                <span className="text-[10px] font-semibold text-slate-350 block truncate leading-tight">{userEmail}</span>
-                <span className="text-[9px] text-[#626B78] block">SOC Analyst</span>
-              </div>
-            )}
-            <button 
-              onClick={handleLogout}
-              className="p-2 hover:bg-rose-950/20 hover:text-rose-450 border border-white/5 rounded-lg text-[#8D96A3] transition active:scale-95 cursor-pointer ml-auto"
-              title="Logout session"
-            >
-              <LogOut className="h-3.5 w-3.5" />
-            </button>
-          </div>
-        </div>
-      </aside>
-
-      {/* Main viewport Container */}
-      <div className="flex-1 flex flex-col min-w-0 z-10">
-        
-        {/* TOP HEADER (Thin & Liquid Glass) */}
-        <header className="h-12 glass-header px-6 flex items-center justify-between sticky top-0 z-[100]">
-          <div className="flex items-center gap-3">
-            <button 
-              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-              className="p-1 hover:bg-white/5 rounded text-[#8D96A3] hover:text-white transition cursor-pointer"
-              title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-            >
-              <Menu className="h-4 w-4" />
-            </button>
-            <div className="hidden md:flex items-center gap-2 text-xs select-none">
-              <span className="font-bold text-white tracking-wide">ORION SOC</span>
-              <span className="text-[#626B78]">/</span>
-              <span className="text-[10px] font-semibold text-[#8D96A3] uppercase tracking-wider">Lead Architect</span>
-            </div>
-          </div>
-
-          {/* Global search centered bar */}
-          <div 
-            onClick={() => setCommandPaletteOpen(true)}
-            className="flex items-center gap-3 px-3 py-1.5 bg-[#080B12]/80 border border-white/5 hover:border-purple-500/40 rounded-lg text-[#8D96A3] text-xs cursor-pointer select-none transition min-w-[320px]"
-          >
-            <Search className="h-3.5 w-3.5" />
-            <span className="text-[10px]">Search incidents, hashes, IPs, domains...</span>
-            <kbd className="ml-auto text-[9px] bg-white/5 px-1.5 py-0.5 rounded border border-white/5 text-[#626B78] font-mono">⌘ K</kbd>
-          </div>
-
-          <div className="flex items-center gap-3 relative">
-            
-            {/* Theme Mode Toggle Button */}
-            <button 
-              onClick={() => setTheme(prev => prev === "dark" ? "light" : "dark")}
-              className="p-1.5 hover:bg-white/5 rounded-lg text-[#8D96A3] hover:text-white transition active:scale-90 cursor-pointer"
-              title={`Switch to ${theme === "dark" ? "Light" : "Dark"} Mode`}
-            >
-              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-            </button>
-
-            {/* Interactive Bolt Logo (Diagnostic Scan trigger) */}
-            <button 
-              onClick={runDiagnostic}
-              disabled={diagnosticRunning}
-              className={`p-1.5 hover:bg-white/5 rounded-lg transition active:scale-90 cursor-pointer ${diagnosticRunning ? "text-purple-400 animate-spin" : "text-[#8D96A3] hover:text-white"}`}
-              title="Trigger Instant System Diagnostic Scan"
-            >
-              <Zap className="h-4 w-4 fill-current" />
-            </button>
-            
-            {/* Notification bell badge */}
-            <div className="relative">
-              <button 
-                onClick={() => setNotificationsOpen(!notificationsOpen)}
-                className="p-1.5 hover:bg-white/5 rounded-lg text-[#8D96A3] hover:text-white transition cursor-pointer"
-                title="Toggle notification alerts feed"
-              >
-                <Bell className="h-4 w-4" />
-                <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-purple-500 rounded-full"></span>
-              </button>
-
-              {/* Notification dropdown dialog */}
-              {notificationsOpen && (
-                <div className="absolute right-0 mt-2.5 w-72 glass-premium rounded-xl p-3.5 shadow-2xl z-50 flex flex-col gap-2 animate-in fade-in duration-200">
-                  <div className="flex justify-between items-center pb-2 border-b border-white/5 mb-1">
-                    <span className="text-[10px] font-bold text-white uppercase tracking-wider">Alert Center</span>
-                    <button onClick={() => setNotificationsOpen(false)} className="text-[#626B78] hover:text-white transition"><X className="h-3.5 w-3.5" /></button>
-                  </div>
-                  <div className="flex flex-col gap-2.5 text-[10.5px]">
-                    <div className="flex items-start gap-2">
-                      <span className="w-1.5 h-1.5 bg-rose-500 rounded-full mt-1.5 shrink-0"></span>
-                      <div>
-                        <span className="text-white block font-medium">Critical Deepfake detected in vector #INC-782</span>
-                        <span className="text-[#626B78] text-[8.5px]">10m ago</span>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full mt-1.5 shrink-0"></span>
-                      <div>
-                        <span className="text-white block font-medium">Model retrained successfully with 15 new safe samples</span>
-                        <span className="text-[#626B78] text-[8.5px]">1h ago</span>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-1.5 shrink-0"></span>
-                      <div>
-                        <span className="text-white block font-medium">SIEM syslog sync completed - 0 alerts pending</span>
-                        <span className="text-[#626B78] text-[8.5px]">3h ago</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Profile Dropdown */}
-            <div className="relative">
-              <div 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setProfileDropdownOpen(!profileDropdownOpen);
-                }}
-                className="flex items-center gap-2.5 pl-3 border-l border-white/5 cursor-pointer select-none"
-              >
-                <div className="w-6.5 h-6.5 rounded-full overflow-hidden shrink-0">
-                  <img src="/logo.jpg" alt="Profile" className="w-full h-full object-cover" />
-                </div>
-                <div className="hidden sm:flex items-center gap-1">
-                  <span className="text-[10px] font-bold text-white block truncate w-20">{getAnalystName(userEmail)}</span>
-                  <ChevronDown className={`h-3 w-3 text-[#626B78] transition-transform duration-200 ${profileDropdownOpen ? "rotate-180" : ""}`} />
-                </div>
-              </div>
-
-              {profileDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-[#0D111A] border border-white/10 rounded-xl shadow-2xl p-2 z-50 animate-in fade-in duration-150">
-                  <div className="px-3 py-2 border-b border-white/5 mb-1.5">
-                    <span className="text-[9px] text-[#8D96A3] block uppercase tracking-wider">Active Session</span>
-                    <span className="text-[10px] font-bold text-white block truncate">{userEmail}</span>
-                  </div>
-                  <button 
-                    onClick={() => { setActiveTab("settings"); setProfileDropdownOpen(false); }}
-                    className="w-full text-left px-3 py-1.5 hover:bg-white/5 rounded-lg text-xs text-[#8D96A3] hover:text-white transition cursor-pointer"
-                  >
-                    Account Settings
-                  </button>
-                  <button 
-                    onClick={() => {
-                      localStorage.removeItem("soc_user_email");
-                      setUserEmail("");
-                      setIsLoggedIn(false);
-                      setProfileDropdownOpen(false);
-                    }}
-                    className="w-full text-left px-3 py-1.5 hover:bg-rose-500/10 rounded-lg text-xs text-rose-500 font-bold transition cursor-pointer mt-1"
-                  >
-                    Log Out Session
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        </header>
-
-        {/* Diagnostic Scan Output Toast Message */}
-        {diagnosticMessage && (
-          <div className="mx-6 mt-4 p-3 bg-emerald-950/20 border border-emerald-500/30 text-emerald-400 text-[10.5px] rounded-lg animate-in slide-in-from-top-3 flex items-center justify-between">
-            <span>{diagnosticMessage}</span>
-            <button onClick={() => setDiagnosticMessage(null)} className="text-emerald-400 hover:text-white"><X className="h-4 w-4" /></button>
-          </div>
-        )}
-
-        {apiOffline && (
-          <div className="mx-6 mt-4 p-3 bg-rose-950/20 border border-rose-500/30 text-rose-450 text-[10.5px] rounded-lg animate-in slide-in-from-top-3 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 bg-rose-500 rounded-full animate-ping"></span>
-              <span><strong>API Connection Offline:</strong> The backend threat detection service is unreachable. Make sure the backend server is running.</span>
-            </div>
-            <button 
-              onClick={() => {
-                fetchIncidents(true);
-                fetchAnalytics();
-              }} 
-              className="px-2.5 py-1 bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 rounded text-[9.5px] font-bold transition cursor-pointer"
-            >
-              Retry Connection
-            </button>
-          </div>
-        )}
-
-        {/* Dynamic centered Content area with comfortable margins */}
-        <main className="flex-1 p-6 md:p-8 overflow-y-auto max-w-[1300px] w-full mx-auto">
-
+    <AppShell
+      activeTab={activeTab}
+      setActiveTab={setActiveTab}
+      theme={theme}
+      setTheme={setTheme}
+      userEmail={userEmail}
+      onLogout={handleLogout}
+      apiOffline={apiOffline}
+      onRefresh={() => {
+        runDiagnostic();
+        fetchIncidents(true);
+        fetchAnalytics();
+      }}
+      refreshing={loadingList || diagnosticRunning}
+      incidentCount={incidents.length}
+      pendingCount={incidents.filter(i => i.status === "PENDING").length}
+      bannerMessage={diagnosticMessage}
+      onDismissBanner={() => setDiagnosticMessage(null)}
+    >
           {/* TAB 1: TRI-COLUMN security overview dashboard */}
           {activeTab === "overview" && (
             <div className="flex flex-col lg:flex-row gap-6 animate-in fade-in slide-in-from-bottom-3 duration-300">
@@ -3887,45 +3536,6 @@ export default function SOCDashboard() {
             </div>
           )}
 
-        </main>
-      </div>
-
-      {/* COMMAND PALETTE OVERLAY */}
-      {commandPaletteOpen && (
-        <div className="fixed inset-0 bg-[#080B12]/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-[#0D111A] border border-white/10 w-full max-w-lg rounded-xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="p-3 border-b border-white/5 flex items-center gap-3">
-              <Search className="h-4 w-4 text-[#8D96A3]" />
-              <input 
-                type="text" 
-                placeholder="Search anything or trigger a command..." 
-                className="bg-transparent border-0 outline-none text-xs text-white placeholder-[#626B78] w-full focus:ring-0"
-                autoFocus
-              />
-              <button onClick={() => setCommandPaletteOpen(false)} className="text-[#626B78] hover:text-white"><X className="h-4 w-4" /></button>
-            </div>
-            
-            <div className="p-2 max-h-72 overflow-y-auto flex flex-col gap-0.5">
-              {[
-                { label: "Go to Dashboard Overview", tab: "overview" },
-                { label: "Start New Investigation Scan", tab: "investigate" },
-                { label: "Open Threat Queue Ledger", tab: "incidents" },
-                { label: "View Threat Analytics metrics", tab: "analytics" },
-                { label: "Download assessment Reports", tab: "reports" },
-                { label: "Manage settings configurations", tab: "settings" }
-              ].map((cmd, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => { setActiveTab(cmd.tab); setCommandPaletteOpen(false); }}
-                  className="w-full text-left px-3 py-2 hover:bg-white/5 rounded-lg text-xs text-[#8D96A3] hover:text-white transition cursor-pointer"
-                >
-                  → {cmd.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* DUAL SIDE-PANEL: RIGHT HAND INCIDENT DETAIL DRAWER INSPECTOR */}
       {selectedId && selectedIncident && (
@@ -4133,6 +3743,6 @@ export default function SOCDashboard() {
           </div>
         </div>
       )}
-    </div>
+    </AppShell>
   );
 }

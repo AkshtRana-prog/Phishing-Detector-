@@ -1,27 +1,128 @@
 @import "tailwindcss";
 
-:root {
-  --background: #060812;
-  --bg-primary: #060812;
-  --bg-secondary: #080C16;
-  --bg-tertiary: #0B1020;
-  --foreground: #F3F5F7;
-  --surface-primary: #0D111A;
-  --surface-secondary: #111725;
+:root, :root[data-theme="dark"], .theme-dark {
+  /* Legacy compatibility */
+  --background: #0d1017;
+  --foreground: #f0f3f8;
+  --bg-primary: #0d1017;
+  --bg-secondary: #131722;
+  --bg-tertiary: #1a1f2e;
+  --surface-primary: #131722;
+  --surface-secondary: #1a1f2e;
   --border-color: rgba(255, 255, 255, 0.08);
-  --text-secondary: #8D96A3;
-  --text-muted: #626B78;
+  --text-secondary: #8d96a3;
+  --text-muted: #626b78;
 
-  /* Accent tokens */
+  /* Phase 2 Canvas & Structural Neutrals (Dark Mode) */
+  --bg-canvas: oklch(14% 0.008 250);     /* #0d1017 */
+  --bg-surface: oklch(17% 0.010 250);    /* #131722 */
+  --bg-elevated: oklch(21% 0.012 250);   /* #1a1f2e */
+  --bg-hover: oklch(25% 0.014 250);      /* #22293d */
+  --bg-active: oklch(28% 0.016 250);     /* #2a334c */
+
+  /* Hairline Borders */
+  --border-subtle: oklch(26% 0.012 250);
+  --border-strong: oklch(35% 0.018 250);
+  --border-focus: oklch(65% 0.160 255);
+
+  /* Typographic Neutrals */
+  --fg-primary: oklch(96% 0.005 250);
+  --fg-secondary: oklch(76% 0.012 250);
+  --fg-muted: oklch(55% 0.014 250);
+  --fg-code: oklch(88% 0.025 220);
+
+  /* Brand / Platform Accent */
+  --accent-base: oklch(58% 0.170 255);
+  --accent-hover: oklch(64% 0.180 255);
+  --accent-surface: oklch(22% 0.045 255);
+
+  /* Cybersecurity Semantic States */
+  --state-safe-bg: oklch(20% 0.040 150);
+  --state-safe-border: oklch(36% 0.090 150);
+  --state-safe-fg: oklch(82% 0.120 150);
+
+  --state-susp-bg: oklch(22% 0.050 75);
+  --state-susp-border: oklch(42% 0.110 75);
+  --state-susp-fg: oklch(84% 0.140 75);
+
+  --state-crit-bg: oklch(20% 0.060 25);
+  --state-crit-border: oklch(40% 0.140 25);
+  --state-crit-fg: oklch(80% 0.170 25);
+
+  --state-info-bg: oklch(20% 0.045 230);
+  --state-info-border: oklch(38% 0.100 230);
+  --state-info-fg: oklch(82% 0.130 230);
+
+  --state-neutral-bg: oklch(22% 0.010 250);
+  --state-neutral-border: oklch(32% 0.015 250);
+  --state-neutral-fg: oklch(75% 0.010 250);
+
+  /* Legacy aliases */
+  --state-safe: #21C997;
+  --state-warning: #F6B94A;
+  --state-critical: #FF5D69;
   --accent-violet: #8B5CF6;
   --accent-indigo: #6366F1;
   --accent-blue: #3B82F6;
   --accent-cyan: #22D3EE;
+}
 
-  /* Security state tokens */
-  --state-safe: #21C997;
-  --state-warning: #F6B94A;
-  --state-critical: #FF5D69;
+:root[data-theme="light"], .theme-light {
+  /* Legacy compatibility */
+  --background: #f1f3f7;
+  --foreground: #0f172a;
+  --bg-primary: #f1f3f7;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f5f7fa;
+  --surface-primary: #ffffff;
+  --surface-secondary: #f5f7fa;
+  --border-color: rgba(0, 0, 0, 0.08);
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+
+  /* Phase 2 Canvas & Structural Neutrals (Light Mode) */
+  --bg-canvas: oklch(96% 0.005 250);     /* #f1f3f7 */
+  --bg-surface: oklch(100% 0 0);         /* #ffffff */
+  --bg-elevated: oklch(97% 0.004 250);    /* #f5f7fa */
+  --bg-hover: oklch(93% 0.008 250);       /* #e8ebf2 */
+  --bg-active: oklch(90% 0.012 250);      /* #dce1eb */
+
+  /* Hairline Borders */
+  --border-subtle: oklch(88% 0.008 250);
+  --border-strong: oklch(74% 0.015 250);
+  --border-focus: oklch(50% 0.180 255);
+
+  /* Typographic Neutrals */
+  --fg-primary: oklch(18% 0.015 250);
+  --fg-secondary: oklch(38% 0.018 250);
+  --fg-muted: oklch(56% 0.015 250);
+  --fg-code: oklch(28% 0.040 250);
+
+  /* Brand / Platform Accent */
+  --accent-base: oklch(48% 0.180 255);
+  --accent-hover: oklch(42% 0.190 255);
+  --accent-surface: oklch(92% 0.035 255);
+
+  /* Cybersecurity Semantic States */
+  --state-safe-bg: oklch(93% 0.040 150);
+  --state-safe-border: oklch(75% 0.100 150);
+  --state-safe-fg: oklch(32% 0.120 150);
+
+  --state-susp-bg: oklch(94% 0.050 75);
+  --state-susp-border: oklch(78% 0.120 75);
+  --state-susp-fg: oklch(36% 0.130 75);
+
+  --state-crit-bg: oklch(93% 0.050 25);
+  --state-crit-border: oklch(76% 0.130 25);
+  --state-crit-fg: oklch(35% 0.160 25);
+
+  --state-info-bg: oklch(93% 0.040 230);
+  --state-info-border: oklch(76% 0.100 230);
+  --state-info-fg: oklch(34% 0.120 230);
+
+  --state-neutral-bg: oklch(92% 0.005 250);
+  --state-neutral-border: oklch(78% 0.010 250);
+  --state-neutral-fg: oklch(35% 0.010 250);
 }
 
 /* Glassmorphism Tiered Surfaces */
@@ -482,6 +583,17 @@
   }
 }
 
+/* Accessibility & Focus States */
+:focus-visible {
+  outline: 2px solid var(--border-focus) !important;
+  outline-offset: 2px !important;
+}
 
-
-
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
