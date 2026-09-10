@@ -432,7 +432,7 @@ export default function SOCDashboard() {
   const [logFile, setLogFile] = useState<File | null>(null);
   const [logScanning, setLogScanning] = useState(false);
   const [mediaFile, setMediaFile] = useState<File | null>(null);
-  const [mediaType, setMediaType] = useState<"audio" | "video">("video");
+  const [mediaType, setMediaType] = useState<"audio" | "video" | "photo">("video");
   const [mediaScanning, setMediaScanning] = useState(false);
 
   // Timeline progress states

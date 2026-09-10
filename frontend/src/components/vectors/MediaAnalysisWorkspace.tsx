@@ -4,6 +4,7 @@ import React, { useState, useRef } from "react";
 import { 
   Video, 
   Mic, 
+  Image,
   Upload, 
   RefreshCw, 
   ShieldAlert, 
@@ -39,8 +40,8 @@ interface IncidentDetail {
 interface MediaAnalysisWorkspaceProps {
   mediaFile: File | null;
   setMediaFile: (file: File | null) => void;
-  mediaType: "audio" | "video";
-  setMediaType: (type: "audio" | "video") => void;
+  mediaType: "audio" | "video" | "photo";
+  setMediaType: (type: "audio" | "video" | "photo") => void;
   mediaScanning: boolean;
   onStartScan: (e: React.FormEvent) => Promise<void>;
   selectedIncident: IncidentDetail | null;
@@ -64,7 +65,8 @@ export function MediaAnalysisWorkspace({
 
   const audioExts = [".wav", ".mp3", ".m4a", ".ogg", ".flac"];
   const videoExts = [".mp4", ".mov", ".avi", ".mkv", ".webm"];
-  const currentExts = mediaType === "audio" ? audioExts : videoExts;
+  const photoExts = [".jpg", ".jpeg", ".png", ".webp", ".bmp", ".tiff"];
+  const currentExts = mediaType === "audio" ? audioExts : mediaType === "photo" ? photoExts : videoExts;
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
@@ -91,13 +93,13 @@ export function MediaAnalysisWorkspace({
             <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">
               Vector // Deepfake Media Forensics
             </span>
-            <span className="text-xs font-mono text-[var(--fg-muted)]">SPECTRAL & ENTROPY ANALYSIS</span>
+            <span className="text-xs font-mono text-[var(--fg-muted)]">SPECTRAL, IMAGE & ENTROPY ANALYSIS</span>
           </div>
           <h1 className="text-xl font-bold tracking-tight text-[var(--fg-primary)]">
-            Synthetic Voice & Deepfake Video Forensics
+            Synthetic Voice, Deepfake Video & Photo Forensics
           </h1>
           <p className="text-xs text-[var(--fg-secondary)] mt-0.5">
-            Audit audio clips and video streams for AI synthesis artifacts, Shannon acoustic entropy anomalies, generative container tags, and facial frame warping.
+            Audit audio clips, video streams, and photos for AI synthesis artifacts, Shannon entropy anomalies, generative container tags, and facial frame warping.
           </p>
         </div>
 
@@ -126,6 +128,18 @@ export function MediaAnalysisWorkspace({
           >
             <Video className="h-3.5 w-3.5" />
             <span>Video Forensics</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => { setMediaType("photo"); setMediaFile(null); }}
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono font-semibold rounded transition cursor-pointer ${
+              mediaType === "photo"
+                ? "bg-[var(--accent-base)] text-white"
+                : "text-[var(--fg-secondary)] hover:text-[var(--fg-primary)]"
+            }`}
+          >
+            <Image className="h-3.5 w-3.5" />
+            <span>Photo Forensics</span>
           </button>
         </div>
       </div>
@@ -159,7 +173,7 @@ export function MediaAnalysisWorkspace({
             />
 
             <div className="p-3 rounded-full bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-amber-400 shadow-sm">
-              {mediaType === "audio" ? <Mic className="h-6 w-6" /> : <Video className="h-6 w-6" />}
+              {mediaType === "audio" ? <Mic className="h-6 w-6" /> : mediaType === "photo" ? <Image className="h-6 w-6" /> : <Video className="h-6 w-6" />}
             </div>
 
             <div className="text-center">
@@ -176,7 +190,7 @@ export function MediaAnalysisWorkspace({
               ) : (
                 <>
                   <p className="text-xs font-semibold text-[var(--fg-primary)]">
-                    Drop {mediaType === "audio" ? "audio" : "video"} recording file here, or click to browse
+                    Drop {mediaType === "audio" ? "audio" : mediaType === "photo" ? "photo / image" : "video"} recording file here, or click to browse
                   </p>
                   <p className="text-[11px] text-[var(--fg-muted)] font-mono mt-1">
                     Supported: {currentExts.join(", ")}
@@ -190,6 +204,8 @@ export function MediaAnalysisWorkspace({
             <div className="text-[10px] font-mono text-[var(--fg-muted)]">
               {mediaType === "audio"
                 ? "Forensics: Shannon Acoustic Entropy (<7.82 threshold) · Wav2Vec 2.0 voice synthesis tags · Vocal jitter"
+                : mediaType === "photo"
+                ? "Forensics: Generative AI image tags · Spatial compression entropy · Neural facial warping & blending artifacts"
                 : "Forensics: Runway / Sora / FaceFusion binary tags · Visual frame compression entropy · Audio-less track anomaly"}
             </div>
 

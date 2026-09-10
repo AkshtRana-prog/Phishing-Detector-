@@ -3,10 +3,10 @@
  
  -------------- celery@kali v5.6.3 (recovery)
 --- ***** ----- 
--- ******* ---- Linux-6.18.12+kali-amd64-x86_64-with-glibc2.42 2026-08-24 10:39:07
+-- ******* ---- Linux-6.18.12+kali-amd64-x86_64-with-glibc2.42 2026-09-10 10:48:54
 - *** --- * --- 
 - ** ---------- [config]
-- ** ---------- .> app:         tasks:0x7ff3885f1e80
+- ** ---------- .> app:         tasks:0x7f47c7adde80
 - ** ---------- .> transport:   redis://localhost:6379/0
 - ** ---------- .> results:     redis://localhost:6379/0
 - *** --- * --- .> concurrency: 12 (prefork)
@@ -22,13 +22,5 @@
   . backend.app.tasks.analyze_log_task
   . backend.app.tasks.analyze_url_task
 
-[2026-08-24 10:39:09,668: INFO/MainProcess] Connected to redis://localhost:6379/0
-[2026-08-24 10:39:09,689: INFO/MainProcess] mingle: searching for neighbors
-[2026-08-24 10:39:10,722: INFO/MainProcess] mingle: all alone
-[2026-08-24 10:39:10,783: INFO/MainProcess] celery@kali ready.
-
-worker: Hitting Ctrl+C again will initiate cold shutdown, terminating all running tasks!
-
-worker: Warm shutdown (MainProcess)
-
-worker: Warm shutdown (MainProcess)
+[2026-09-10 10:48:55,939: INFO/MainProcess] Connected to redis://localhost:6379/0
+[2026-09-10 10:48:55,948: INFO/MainProcess] mingle: searching for neighbors

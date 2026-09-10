@@ -217,6 +217,8 @@ def analyze_deepfake_task(incident_id, file_path, media_type):
 
         if media_type == "audio":
             res = df_classifier.analyze_audio(file_path)
+        elif media_type in ["photo", "image"]:
+            res = df_classifier.analyze_photo(file_path)
         else:
             res = df_classifier.analyze_video(file_path)
 
@@ -243,13 +245,24 @@ def analyze_deepfake_task(incident_id, file_path, media_type):
         # Save Evidence
         db.add(Evidence(
             incident_id=incident_id,
+            key="AI Generation Status",
+            value="CONFIRMED AI GENERATED" if res.get("ai_generated") else "ORGANIC / AUTHENTIC MEDIA"
+        ))
+        if res.get("detected_generator"):
+            db.add(Evidence(
+                incident_id=incident_id,
+                key="Detected AI Generator",
+                value=res["detected_generator"]
+            ))
+        db.add(Evidence(
+            incident_id=incident_id,
             key="Deepfake Detection Method",
             value=res["method"]
         ))
         db.add(Evidence(
             incident_id=incident_id,
             key="Model Prediction",
-            value=f"Label: {label} (Confidence: {res['confidence']:.2f}, ML: {res['is_ml']})"
+            value=f"Label: {label} (Confidence: {res['confidence']:.2f}, ML: {res.get('is_ml', False)})"
         ))
         db.add(Evidence(
             incident_id=incident_id,

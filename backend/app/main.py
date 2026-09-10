@@ -165,13 +165,13 @@ def analyze_eml(file: UploadFile = File(...), x_user_email: Optional[str] = Head
 
 @app.post("/analyze/deepfake", status_code=202)
 def analyze_deepfake(
-    media_type: str = Form(...), # "audio" or "video"
+    media_type: str = Form(...), # "audio", "video", "photo", or "image"
     file: UploadFile = File(...),
     x_user_email: Optional[str] = Header(None),
     db: Session = Depends(get_db)
 ):
-    if media_type not in ["audio", "video"]:
-        raise HTTPException(status_code=400, detail="media_type must be either 'audio' or 'video'")
+    if media_type not in ["audio", "video", "photo", "image"]:
+        raise HTTPException(status_code=400, detail="media_type must be 'audio', 'video', 'photo', or 'image'")
 
     incident_id = str(uuid.uuid4())
     ext = file.filename.split(".")[-1]
@@ -286,8 +286,8 @@ def train_model_from_scan(incident_id: str, req: TrainModelRequest, db: Session 
         raise HTTPException(status_code=400, detail="Incident scan is still in progress")
         
     label = req.label.upper()
-    if label not in ("PHISHING", "SAFE", "SUSPICIOUS"):
-        raise HTTPException(status_code=400, detail="Invalid label. Must be PHISHING, SAFE, or SUSPICIOUS")
+    if label not in ("PHISHING", "SAFE", "SUSPICIOUS", "DEEPFAKE"):
+        raise HTTPException(status_code=400, detail="Invalid label. Must be PHISHING, SAFE, SUSPICIOUS, or DEEPFAKE")
         
     from backend.app.ml.self_learning import self_learning_classifier
     
@@ -312,7 +312,10 @@ def train_model_from_scan(incident_id: str, req: TrainModelRequest, db: Session 
     
     # Update incident record classification
     incident.status = label
-    if label == "PHISHING":
+    if label == "DEEPFAKE":
+        incident.severity = "CRITICAL"
+        incident.threat_score = max(incident.threat_score, 90)
+    elif label == "PHISHING":
         incident.severity = "HIGH"
         incident.threat_score = max(incident.threat_score, 85)
     elif label == "SUSPICIOUS":

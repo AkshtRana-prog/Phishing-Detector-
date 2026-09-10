@@ -42,8 +42,8 @@ interface InvestigationWorkspaceProps {
   // Media scan
   mediaFile: File | null;
   setMediaFile: (file: File | null) => void;
-  mediaType: "video" | "audio";
-  setMediaType: (type: "video" | "audio") => void;
+  mediaType: "video" | "audio" | "photo";
+  setMediaType: (type: "video" | "audio" | "photo") => void;
   onStartMediaScan: (e: React.FormEvent) => Promise<void>;
   mediaScanning: boolean;
   // Global scanning
@@ -373,11 +373,20 @@ export function InvestigationWorkspace({
                 >
                   Audio
                 </button>
+                <button
+                  type="button"
+                  onClick={() => setMediaType("photo")}
+                  className={`px-2 py-0.5 rounded transition ${
+                    mediaType === "photo" ? "bg-[var(--accent-base)] text-white font-bold" : "text-[var(--fg-muted)]"
+                  }`}
+                >
+                  Photo
+                </button>
               </div>
 
               <input
                 type="file"
-                accept={mediaType === "video" ? ".mp4,.avi,.mov" : ".mp3,.wav"}
+                accept={mediaType === "video" ? ".mp4,.avi,.mov" : mediaType === "photo" ? ".jpg,.jpeg,.png,.webp" : ".mp3,.wav"}
                 onChange={(e) => setMediaFile(e.target.files?.[0] || null)}
                 required
                 disabled={mediaScanning}

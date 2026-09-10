@@ -1,7 +1,7 @@
 {
   "class_counts": {
-    "PHISHING": 33,
-    "SAFE": 17
+    "PHISHING": 38,
+    "SAFE": 18
   },
   "token_counts": {
     "paypal-security-update": {
@@ -9,8 +9,8 @@
       "SAFE": 0
     },
     "com": {
-      "PHISHING": 16,
-      "SAFE": 11
+      "PHISHING": 18,
+      "SAFE": 12
     },
     "login-microsoft-auth": {
       "PHISHING": 1,
@@ -85,7 +85,7 @@
       "SAFE": 0
     },
     "login": {
-      "PHISHING": 9,
+      "PHISHING": 11,
       "SAFE": 8
     },
     "to": {
@@ -162,7 +162,7 @@
     },
     "google": {
       "PHISHING": 0,
-      "SAFE": 1
+      "SAFE": 2
     },
     "facebook": {
       "PHISHING": 0,
@@ -301,31 +301,31 @@
       "SAFE": 0
     },
     "media": {
-      "PHISHING": 4,
+      "PHISHING": 7,
       "SAFE": 1
     },
     "deepfake": {
-      "PHISHING": 4,
+      "PHISHING": 7,
       "SAFE": 1
     },
     "analysis": {
-      "PHISHING": 4,
+      "PHISHING": 7,
       "SAFE": 1
     },
     "file": {
-      "PHISHING": 4,
+      "PHISHING": 7,
       "SAFE": 1
     },
     "8090193-": {
-      "PHISHING": 1,
+      "PHISHING": 2,
       "SAFE": 0
     },
     "mp4": {
-      "PHISHING": 4,
+      "PHISHING": 5,
       "SAFE": 1
     },
     "video": {
-      "PHISHING": 5,
+      "PHISHING": 6,
       "SAFE": 0
     },
     "utf-8": {
@@ -401,7 +401,7 @@
       "SAFE": 4
     },
     "2026": {
-      "PHISHING": 0,
+      "PHISHING": 1,
       "SAFE": 4
     },
     "avail": {
@@ -1109,7 +1109,7 @@
       "SAFE": 4
     },
     "http": {
-      "PHISHING": 4,
+      "PHISHING": 6,
       "SAFE": 4
     },
     "www": {
@@ -1225,7 +1225,7 @@
       "SAFE": 2
     },
     "insecure-ssl": {
-      "PHISHING": 4,
+      "PHISHING": 6,
       "SAFE": 2
     },
     "recovery-codes": {
@@ -1249,11 +1249,39 @@
       "SAFE": 0
     },
     "paypa1-secure-login": {
-      "PHISHING": 3,
+      "PHISHING": 5,
       "SAFE": 0
     },
     "example": {
-      "PHISHING": 3,
+      "PHISHING": 5,
+      "SAFE": 0
+    },
+    "png": {
+      "PHISHING": 2,
+      "SAFE": 0
+    },
+    "photo": {
+      "PHISHING": 2,
+      "SAFE": 0
+    },
+    "chatgpt": {
+      "PHISHING": 1,
+      "SAFE": 0
+    },
+    "image": {
+      "PHISHING": 1,
+      "SAFE": 0
+    },
+    "aug": {
+      "PHISHING": 1,
+      "SAFE": 0
+    },
+    "30": {
+      "PHISHING": 1,
+      "SAFE": 0
+    },
+    "pm": {
+      "PHISHING": 1,
       "SAFE": 0
     }
   }
